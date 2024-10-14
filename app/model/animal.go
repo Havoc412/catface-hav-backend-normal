@@ -1,5 +1,16 @@
 package model
 
+import (
+	"catface/app/global/variable"
+	"catface/app/utils/gorm_v2"
+
+	"go.uber.org/zap"
+)
+
+func CreateAnimalFactory(sqlType string) *Animal {
+	return &Animal{BaseModel: BaseModel{DB: UseDbConn(sqlType)}}
+}
+
 type Animal struct {
 	BaseModel              // 假设 BaseModel 中不需要添加 omitempty 标签
 	Name           string  `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
@@ -21,37 +32,35 @@ type Animal struct {
 	Tags           string  `json:"tags,omitempty"` // 活动半径
 }
 
-type Breed struct {
-	BriefModel
+func (a *Animal) TableName() string {
+	return "animals"
 }
 
-type Sterilzation struct { // TEST How to use BriefModel, the dif between Common
-	Id     int64  `json:"id"`
-	NameZh string `json:"name_zh"`
-	NameEn string `json:"name_en"`
+func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilzation []uint8, status []uint8, num int, skip int) (temp []Animal) {
+	db := a.DB.Table(a.TableName()).Limit(int(num)).Offset(int(skip)).Select(attrs)
+
+	// 创建条件映射
+	conditions := map[string][]uint8{
+		"gender":        gender,
+		"breed":         breed,
+		"sterilization": sterilzation,
+		"status":        status,
+	}
+
+	db = gorm_v2.BuildWhere(db, conditions)
+
+	err := db.Find(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Animal Show Error", zap.Error(err))
+	}
+	return
 }
 
-type AnmStatus struct {
-	BriefModel
-}
-
-type AnmGender struct {
-	BriefModel
-}
-
-/**
- * @description: 保留 Top 3, 辅助 catface - breed 子模型判断； 单独建表，因为只会被 CatFace 模块使用。
- * @return {*}
- */
-type AnmFaceBreed struct { // TODO 迁移 python 的时候再考虑一下细节
-	BriefModel
-	Top1  uint8
-	Prob1 float64
-	Top2  uint8
-	Prob2 float64
-	Top3  uint8
-	Prob3 float64
-
-	AnimalId int64 // INFO 外键设定?
-	Animal   Animal
+func (a *Animal) ShowByID(id int) *Animal {
+	var temp Animal
+	err := a.DB.Table(a.TableName()).Model(&temp).Where("id = ?", id).Scan(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Animal ShowByID Error", zap.Error(err))
+	}
+	return &temp
 }

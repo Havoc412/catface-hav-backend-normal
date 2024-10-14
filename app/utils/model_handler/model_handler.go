@@ -30,7 +30,7 @@ func getProcessedJSONTag(field reflect.StructField) string {
 }
 
 func GetModelField(v interface{}) map[string]bool {
-	t := reflect.TypeOf(v)
+	t := reflect.TypeOf(v) // TODO 特化处理掉 BaseModel 这样的继承字段
 
 	fieldMap := make(map[string]bool)
 	for i := 0; i < t.NumField(); i++ {

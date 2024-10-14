@@ -17,7 +17,7 @@ import (
 // 参数说明： 传递空值，默认使用 配置文件选项：UseDbType（mysql）
 
 func CreateUserFactory(sqlType string) *UsersModel {
-	return &UsersModel{BaseModel: BaseModel{DB: UseDbConn(sqlType)}}
+	return &UsersModel{BaseModel: BaseModel{DB: UseDbConn(sqlType)}} // INFO 这里补充 DB 的指针
 }
 
 type UsersModel struct {
