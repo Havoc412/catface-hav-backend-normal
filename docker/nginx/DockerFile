@@ -1,0 +1,26 @@
+# 使用官方的nginx基础镜像
+FROM nginx
+
+# 复制nginx配置文件到容器中
+COPY ./docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY ./docker/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# 挂载宿主机目录到容器中
+VOLUME ["/mnt/data", "/var/log/nginx"]
+
+
+# BUG 以下配置有问题！！！
+# 将宿主机的nginx日志目录映射到容器中
+RUN ln -sf ./store/logs/nginx /var/log/nginx
+
+# 将宿主机的nginx配置目录映射到容器中
+RUN ln -sf /etc/nginx/nginx.conf /etc/nginx/nginx.conf
+
+# 将宿主机的nginx html目录映射到容器中
+RUN ln -sf ./public/nginx /mnt/data
+
+# 暴露80端口
+EXPOSE 80
+
+# 启动nginx容器
+CMD ["nginx", "-g", "daemon off;"]

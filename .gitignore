@@ -1,0 +1,9 @@
+.vscode/
+
+# data
+public/*
+
+# logs
+store/logs/*
+
+tmp/*
