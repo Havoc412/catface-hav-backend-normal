@@ -7,6 +7,7 @@ import (
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
@@ -30,11 +31,10 @@ func (a *Animals) List(context *gin.Context) {
 	}
 }
 
-// v1
+// v0.1
 // func (a *Animals) Detail(context *gin.Context) {
 // 	// 1. Get Params
 // 	anmId, err := strconv.Atoi(context.Param("anm_id"))
-
 // 	// 2. Select & Filter
 // 	var animal model.Animal
 // 	err = variable.GormDbMysql.Table("animals").Model(&animal).Where("id = ?", anmId).Scan(&animal).Error // TIP GORM.First 采取默认的

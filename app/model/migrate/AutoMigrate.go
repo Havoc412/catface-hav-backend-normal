@@ -14,7 +14,7 @@ var DB *gorm.DB // 这种写法是方柏包外使用
 
 // 自动迁移表
 func autoMigrateTable() {
-	err := DB.AutoMigrate(&model.Animal{}, &model.Breed{}, &model.Sterilzation{}, &model.AnmStatus{}, &model.AnmGender{})
+	err := DB.AutoMigrate(&model.Animal{}, &model.AnmBreed{}, &model.AnmSterilzation{}, &model.AnmStatus{}, &model.AnmGender{})
 	if err != nil {
 		fmt.Println("autoMigrateTable error:", err)
 	}
@@ -26,7 +26,7 @@ func testInsertSterilzation() {
 	statusesEN := []string{"unknown", "unsterilized", "sterilized"}
 
 	for i := 0; i < len(statusesZH); i++ {
-		sterilzation := model.Sterilzation{
+		sterilzation := model.AnmSterilzation{
 			NameZh: statusesZH[i],
 			NameEn: statusesEN[i],
 		}
@@ -43,7 +43,7 @@ func testInsertBreed() {
 	colorsZH := []string{"不明", "橘白", "奶牛", "白猫", "黑猫", "橘猫", "狸花", "狸白", "简州", "三花", "彩狸"}
 	colorsEN := []string{"unknown", "orange", "cow", "white", "black", "orangeCat", "tabby", "tabbyWhite", "jianzhong", "threeColor", "colorCat"}
 	for i := 0; i < len(colorsZH); i++ {
-		breed := model.Breed{
+		breed := model.AnmBreed{
 			BriefModel: model.BriefModel{
 				NameZh: colorsZH[i],
 				NameEn: colorsEN[i],
@@ -102,11 +102,11 @@ func insertData() {
 	testInsertBreed()
 	fmt.Println("testInsertBreed success.")
 
-	testInsertStatus()
-	fmt.Println("testInsertStatus success.")
+	// testInsertStatus()
+	// fmt.Println("testInsertStatus success.")
 
-	testInsertAnmGender()
-	fmt.Println("testInsertAnmGender success.")
+	// testInsertAnmGender()
+	// fmt.Println("testInsertAnmGender success.")
 }
 
 func main() {

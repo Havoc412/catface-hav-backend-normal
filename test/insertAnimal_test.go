@@ -127,7 +127,6 @@ func TestCreateAnimal(t *testing.T) {
 
 	// 插入数据到数据库
 	result := DB.Create(&animal)
-
 	// 检查插入是否成功
 	assert.Nil(t, result.Error)
 
