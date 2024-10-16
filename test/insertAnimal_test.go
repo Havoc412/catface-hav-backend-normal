@@ -36,13 +36,13 @@ const (
 		"Latitude": 30.532645,
 		"Longitude": 114.367661,
 		"Avatar": "1.jpg",
-		"AvatarHeight":   178,
-		"AvatarWidth":    118,
-		"HeadImg":        "1.jpg",
+		"avatar_height":   178,
+		"avatar_width":    118,
+		"head_img":        "1.jpg",
 		"Photos":         "",
-		"ActivityRadius": 100,
+		"activity_radius": 100,
 		"Tags": "",
-		"NickName": "胖北,北子",
+		"nick_names": "胖北,北子",
 		"face_breeds":     "10,8,2",
 		"face_breed_probs": "0.9,0.09,0.01"
 	}, {
@@ -56,11 +56,11 @@ const (
 		"Latitude": 30.532645,
 		"Longitude": 114.367661,
 		"Avatar": "2.jpg",
-		"AvatarHeight":   160,
-		"AvatarWidth":    213,
-		"HeadImg":        "2.jpg",
+		"avatar_height":   160,
+		"avatar_width":    213,
+		"head_img":        "2.jpg",
 		"Photos":         "",
-		"ActivityRadius": 100,
+		"activity_radius": 100,
 		"NickName": "打人三花,小花",
 		"Tags": "",
 		"face_breeds":     "10,8,2",
@@ -76,11 +76,11 @@ const (
 		"Latitude": 30.532645,
 		"Longitude": 114.367661,
 		"Avatar": "4.jpg",
-		"AvatarHeight":   191,
-		"AvatarWidth":    160,		
-		"HeadImg":        "4.jpg",
+		"avatar_height":   191,
+		"avatar_width":    160,		
+		"head_img":        "4.jpg",
 		"Photos":         "0.png,1.jpg,3.jpg",
-		"ActivityRadius": 100,
+		"activity_radius": 100,
 		"nick_names": "猜皮,猪",
 		"Tags": "臭脸,猜皮,玉玉",
 		"face_breeds":     "2,6,4",
@@ -97,11 +97,11 @@ const (
 		"Latitude": 30.532645,
 		"Longitude": 114.367661,
 		"Avatar": "6.jpg",
-		"AvatarHeight":   408,
-		"AvatarWidth":    306,
-		"HeadImg":        "6.jpg",
+		"avatar_height":   408,
+		"avatar_width":    306,
+		"head_img":        "6.jpg",
 		"Photos":         "",
-		"ActivityRadius": 100,
+		"activity_radius": 100,
 		"face_breeds":     "8,7,5",
 		"face_breed_probs": "0.8,0.19,0.01"
 	}]`
@@ -161,7 +161,6 @@ func TestCreateAnimalList(t *testing.T) {
 	}
 
 	for _, animal := range animals {
-		fmt.Println("animal:", animal)
 		animal := model.Animal{
 			Name:           animal.Name,
 			Birthday:       animal.Birthday,
@@ -183,8 +182,6 @@ func TestCreateAnimalList(t *testing.T) {
 			FaceBreedProbs: animal.FaceBreedProbs,
 			Tags:           animal.Tags,
 		}
-
-		fmt.Println("TEST: ", animal.FaceBreeds, animal.FaceBreedProbs)
 
 		result := DB.Create(&animal)
 
