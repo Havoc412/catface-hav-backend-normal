@@ -45,7 +45,6 @@ func WebRegisterValidator() {
 	// Tag Animal
 	key = consts.ValidatorPrefix + "AnimalList"
 	containers.Set(key, animal.List{})
-
 	key = consts.ValidatorPrefix + "AnimalDetail"
 	containers.Set(key, animal.Detail{})
 }
