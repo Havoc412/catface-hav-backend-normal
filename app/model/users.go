@@ -22,11 +22,15 @@ func CreateUserFactory(sqlType string) *UsersModel {
 
 type UsersModel struct {
 	BaseModel
-	UserName    string `gorm:"column:user_name" json:"user_name"`
-	Pass        string `json:"-"`
-	Phone       string `json:"phone"`
-	RealName    string `gorm:"column:real_name" json:"real_name"`
-	Status      int    `json:"status"`
+	UserName string `gorm:"column:user_name" json:"user_name"`
+	Pass     string `json:"-"` // INFO 暂时用不到，但先保留。
+	Phone    string `json:"phone"`
+	RealName string `gorm:"column:real_name" json:"real_name"`
+	// TAG 微信
+	OpenId     string `gorm:"column:open_id;size:35" json:"open_id"`
+	SessionKey string `gorm:"column:session_key;size:35" json:"session_key"`
+	// TAG 状态管理
+	Status      int    `json:"status"` // QUESTION
 	Token       string `json:"token"`
 	LastLoginIp string `gorm:"column:last_login_ip" json:"last_login_ip"`
 }
