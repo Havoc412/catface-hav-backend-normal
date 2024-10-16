@@ -12,24 +12,29 @@ func CreateAnimalFactory(sqlType string) *Animal {
 }
 
 type Animal struct {
-	BaseModel              // 假设 BaseModel 中不需要添加 omitempty 标签
-	Name           string  `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
-	Birthday       string  `json:"birthday,omitempty"`                                                // 生日
-	Gender         uint8   `json:"gender,omitempty"`                                                  // 性别
-	Breed          uint8   `json:"breed,omitempty"`                                                   // 品种
-	Sterilization  uint8   `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
-	NickName       string  `gorm:"type:varchar(31)" json:"nick_name,omitempty"`                       // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
-	Status         uint8   `json:"status,omitempty"`                                                  // 状态
-	Description    string  `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
-	Avatar         string  `gorm:"type:varchar(10)" json:"avatar,omitempty"`                          // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。
-	AvatarHeight   uint16  `json:"avatar_height,omitempty"`                                           // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。
-	AvatarWidth    uint16  `json:"avatar_width,omitempty"`                                            // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。
-	HeadImg        string  `gorm:"type:varchar(10)" json:"head_img,omitempty"`                        // Head 默认处理为正方形。
-	Photos         string  `gorm:"type:varchar(100)" json:"photos,omitempty"`                         // 图片数组
-	Latitude       float64 `json:"latitude,omitempty"`                                                // POI 位置相关
-	Longitude      float64 `json:"longitude,omitempty"`                                               // POI 位置相关
-	ActivityRadius uint64  `json:"activity_radius,omitempty"`
-	Tags           string  `json:"tags,omitempty"` // 活动半径
+	BaseModel            // 假设 BaseModel 中不需要添加 omitempty 标签
+	Name          string `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
+	Birthday      string `json:"birthday,omitempty"`                                                // 生日
+	Gender        uint8  `json:"gender,omitempty"`                                                  // 性别
+	Breed         uint8  `json:"breed,omitempty"`                                                   // 品种
+	Sterilization uint8  `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
+	NickName      string `gorm:"type:varchar(31)" json:"nick_name,omitempty"`                       // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
+	Status        uint8  `json:"status,omitempty"`                                                  // 状态
+	Description   string `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
+	Tags          string `json:"tags,omitempty"`
+	// TAG imaegs
+	Avatar       string `gorm:"type:varchar(10)" json:"avatar,omitempty"`   // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。
+	AvatarHeight uint16 `json:"avatar_height,omitempty"`                    // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。  // INFO 暂时没用到
+	AvatarWidth  uint16 `json:"avatar_width,omitempty"`                     // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。
+	HeadImg      string `gorm:"type:varchar(10)" json:"head_img,omitempty"` // Head 默认处理为正方形。
+	Photos       string `gorm:"type:varchar(100)" json:"photos,omitempty"`  // 图片数组
+	// TAG POI
+	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
+	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关
+	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径
+	// CatFace
+	FaceBreeds     string `json:"face_breeds,omitempty" gorm:"size:20"`
+	FaceBreedProbs string `json:"face_breed_probs" gorm:"size:20"`
 }
 
 func (a *Animal) TableName() string {

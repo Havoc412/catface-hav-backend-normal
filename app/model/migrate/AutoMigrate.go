@@ -40,8 +40,12 @@ func testInsertSterilzation() {
 
 func testInsertBreed() {
 	// INFO 为方便之后扩展，将 unknown 默认为  1
-	colorsZH := []string{"不明", "橘白", "奶牛", "白猫", "黑猫", "橘猫", "狸花", "狸白", "简州", "三花", "彩狸"}
-	colorsEN := []string{"unknown", "orange", "cow", "white", "black", "orangeCat", "tabby", "tabbyWhite", "jianzhong", "threeColor", "colorCat"}
+	colorsZH := []string{
+		"不明", "橘白", "奶牛", "白猫", "黑猫", "橘猫", "狸花", "狸白", "三花", "玳瑁", "简州", "彩狸",
+	}
+	colorsEN := []string{
+		"unknown", "orgwhite", "milk", "white", "black", "orange", "li", "liwhite", "flower", "tortoiseshell", "jianzhou", "color",
+	}
 	for i := 0; i < len(colorsZH); i++ {
 		breed := model.AnmBreed{
 			BriefModel: model.BriefModel{
@@ -96,8 +100,8 @@ func testInsertStatus() {
 }
 
 func insertData() {
-	testInsertSterilzation()
-	fmt.Println("testInsertSterilzation success.")
+	// testInsertSterilzation()
+	// fmt.Println("testInsertSterilzation success.")
 
 	testInsertBreed()
 	fmt.Println("testInsertBreed success.")
@@ -123,5 +127,5 @@ func main() {
 	autoMigrateTable()
 	fmt.Println("autoMigrateTable over.")
 
-	// insertData() // INFO 记得用完注释掉
+	insertData() // INFO 记得用完注释掉
 }
