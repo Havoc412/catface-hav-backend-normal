@@ -41,7 +41,10 @@ const (
 		"HeadImg":        "1.jpg",
 		"Photos":         "",
 		"ActivityRadius": 100,
-		"NickName": "胖北,北子"
+		"Tags": "",
+		"NickName": "胖北,北子",
+		"face_breeds":     "10,8,2",
+		"face_breed_probs": "0.9,0.09,0.01"
 	}, {
 		"Name": "打三",
 		"Birthday": "2019-01-01",
@@ -58,7 +61,10 @@ const (
 		"HeadImg":        "2.jpg",
 		"Photos":         "",
 		"ActivityRadius": 100,
-		"NickName": "打人三花,小花"
+		"NickName": "打人三花,小花",
+		"Tags": "",
+		"face_breeds":     "10,8,2",
+		"face_breed_probs": "0.9,0.09,0.01"
 	}, {
 		"Name": "猪皮",
 		"Birthday": "2017-01-01",
@@ -71,18 +77,20 @@ const (
 		"Longitude": 114.367661,
 		"Avatar": "4.jpg",
 		"AvatarHeight":   191,
-		"AvatarWidth":    160,
+		"AvatarWidth":    160,		
 		"HeadImg":        "4.jpg",
 		"Photos":         "0.png,1.jpg,3.jpg",
 		"ActivityRadius": 100,
-		"ActivityRadius": 100,
-		"NickName": "猜皮,猪",
-		"Tags": "臭脸,猜皮,玉玉"
+		"nick_names": "猜皮,猪",
+		"Tags": "臭脸,猜皮,玉玉",
+		"face_breeds":     "2,6,4",
+		"face_breed_probs": "0.9,0.09,0.01"
 	}, {
 		"Name": "切糕",
 		"Birthday": "2022-01-01",
 		"Gender": 2,
 		"Breed": 8,
+		"Tags": "",
 		"Status": 1,
 		"Sterilization": 1,
 		"Description": "脾气老实的男妈妈；活动在湖滨区域；身边还有一只狸花猫叫做小蝶；",
@@ -93,7 +101,9 @@ const (
 		"AvatarWidth":    306,
 		"HeadImg":        "6.jpg",
 		"Photos":         "",
-		"ActivityRadius": 100
+		"ActivityRadius": 100,
+		"face_breeds":     "8,7,5",
+		"face_breed_probs": "0.8,0.19,0.01"
 	}]`
 )
 
@@ -112,7 +122,7 @@ func TestCreateAnimal(t *testing.T) {
 		Gender:         3,
 		Breed:          3, // 示例品种 ID
 		Sterilization:  2, // 已绝育
-		NickName:       "cc5,西西务,西西务小姐",
+		NickNames:      "cc5,西西务,西西务小姐",
 		Status:         1, // 示例状态
 		Description:    "信部资深学姐,优雅的代名。",
 		Latitude:       30.532645,
@@ -123,6 +133,9 @@ func TestCreateAnimal(t *testing.T) {
 		HeadImg:        "0.jpg",
 		Photos:         "",
 		ActivityRadius: 100,
+		Tags:           "优雅",
+		FaceBreeds:     "3,4,5",
+		FaceBreedProbs: "0.9,0.05,0.05",
 	}
 
 	// 插入数据到数据库
@@ -148,13 +161,14 @@ func TestCreateAnimalList(t *testing.T) {
 	}
 
 	for _, animal := range animals {
+		fmt.Println("animal:", animal)
 		animal := model.Animal{
 			Name:           animal.Name,
 			Birthday:       animal.Birthday,
 			Gender:         animal.Gender,
 			Breed:          animal.Breed,
 			Sterilization:  animal.Sterilization,
-			NickName:       animal.NickName,
+			NickNames:      animal.NickNames,
 			Status:         animal.Status,
 			Description:    animal.Description,
 			Latitude:       animal.Latitude,
@@ -165,8 +179,12 @@ func TestCreateAnimalList(t *testing.T) {
 			HeadImg:        animal.HeadImg,
 			Photos:         animal.Photos,
 			ActivityRadius: animal.ActivityRadius,
+			FaceBreeds:     animal.FaceBreeds,
+			FaceBreedProbs: animal.FaceBreedProbs,
 			Tags:           animal.Tags,
 		}
+
+		fmt.Println("TEST: ", animal.FaceBreeds, animal.FaceBreedProbs)
 
 		result := DB.Create(&animal)
 

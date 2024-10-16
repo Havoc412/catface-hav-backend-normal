@@ -18,7 +18,7 @@ type Animal struct {
 	Gender        uint8  `json:"gender,omitempty"`                                                  // 性别
 	Breed         uint8  `json:"breed,omitempty"`                                                   // 品种
 	Sterilization uint8  `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
-	NickName      string `gorm:"type:varchar(31)" json:"nick_name,omitempty"`                       // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
+	NickNames     string `gorm:"type:varchar(31)" json:"nick_names,omitempty"`                      // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
 	Status        uint8  `json:"status,omitempty"`                                                  // 状态
 	Description   string `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
 	Tags          string `json:"tags,omitempty"`
@@ -34,7 +34,7 @@ type Animal struct {
 	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径
 	// CatFace
 	FaceBreeds     string `json:"face_breeds,omitempty" gorm:"size:20"`
-	FaceBreedProbs string `json:"face_breed_probs" gorm:"size:20"`
+	FaceBreedProbs string `json:"face_breed_probs,omitempty" gorm:"size:20"`
 }
 
 func (a *Animal) TableName() string {
