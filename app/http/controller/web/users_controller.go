@@ -8,11 +8,9 @@ import (
 	userstoken "catface/app/service/users/token"
 	"catface/app/service/weixin"
 	"catface/app/utils/response"
-	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 type Users struct {
@@ -38,7 +36,7 @@ func (u *Users) Login(context *gin.Context) {
 	userName := context.GetString(consts.ValidatorPrefix + "user_name")
 	pass := context.GetString(consts.ValidatorPrefix + "pass")
 	phone := context.GetString(consts.ValidatorPrefix + "phone")
-	
+
 	// 1. 先检查 账号密码是否正确，然后再检查 Token 状态。
 	userModelFact := model.CreateUserFactory("")
 	userModel := userModelFact.Login(userName, pass)
@@ -157,28 +155,30 @@ func (u *Users) WeixinLogin(context *gin.Context) {
 	userIp := context.ClientIP() // INFO 通过上下文获取 IP 信息。
 
 	// 1. 访问 微信 API 获取 openid
-	openId, err := weixin.Code2Session(code)
+	weixinRes, err := weixin.Code2Session(code)
 	if err != nil {
 		// 解析微信登录成功，返回用户信息
-		fmt.Println(err) // TODO 换成 LOG
-		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
+		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, err)
+		return
 	}
 
 	// 2. 执行 CURD
-	if UsersModel, err := curd.CreateUserFactory().WeixinLogin(openId, userName, userAvatar) {
-		if userId > 0 {
+	user, err := model.CreateUserFactory("mysql").WeixinLogin(weixinRes.OpenId, weixinRes.SessionKey, userName, userAvatar, userIp)
+	if err == nil && user != nil {
+		if user.Id > 0 {
 			// 3. 生成 token
-			token, err := userstoken.CreateUserFactory().GenerateToken(userId, userName, "", 0)
+			token, err := userstoken.CreateUserFactory().GenerateToken(user.Id, userName, "", 0)
 			if err != nil {
-				response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
+				response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, err)
+				return
 			}
-
 			// 4. 返回 token
 			res := gin.H{
-				"userId": UsersModel.userId,
-				"permission": UsersModel.Permission
-				"token": token,
+				"userId":     user.Id,
+				"permission": user.Permission,
+				"token":      token,
 			}
+			response.Success(context, consts.CurdStatusOkMsg, res)
 		}
 	} else {
 		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")

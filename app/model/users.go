@@ -313,14 +313,14 @@ func (u *UsersModel) DelTokenCacheFromRedis(userId int64) {
  * @description
  * @return {*}
  */
-func (u *UsersModel) WeixinLogin(openId string, name string, avatar string) (temp *UsersModel, err error) {
+func (u *UsersModel) WeixinLogin(openId, sessionKey, name, avatar, ip string) (temp *UsersModel, err error) {
 	db := u.DB
 
 	var user UsersModel
 	if result := db.Where("open_id = ?", openId).First(&user); result.Error != nil {
 		temp = &user
 	} else if result.Error == gorm.ErrRecordNotFound {
-		newUser := UsersModel{OpenId: openId, UserName: name, UserAvatar: avatar}
+		newUser := UsersModel{OpenId: openId, UserName: name, UserAvatar: avatar, LastLoginIp: ip, SessionKey: sessionKey}
 		if err := db.Create(&newUser).Error; err != nil {
 			return nil, err
 		}

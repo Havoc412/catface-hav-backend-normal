@@ -8,6 +8,7 @@ func init() {
 	ErrMsg = make(msg)
 	GeneralMsgInit(ErrMsg)
 	AnimalMsgInit(ErrMsg)
+	UserMsgInit(ErrMsg)
 }
 
 func GeneralMsgInit(m msg) {

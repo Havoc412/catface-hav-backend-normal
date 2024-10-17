@@ -3,10 +3,12 @@ package routers
 import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
+
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
+
 	// TODO validatorFactory "catface/app/http/validator/core/factory"
 	"catface/app/utils/gin_release"
 	"net/http"
@@ -77,6 +79,7 @@ func InitWebRouter() *gin.Engine {
 		//  【不需要token】中间件验证的路由  用户注册、登录
 		noAuth := backend.Group("users")
 		{
+			noAuth.POST("weixinlogin", validatorFactory.Create(consts.ValidatorPrefix+"UsersWeixinLogin"))
 			// 关于路由的第二个参数用法说明
 			// 1.编写一个表单参数验证器结构体，参见代码：   app/http/validator/web/users/register.go
 			// 2.将以上表单参数验证器注册，遵守 键 =》值 格式注册即可 ，app/http/validator/common/register_validator/web_register_validator.go  20行就是注册时候的键 consts.ValidatorPrefix+"UsersRegister"
