@@ -6,6 +6,7 @@ import (
 
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
+
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
 
@@ -123,6 +124,16 @@ func InitWebRouter() *gin.Engine {
 			animal.GET("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalList"))
 			animal.GET(":anm_id", validatorFactory.Create(consts.ValidatorPrefix+"AnimalDetail"))
 		}
+
+		// backend.Use(authorization.CheckTokenAuth()) // INFO token 检查
+		// {
+		encounter := backend.Group("encounter")
+		{
+			// GET 获取列表； POST 上传
+			// encounter.GET("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterList"))
+			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EnconterStore"))
+		}
+		// }
 	}
 
 	// //处理静态资源（不建议gin框架处理静态资源，参见 public/readme.md 说明 ） // INFO 已经交给 Nginx 了

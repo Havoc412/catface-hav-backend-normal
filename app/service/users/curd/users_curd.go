@@ -19,7 +19,6 @@ func (u *UsersCurd) Register(userName, pass, userIp string) bool {
 }
 
 func (u *UsersCurd) Store(name string, pass string, realName string, phone string, remark string) bool {
-
 	pass = md5_encrypt.Base64Md5(pass) // 预先处理密码加密，然后存储在数据库
 	return u.userModel.Store(name, pass, realName, phone, remark)
 }

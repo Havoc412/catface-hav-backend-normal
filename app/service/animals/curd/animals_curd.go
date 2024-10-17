@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func CreateUserCurdFactory() *AnimalsCurd {
+func CreateAnimalsCurdFactory() *AnimalsCurd {
 	return &AnimalsCurd{model.CreateAnimalFactory("")}
 }
 

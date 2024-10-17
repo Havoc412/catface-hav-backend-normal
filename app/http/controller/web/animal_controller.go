@@ -7,7 +7,6 @@ import (
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
@@ -23,7 +22,7 @@ func (a *Animals) List(context *gin.Context) {
 	num := context.GetFloat64(consts.ValidatorPrefix + "num")
 	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
 
-	animals := curd.CreateUserCurdFactory().List(attrs, gender, breed, sterilzation, status, int(num), int(skip))
+	animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilzation, status, int(num), int(skip))
 	if animals != nil {
 		response.Success(context, consts.CurdStatusOkMsg, animals)
 	} else {
