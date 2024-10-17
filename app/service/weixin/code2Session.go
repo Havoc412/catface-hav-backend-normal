@@ -16,6 +16,13 @@ type Response struct {
 }
 
 func Code2Session(js_code string) (*Response, error) {
+
+	return &Response{ // TEST
+		OpenId:     "open_id",
+		SessionKey: "session_key",
+		Errcode:    0,
+		Errmsg:     "ok",
+	}, nil
 	appid := variable.ConfigYml.GetString("Weixin.AppId")
 	appSecret := variable.ConfigYml.GetString("Weixin.AppSecret")
 	grantType := variable.ConfigYml.GetString("Weixin.Code2Session.GrantType")

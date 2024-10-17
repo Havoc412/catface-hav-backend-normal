@@ -4,6 +4,7 @@ import (
 	"catface/app/global/variable"
 	"catface/app/service/users/token_cache_redis"
 	"catface/app/utils/md5_encrypt"
+	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -30,6 +31,7 @@ type UsersModel struct {
 	// TAG 状态管理
 	Status      uint8  `json:"status"` // QUESTION
 	Token       string `json:"token"`
+	LoginTimes  uint64 `json:"login_times"`
 	LastLoginIp string `gorm:"column:last_login_ip" json:"last_login_ip"`
 	// TAG MySELF
 	UserAvatar string `gorm:"column:user_avatar;size:255" json:"user_avatar"` // TODO 暂时存储 url，之后考虑需要把文件上传到 Nginx
@@ -41,7 +43,7 @@ type UsersModel struct {
 
 // 表名
 func (u *UsersModel) TableName() string { // TIP GORM 也会自动调用这个函数。
-	return "users"
+	return "tb_users"
 }
 
 // 用户注册（写一个最简单的使用账号、密码注册即可）
@@ -73,17 +75,24 @@ func (u *UsersModel) Login(userName string, pass string) *UsersModel {
 // 记录用户登陆（login）生成的token，每次登陆记录一次token
 func (u *UsersModel) OauthLoginToken(userId int64, token string, expiresAt int64, clientIp string) bool {
 	sql := `
-		INSERT   INTO  tb_oauth_access_tokens(fr_user_id,action_name,token,expires_at,client_ip)
-		SELECT  ?,'login',? ,?,? FROM DUAL    WHERE   NOT   EXISTS(SELECT  1  FROM  tb_oauth_access_tokens a WHERE  a.fr_user_id=?  AND a.action_name='login' AND a.token=?  )
+		INSERT INTO tb_oauth_access_tokens(fr_user_id, action_name, token, expires_at, client_ip)
+		SELECT  ?, 'login', ? , ?, ? FROM DUAL 
+		WHERE   NOT   EXISTS(
+			SELECT  1
+			FROM  tb_oauth_access_tokens a 
+			WHERE  a.fr_user_id=?  AND a.action_name='login' AND a.token=?  
+		)
 	`
 	//注意：token的精确度为秒，如果在一秒之内，一个账号多次调用接口生成的token其实是相同的，这样写入数据库，第二次的影响行数为0，知己实际上操作仍然是有效的。
 	//所以这里只判断无错误即可，判断影响行数的话，>=0 都是ok的
-	if u.Exec(sql, userId, token, time.Unix(expiresAt, 0).Format(variable.DateFormat), clientIp, userId, token).Error == nil {
+	if err := u.Exec(sql, userId, token, time.Unix(expiresAt, 0).Format(variable.DateFormat), clientIp, userId, token).Error; err == nil {
 		// 异步缓存用户有效的token到redis
 		if variable.ConfigYml.GetInt("Token.IsCacheToRedis") == 1 {
 			go u.ValidTokenCacheToRedis(userId)
 		}
 		return true
+	} else {
+		fmt.Println(err)
 	}
 	return false
 }
@@ -115,8 +124,10 @@ func (u *UsersModel) OauthRefreshToken(userId, expiresAt int64, oldToken, newTok
 
 // 更新用户登陆次数、最近一次登录ip、最近一次登录时间
 func (u *UsersModel) UpdateUserloginInfo(last_login_ip string, userId int64) {
-	sql := "UPDATE  tb_users   SET  login_times=IFNULL(login_times,0)+1,last_login_ip=?,last_login_time=?  WHERE   id=?  "
-	_ = u.Exec(sql, last_login_ip, time.Now().Format(variable.DateFormat), userId)
+	// sql := "UPDATE tb_users SET login_times=IFNULL(login_times,0)+1,last_login_ip=?,last_login_time=?  WHERE   id=?  "
+	// _ = u.Exec(sql, last_login_ip, time.Now().Format(variable.DateFormat), userId)
+	sql := "UPDATE tb_users SET login_times=IFNULL(login_times,0)+1,last_login_ip=?  WHERE id=?  "
+	_ = u.Exec(sql, last_login_ip, userId)
 }
 
 // 当用户更改密码后，所有的token都失效，必须重新登录
@@ -260,7 +271,6 @@ func (u *UsersModel) Destroy(id int) bool {
 }
 
 // 后续两个函数专门处理用户 token 缓存到 redis 逻辑
-
 func (u *UsersModel) ValidTokenCacheToRedis(userId int64) {
 	tokenCacheRedisFact := token_cache_redis.CreateUsersTokenCacheFactory(userId)
 	if tokenCacheRedisFact == nil {
@@ -313,21 +323,28 @@ func (u *UsersModel) DelTokenCacheFromRedis(userId int64) {
  * @description
  * @return {*}
  */
-func (u *UsersModel) WeixinLogin(openId, sessionKey, name, avatar, ip string) (temp *UsersModel, err error) {
+func (u *UsersModel) WeixinLogin(openId, sessionKey, name, avatar, ip string) (temp *UsersModel, errTemp error) {
 	db := u.DB
 
 	var user UsersModel
-	if result := db.Where("open_id = ?", openId).First(&user); result.Error != nil {
+	result := db.Where("open_id = ?", openId).First(&user)
+
+	if result.Error == nil && result.RowsAffected > 0 {
 		temp = &user
-	} else if result.Error == gorm.ErrRecordNotFound {
-		newUser := UsersModel{OpenId: openId, UserName: name, UserAvatar: avatar, LastLoginIp: ip, SessionKey: sessionKey}
+	} else if result.Error == gorm.ErrRecordNotFound || result.RowsAffected == 0 { // BUG 始终不会返回 ErrRecordNotFound 的报错
+		newUser := UsersModel{
+			OpenId:      openId,
+			UserName:    name,
+			UserAvatar:  avatar,
+			LastLoginIp: ip,
+			SessionKey:  sessionKey,
+		}
 		if err := db.Create(&newUser).Error; err != nil {
 			return nil, err
 		}
-		temp = &newUser // INFO 这里应该就是 GORM 插入后得到的对象。
+		temp = &newUser // 这里是 GORM 插入后得到的对象。
 	} else {
 		return nil, result.Error
 	}
-
-	return temp, nil
+	return
 }

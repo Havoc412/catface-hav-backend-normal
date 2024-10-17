@@ -2,6 +2,7 @@ package web
 
 import (
 	"catface/app/global/consts"
+	"catface/app/global/errcode"
 	"catface/app/global/variable"
 	"catface/app/model"
 	"catface/app/service/users/curd"
@@ -158,27 +159,31 @@ func (u *Users) WeixinLogin(context *gin.Context) {
 	weixinRes, err := weixin.Code2Session(code)
 	if err != nil {
 		// 解析微信登录成功，返回用户信息
-		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, err)
+		response.Fail(context, errcode.ErrWeixinApi, errcode.ErrMsg[errcode.ErrWeixinApi], err)
 		return
 	}
 
 	// 2. 执行 CURD
-	user, err := model.CreateUserFactory("mysql").WeixinLogin(weixinRes.OpenId, weixinRes.SessionKey, userName, userAvatar, userIp)
-	if err == nil && user != nil {
-		if user.Id > 0 {
+	userModel, err := model.CreateUserFactory("").WeixinLogin(weixinRes.OpenId, weixinRes.SessionKey, userName, userAvatar, userIp)
+	if err == nil && userModel != nil {
+		if userModel.Id > 0 {
 			// 3. 生成 token
-			token, err := userstoken.CreateUserFactory().GenerateToken(user.Id, userName, "", 0)
-			if err != nil {
-				response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, err)
-				return
+			userTokenFactory := userstoken.CreateUserFactory()
+			if userToken, err := userTokenFactory.GenerateToken(userModel.Id, userModel.UserName, userModel.SessionKey, variable.ConfigYml.GetInt64("Token.JwtTokenCreatedExpireAt")); err == nil {
+				if userTokenFactory.RecordLoginToken(userToken, context.ClientIP()) {
+					data := gin.H{
+						"userId":     userModel.Id,
+						"user_name":  userName,
+						"permission": userModel.Permission,
+						"token":      userToken,
+						"updated_at": time.Now().Format(variable.DateFormat),
+					}
+					response.Success(context, consts.CurdStatusOkMsg, data)
+					go model.CreateUserFactory("").UpdateUserloginInfo(context.ClientIP(), userModel.Id) // TODO 暂时的解决方案就是直接重新一个实例
+					return
+				}
 			}
-			// 4. 返回 token
-			res := gin.H{
-				"userId":     user.Id,
-				"permission": user.Permission,
-				"token":      token,
-			}
-			response.Success(context, consts.CurdStatusOkMsg, res)
+			// TODO 这里不写错误处理？
 		}
 	} else {
 		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
