@@ -6,10 +6,13 @@ import (
 	"catface/app/model"
 	"catface/app/service/users/curd"
 	userstoken "catface/app/service/users/token"
+	"catface/app/service/weixin"
 	"catface/app/utils/response"
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 type Users struct {
@@ -17,12 +20,12 @@ type Users struct {
 
 // 1.用户注册
 func (u *Users) Register(context *gin.Context) {
-	//  由于本项目骨架已经将表单验证器的字段(成员)绑定在上下文，因此可以按照 GetString()、context.GetBool()、GetFloat64（）等快捷获取需要的数据类型，注意：相关键名规则：  前缀+验证器结构体中的 json 标签
-	// 注意：在 ginskeleton 中获取表单参数验证器中的数字键（字段）,请统一使用 GetFloat64(),其它获取数字键（字段）的函数无效，例如：GetInt()、GetInt64()等
+	// 由于本项目骨架已经将表单验证器的字段(成员)绑定在上下文，因此可以按照 GetString()、context.GetBool()、GetFloat64（）等快捷获取需要的数据类型，注意：相关键名规则：  前缀+验证器结构体中的 json 标签
+	// ATT 注意：在 ginskeleton 中获取表单参数验证器中的数字键（字段）,请统一使用 GetFloat64(),其它获取数字键（字段）的函数无效，例如：GetInt()、GetInt64()等
 	// 当然也可以通过gin框架的上下文原始方法获取，例如： context.PostForm("user_name") 获取，这样获取的数据格式为文本，需要自己继续转换
 	userName := context.GetString(consts.ValidatorPrefix + "user_name")
 	pass := context.GetString(consts.ValidatorPrefix + "pass")
-	userIp := context.ClientIP()
+	userIp := context.ClientIP() // INFO 通过上下文获取 IP 信息。
 	if curd.CreateUserCurdFactory().Register(userName, pass, userIp) {
 		response.Success(context, consts.CurdStatusOkMsg, "")
 	} else {
@@ -35,6 +38,8 @@ func (u *Users) Login(context *gin.Context) {
 	userName := context.GetString(consts.ValidatorPrefix + "user_name")
 	pass := context.GetString(consts.ValidatorPrefix + "pass")
 	phone := context.GetString(consts.ValidatorPrefix + "phone")
+	
+	// 1. 先检查 账号密码是否正确，然后再检查 Token 状态。
 	userModelFact := model.CreateUserFactory("")
 	userModel := userModelFact.Login(userName, pass)
 
@@ -141,5 +146,41 @@ func (u *Users) Destroy(context *gin.Context) {
 		response.Success(context, consts.CurdStatusOkMsg, "")
 	} else {
 		response.Fail(context, consts.CurdDeleteFailCode, consts.CurdDeleteFailMsg, "")
+	}
+}
+
+// MARK Start by Hav;
+func (u *Users) WeixinLogin(context *gin.Context) {
+	code := context.GetString(consts.ValidatorPrefix + "code")
+	userAvatar := context.GetString(consts.ValidatorPrefix + "user_avatar")
+	userName := context.GetString(consts.ValidatorPrefix + "user_name")
+	userIp := context.ClientIP() // INFO 通过上下文获取 IP 信息。
+
+	// 1. 访问 微信 API 获取 openid
+	openId, err := weixin.Code2Session(code)
+	if err != nil {
+		// 解析微信登录成功，返回用户信息
+		fmt.Println(err) // TODO 换成 LOG
+		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
+	}
+
+	// 2. 执行 CURD
+	if UsersModel, err := curd.CreateUserFactory().WeixinLogin(openId, userName, userAvatar) {
+		if userId > 0 {
+			// 3. 生成 token
+			token, err := userstoken.CreateUserFactory().GenerateToken(userId, userName, "", 0)
+			if err != nil {
+				response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
+			}
+
+			// 4. 返回 token
+			res := gin.H{
+				"userId": UsersModel.userId,
+				"permission": UsersModel.Permission
+				"token": token,
+			}
+		}
+	} else {
+		response.Fail(context, consts.CurdLoginFailCode, consts.CurdLoginFailMsg, "")
 	}
 }

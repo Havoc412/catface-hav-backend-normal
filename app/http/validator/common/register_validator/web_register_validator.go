@@ -21,6 +21,10 @@ func WebRegisterValidator() {
 	containers.Set(key, users.Register{})
 	key = consts.ValidatorPrefix + "UsersLogin"
 	containers.Set(key, users.Login{})
+
+	key = consts.ValidatorPrefix + "UsersWeixinLogin"
+	containers.Set(key, users.WeixinLogin{})
+
 	key = consts.ValidatorPrefix + "RefreshToken"
 	containers.Set(key, users.RefreshToken{})
 

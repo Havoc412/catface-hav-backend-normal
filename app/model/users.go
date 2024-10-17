@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // 操作数据库喜欢使用gorm自带语法的开发者可以参考 GinSkeleton-Admin 系统相关代码
@@ -22,24 +23,25 @@ func CreateUserFactory(sqlType string) *UsersModel {
 
 type UsersModel struct {
 	BaseModel
-	UserName string `gorm:"column:user_name" json:"user_name"`
+	UserName string `gorm:"column:user_name;size:20" json:"user_name"`
 	Pass     string `json:"-"` // INFO 暂时用不到，但先保留。
 	Phone    string `json:"phone"`
 	RealName string `gorm:"column:real_name" json:"real_name"`
 	// TAG 状态管理
-	Status      int    `json:"status"` // QUESTION
+	Status      uint8  `json:"status"` // QUESTION
 	Token       string `json:"token"`
 	LastLoginIp string `gorm:"column:last_login_ip" json:"last_login_ip"`
 	// TAG MySELF
-	Permissions int `json:"permissions"`
+	UserAvatar string `gorm:"column:user_avatar;size:255" json:"user_avatar"` // TODO 暂时存储 url，之后考虑需要把文件上传到 Nginx
+	Permission uint8  `json:"permission" gorm:"default:9"`
 	// TAG 微信登录相关
-	OpenId     string `gorm:"column:open_id;size:35" json:"open_id"`
+	OpenId     string `gorm:"column:open_id;size:35;index" json:"open_id"`
 	SessionKey string `gorm:"column:session_key;size:35" json:"session_key"`
 }
 
 // 表名
-func (u *UsersModel) TableName() string {
-	return "tb_users"
+func (u *UsersModel) TableName() string { // TIP GORM 也会自动调用这个函数。
+	return "users"
 }
 
 // 用户注册（写一个最简单的使用账号、密码注册即可）
@@ -305,4 +307,27 @@ func (u *UsersModel) DelTokenCacheFromRedis(userId int64) {
 	}
 	tokenCacheRedisFact.ClearUserToken()
 	tokenCacheRedisFact.ReleaseRedisConn()
+}
+
+/**
+ * @description
+ * @return {*}
+ */
+func (u *UsersModel) WeixinLogin(openId string, name string, avatar string) (temp *UsersModel, err error) {
+	db := u.DB
+
+	var user UsersModel
+	if result := db.Where("open_id = ?", openId).First(&user); result.Error != nil {
+		temp = &user
+	} else if result.Error == gorm.ErrRecordNotFound {
+		newUser := UsersModel{OpenId: openId, UserName: name, UserAvatar: avatar}
+		if err := db.Create(&newUser).Error; err != nil {
+			return nil, err
+		}
+		temp = &newUser // INFO 这里应该就是 GORM 插入后得到的对象。
+	} else {
+		return nil, result.Error
+	}
+
+	return temp, nil
 }

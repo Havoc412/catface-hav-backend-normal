@@ -141,3 +141,11 @@ Captcha:
   captchaId: "captcha_id"  # 验证码id提交时的键名
   captchaValue: "captcha_value"   #验证码值提交时的键名
   length: 4   # 验证码生成时的长度
+
+WeixinServer:
+  AppId: "wxe1ff76a57cc6eed3"
+  AppSecret: "46a3557653462da34c6e69f17a472c7c"
+
+  Code2Session:
+    grant_type: "authorization_code"  # 主要就是想避免硬编码。
+  
