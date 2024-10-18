@@ -1,5 +1,13 @@
 package model
 
+import (
+	"catface/app/global/variable"
+	"catface/app/utils/data_bind"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+)
+
 func CreateEncounterFactory(sqlType string) *Encounter {
 	return &Encounter{BaseModel: BaseModel{DB: UseDbConn(sqlType)}}
 }
@@ -28,4 +36,18 @@ type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单�
 
 func (e *Encounter) TableName() string {
 	return "encounters"
+}
+
+func (e *Encounter) InsertDate(c *gin.Context) bool {
+	var tmp Encounter
+	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {
+		if res := e.Create(&tmp); res.Error == nil {
+			return true
+		} else {
+			variable.ZapLog.Error("Encounter 数据新增出错", zap.Error(res.Error))
+		}
+	} else {
+		variable.ZapLog.Error("Encounter 数据绑定出错", zap.Error(err))
+	}
+	return false
 }

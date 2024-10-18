@@ -9,8 +9,3 @@ func CreateEncounterCurdFactory() *EncounterCurd {
 type EncounterCurd struct {
 	encounter *model.Encounter
 }
-
-func (e *EncounterCurd) Store(encounter *model.Encounter) bool {
-
-	return model.CreateEncounterFactory()
-}

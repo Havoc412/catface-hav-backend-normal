@@ -2,7 +2,7 @@ package web
 
 import (
 	"catface/app/global/consts"
-	"catface/app/service/encounter/curd"
+	"catface/app/model"
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -11,19 +11,13 @@ import (
 type Encounters struct {
 }
 
-func (e *Encounters) Store(context *gin.Context) {
-	userId := context.GetFloat64(consts.ValidatorPrefix + "user_id")
-	animalsID := context.GetString(consts.ValidatorPrefix + "animals_id")
-	title := context.GetString(consts.ValidatorPrefix + "title")
-	context := context.GetString(consts.ValidatorPrefix + "content")
-	photos := context.GetString(consts.ValidatorPrefix + "photos")
-	laitude := context.GetFloat64(consts.ValidatorPrefix + "latitude")
-	longitude := context.GetFloat64(consts.ValidatorPrefix + "longitude")
+func (e *Encounters) Create(context *gin.Context) {
+	// TODO 处理 Photos 文件，然后处理出 Avatar，并获取压缩后的 宽高，以及文件的存储路径。
 
-	encounters := curd.CreateEncounterCurdFactory().Create()
-	if encounters == nil {
-		response.Success(context, consts.CurdStatusOkMsg, encounters)
+	// Real Insert
+	if model.CreateEncounterFactory("").InsertDate(context) {
+		response.Success(context, consts.CurdStatusOkMsg, "")
 	} else {
-		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg, "")
+		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
 	}
 }
