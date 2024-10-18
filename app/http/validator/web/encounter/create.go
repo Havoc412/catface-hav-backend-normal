@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Store struct {
+type Create struct {
 	UserId    int    `form:"user_id" json:"user_id" binding:"required,numeric"`
 	AnimalsId string `form:"animals_id" json:"animals_id" binding:"required"`
 	Title     string `form:"title" json:"title" binding:"required"`
@@ -21,17 +21,17 @@ type Store struct {
 	Longitude float64 `form:"longitude" json:"longitude"`
 }
 
-func (e Store) CheckParams(context *gin.Context) {
-	if err := context.ShouldBind(&e); err != nil {
+func (c Create) CheckParams(context *gin.Context) {
+	if err := context.ShouldBind(&c); err != nil {
 		response.ValidatorError(context, err)
 		return
 	}
 
-	extraAddBindDataContext := data_transfer.DataAddContext(e, consts.ValidatorPrefix, context)
+	extraAddBindDataContext := data_transfer.DataAddContext(c, consts.ValidatorPrefix, context)
 	if extraAddBindDataContext == nil {
 		response.ErrorSystem(context, "EncounterStore表单验证器json化失败", "")
 	} else {
 		// 验证完成，调用控制器,并将验证器成员(字段)递给控制器，保持上下文数据一致性
-		(&web.Encounters{}).Store(extraAddBindDataContext)
+		(&web.Encounters{}).Create(extraAddBindDataContext)
 	}
 }

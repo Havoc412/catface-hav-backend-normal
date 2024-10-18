@@ -6,7 +6,6 @@ import (
 
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
-
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
 
@@ -97,6 +96,7 @@ func InitWebRouter() *gin.Engine {
 		// 	// 刷新token，当过期的token在允许失效的延长时间范围内，用旧token换取新token
 		// 	refreshToken.Use(authorization.RefreshTokenConditionCheck()).POST("refreshtoken", validatorFactory.Create(consts.ValidatorPrefix+"RefreshToken"))
 		// }
+
 		// 	// 【需要token】中间件验证的路由
 		// 	backend.Use(authorization.CheckTokenAuth())
 		// 	{
@@ -112,11 +112,11 @@ func InitWebRouter() *gin.Engine {
 		// 			// 删除
 		// 			users.POST("delete", validatorFactory.Create(consts.ValidatorPrefix+"UsersDestroy"))
 		// 		}
-		// 		//文件上传公共路由
-		// 		uploadFiles := backend.Group("upload/")
-		// 		{
-		// 			uploadFiles.POST("files", validatorFactory.Create(consts.ValidatorPrefix+"UploadFiles"))
-		// 		}
+		//文件上传公共路由
+		uploadFiles := backend.Group("upload/")
+		{
+			uploadFiles.POST("files", validatorFactory.Create(consts.ValidatorPrefix+"UploadFiles"))
+		}
 		// 	}
 
 		animal := backend.Group("animal")
@@ -131,7 +131,7 @@ func InitWebRouter() *gin.Engine {
 		{
 			// GET 获取列表； POST 上传
 			// encounter.GET("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterList"))
-			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EnconterStore"))
+			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterStore"))
 		}
 		// }
 	}

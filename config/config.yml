@@ -62,13 +62,13 @@ FileUploadSetting:
   AllowMimeType: #允许的文件mime类型列表
     - "image/jpeg"                    #jpg、jpeg图片格式
     - "image/png"                     #png图片格式
-    - "image/x-icon"                  #ico图片
+    # - "image/x-icon"                  #ico图片
     - "image/bmp"                     #bmp图片
-    - "application/zip"               #xlsx、docx、zip
-    - "application/x-gzip"            #tar.gz
+    # - "application/zip"               #xlsx、docx、zip
+    # - "application/x-gzip"            #tar.gz
     - "text/plain; charset=utf-8"     #txt log json等文本文件
-    - "video/mp4"      #视频文件，例如：mp4
-    - "audio/mpeg"     #音频文件，例如: mp3
+    # - "video/mp4"      #视频文件，例如：mp4
+    # - "audio/mpeg"     #音频文件，例如: mp3
 
 # casbin 权限控制api接口
 Casbin:

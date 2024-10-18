@@ -39,7 +39,6 @@ func Upload(context *gin.Context, savePath string) (r bool, finnalSavePath inter
 		variable.ZapLog.Error("文件保存出错：" + saveErr.Error())
 	}
 	return false, nil
-
 }
 
 // 文件上传可以设置按照 xxx年-xx月 格式存储
