@@ -4,6 +4,7 @@ import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/http/controller/web"
+	"catface/app/http/validator/core/data_transfer"
 	"catface/app/utils/files"
 	"catface/app/utils/response"
 	"strconv"
@@ -13,10 +14,24 @@ import (
 )
 
 type UpFiles struct {
+	DirName string `form:"dir_name" json:"dir_name"`
 }
 
 // 文件上传公共模块表单参数验证器
 func (u UpFiles) CheckParams(context *gin.Context) {
+	// 1.基本的验证规则没有通过
+	if err := context.ShouldBind(&u); err != nil {
+		response.ValidatorError(context, err)
+		return
+	}
+	// 该函数主要是将本结构体的字段（成员）按照 consts.ValidatorPrefix+ json标签对应的 键 => 值 形式绑定在上下文，便于下一步（控制器）可以直接通过 context.Get(键) 获取相关值
+	extraAddBindDataContext := data_transfer.DataAddContext(u, consts.ValidatorPrefix, context)
+	if extraAddBindDataContext == nil {
+		response.ErrorSystem(context, "animialList表单验证器json化失败", "")
+		return
+	}
+
+	// 2. File 内容的验证；
 	tmpFile, err := context.FormFile(variable.ConfigYml.GetString("FileUploadSetting.UploadFileField")) //  file 是一个文件结构体（文件对象）
 	var isPass bool
 	//获取文件发生错误，可能上传了空文件等
