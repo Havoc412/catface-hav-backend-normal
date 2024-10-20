@@ -3,9 +3,11 @@ package model
 import (
 	"catface/app/global/variable"
 	"catface/app/utils/data_bind"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func CreateEncounterFactory(sqlType string) *Encounter {
@@ -52,12 +54,48 @@ func (e *Encounter) InsertDate(c *gin.Context) bool {
 	return false
 }
 
-func (e *Encounter) Show(num, skip int) (temp []EncounterList) {
-	sql := `SELECT e.id, user_id, title, avatar, avatar_height, avatar_width, e.updated_at,
-		user_name, user_avatar FROM encounters e JOIN tb_users u ON e.user_id = u.id
+func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
+	sql := `
+		SELECT e.id, e.user_id, title, avatar, avatar_height, avatar_width, e.updated_at, user_name, user_avatar,
+			EXISTS (
+				SELECT 1
+				FROM encounter_likes l
+				WHERE l.user_id = ? AND l.encounter_id = e.id
+			) AS ue_like
+		FROM encounters e 
+		JOIN tb_users u ON e.user_id = u.id
 		LIMIT ? OFFSET ?
 	`
-	_ = e.Raw(sql, num, skip).Scan(&temp)
+	// err := e.Raw(sql, user_id, num, skip).Scan(&temp).Error
+	// fmt.Println(err)
+
+	// 使用 Debug 方法打印详细日志
+	var rows *gorm.DB
+	if rows = e.Raw(sql, user_id, num, skip); rows.Error != nil {
+		log.Println("查询失败:", rows.Error)
+		return nil
+	}
+	// 获取底层的 sql.Rows 对象
+	sqlRows, err := rows.Rows()
+	if err != nil {
+		log.Println("获取 sql.Rows 失败:", err)
+		return nil
+	}
+	defer sqlRows.Close()
+
+	for sqlRows.Next() {
+		var item EncounterList
+		var ueLikeInt int
+		dest := []interface{}{
+			&item.Id, &item.UserId, &item.Title, &item.Avatar, &item.AvatarHeight, &item.AvatarWidth, &item.UpdatedAt, &item.UserName, &item.UserAvatar, &ueLikeInt,
+		}
+		if err := sqlRows.Scan(dest...); err != nil {
+			log.Println("扫描失败:", err)
+			continue
+		}
+		item.Like = ueLikeInt == 1
+		temp = append(temp, item)
+	}
 
 	return
 }

@@ -61,8 +61,9 @@ func (e *Encounters) Create(context *gin.Context) {
 func (e *Encounters) List(context *gin.Context) {
 	num := context.GetFloat64(consts.ValidatorPrefix + "num")
 	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
+	user_id := context.GetFloat64(consts.ValidatorPrefix + "user_id")
 
-	encounters := curd.CreateEncounterCurdFactory().List(int(num), int(skip))
+	encounters := curd.CreateEncounterCurdFactory().List(int(num), int(skip), int(user_id))
 	if encounters != nil {
 		response.Success(context, consts.CurdStatusOkMsg, encounters)
 	} else {

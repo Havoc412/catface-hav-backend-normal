@@ -25,3 +25,13 @@ func TestEncouner(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestEncounterLike(t *testing.T) {
+	Init()
+
+	encounterLike := model.EncounterLike{}
+	err := DB.AutoMigrate(&encounterLike)
+	if err != nil {
+		t.Error(err)
+	}
+}
