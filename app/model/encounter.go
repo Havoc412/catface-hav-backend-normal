@@ -53,7 +53,7 @@ func (e *Encounter) InsertDate(c *gin.Context) bool {
 }
 
 func (e *Encounter) Show(num, skip int) (temp []EncounterList) {
-	sql := `SELECT user_id, title, avatar, avatar_height, avatar_width, e.updated_at,
+	sql := `SELECT e.id, user_id, title, avatar, avatar_height, avatar_width, e.updated_at,
 		user_name, user_avatar FROM encounters e JOIN tb_users u ON e.user_id = u.id
 		LIMIT ? OFFSET ?
 	`
