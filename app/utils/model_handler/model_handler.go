@@ -19,7 +19,7 @@ func camelToSnake(s string) string {
 }
 
 // 获取处理后的 json 标签值
-func getProcessedJSONTag(field reflect.StructField) string {
+func GetProcessedJSONTag(field reflect.StructField) string {
 	jsonTag := field.Tag.Get("json")
 	if jsonTag != "" {
 		// INFO 移除 omitempty
@@ -38,7 +38,7 @@ func GetModelField(v interface{}) map[string]bool {
 		fieldName := field.Name
 
 		// 获取 json 标签中的值
-		jsonTag := getProcessedJSONTag(field)
+		jsonTag := GetProcessedJSONTag(field)
 		if jsonTag != "" {
 			// 如果有 json 标签，则使用标签中的值
 			fieldMap[jsonTag] = false

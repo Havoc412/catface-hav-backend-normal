@@ -2,6 +2,7 @@ package data_bind
 
 import (
 	"catface/app/global/consts"
+	"catface/app/utils/model_handler"
 	"errors"
 	"reflect"
 
@@ -34,7 +35,7 @@ func ShouldBindFormDataToModel(c *gin.Context, modelStruct interface{}) error {
 	for i := 0; i < fieldNum; i++ {
 		if !mtf.Field(i).Anonymous && mtf.Field(i).Type.Kind() != reflect.Struct {
 			fieldSetValue(c, mValueOfEle, mtf, i)
-		} else if mtf.Field(i).Type.Kind() == reflect.Struct {
+		} else if mtf.Field(i).Type.Kind() == reflect.Struct { // INFO 处理结构体。
 			//处理结构体(有名+匿名)
 			mValueOfEle.Field(i).Set(analysisAnonymousStruct(c, mValueOfEle.Field(i)))
 		}
@@ -59,7 +60,8 @@ func analysisAnonymousStruct(c *gin.Context, value reflect.Value) reflect.Value 
 func fieldSetValue(c *gin.Context, valueOf reflect.Value, typeOf reflect.Type, colIndex int) {
 	relaKey := typeOf.Field(colIndex).Tag.Get("json")
 	if relaKey != "-" {
-		relaKey = consts.ValidatorPrefix + typeOf.Field(colIndex).Tag.Get("json")
+		// relaKey = consts.ValidatorPrefix + typeOf.Field(colIndex).Tag.Get("json")
+		relaKey = consts.ValidatorPrefix + model_handler.GetProcessedJSONTag(typeOf.Field(colIndex))
 		switch typeOf.Field(colIndex).Type.Kind() {
 		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 			valueOf.Field(colIndex).SetInt(int64(c.GetFloat64(relaKey)))
