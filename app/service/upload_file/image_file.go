@@ -3,8 +3,8 @@ package upload_file
 import (
 	"catface/app/global/variable"
 	"image"
-	// "image/jpeg"
 	"os"
+	"path/filepath"
 
 	"github.com/disintegration/imaging"
 )
@@ -39,15 +39,16 @@ func ResizeImage(srcPath string, dstPath string, targetWidth int) (targetHeight 
 	targetHeight = int(float64(srcHeight) * (float64(targetWidth) / float64(srcWidth)))
 
 	// 创建目标图片
-	dstImg := imaging.Thumbnail(srcImg, targetWidth, targetHeight, imaging.Lanczos)
+	dstImg := imaging.Resize(srcImg, targetWidth, targetHeight, imaging.Lanczos)
 	// image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
 	// 使用高质量的滤波算法进行缩放
 	// draw.CatmullRom.Scale(dstImg, dstImg.Bounds(), srcImg, srcImg.Bounds(), draw.Over, nil)
 
 	// Save
 	// 相关路径不存在，创建目录
-	if _, err = os.Stat(dstPath); err != nil {
-		if err = os.MkdirAll(dstPath, os.ModePerm); err != nil {
+	dstFolderPath := filepath.Dir(dstPath)
+	if _, err = os.Stat(dstFolderPath); err != nil {
+		if err = os.MkdirAll(dstFolderPath, os.ModePerm); err != nil {
 			variable.ZapLog.Error("文件上传创建目录出错" + err.Error())
 			return
 		}
