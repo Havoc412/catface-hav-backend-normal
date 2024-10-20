@@ -19,7 +19,6 @@ type Encounters struct {
 func (e *Encounters) Create(context *gin.Context) {
 	// TODO 处理 Photos 文件，然后处理出 Avatar，并获取压缩后的 宽高，以及文件的存储路径。
 	photos := data_transfer.GetStringSlice(context, "photos")
-	animals_id := data_transfer.GetFloat64Slice(context, "animals_id")
 	if len(photos) > 0 {
 		userId := strconv.Itoa(int(context.GetFloat64(consts.ValidatorPrefix + "user_id")))
 		avatar := photos[0]
@@ -33,10 +32,11 @@ func (e *Encounters) Create(context *gin.Context) {
 			return
 		}
 		context.Set(consts.ValidatorPrefix+"avatar", avatar)
-		context.Set(consts.ValidatorPrefix+"avatar_height", avatarHeight)
-		context.Set(consts.ValidatorPrefix+"avatar_width", int(avatarWidth))
+		context.Set(consts.ValidatorPrefix+"avatar_height", float64(avatarHeight))
+		context.Set(consts.ValidatorPrefix+"avatar_width", float64(avatarWidth))
 	}
 	// 将 Array 转化为 string 类型
+	animals_id := data_transfer.GetFloat64Slice(context, "animals_id")
 	if res, err := data_transfer.ConvertSliceToString(animals_id); err == nil {
 		context.Set(consts.ValidatorPrefix+"animals_id", res)
 	} else {
