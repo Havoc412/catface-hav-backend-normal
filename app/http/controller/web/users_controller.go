@@ -158,7 +158,7 @@ func (u *Users) WeixinLogin(context *gin.Context) {
 	userIp := context.ClientIP() // INFO 通过上下文获取 IP 信息。
 
 	// 0. 保存 user Avatar
-	if err := upload_file.DownloadImage(userAvatar, filepath.Join(variable.BasePath, "userAvatar")); err != nil {
+	if err := upload_file.DownloadImage(userAvatar, filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "humAvatar")); err != nil {
 		// UPDATE 感觉这里需要更好的处理方式
 		response.Fail(context, consts.FilesUploadFailCode, consts.FilesUploadFailMsg, "")
 		return
