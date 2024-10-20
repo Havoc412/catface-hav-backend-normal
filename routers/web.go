@@ -130,7 +130,7 @@ func InitWebRouter() *gin.Engine {
 		encounter := backend.Group("encounter")
 		{
 			// GET 获取列表； POST 上传
-			// encounter.GET("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterList"))
+			encounter.GET("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterList"))
 			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterStore"))
 		}
 		// }

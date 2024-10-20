@@ -56,5 +56,6 @@ func WebRegisterValidator() {
 	// TAG Encounter
 	key = consts.ValidatorPrefix + "EncounterStore"
 	containers.Set(key, encounter.Create{})
-
+	key = consts.ValidatorPrefix + "EncounterList"
+	containers.Set(key, encounter.List{})
 }

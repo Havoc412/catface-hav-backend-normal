@@ -2,9 +2,11 @@ package web
 
 import (
 	"catface/app/global/consts"
+	"catface/app/global/errcode"
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/model"
+	"catface/app/service/encounter/curd"
 	"catface/app/service/upload_file"
 	"catface/app/utils/response"
 	"path/filepath"
@@ -17,7 +19,6 @@ type Encounters struct {
 }
 
 func (e *Encounters) Create(context *gin.Context) {
-	// TODO 处理 Photos 文件，然后处理出 Avatar，并获取压缩后的 宽高，以及文件的存储路径。
 	photos := data_transfer.GetStringSlice(context, "photos")
 	if len(photos) > 0 {
 		userId := strconv.Itoa(int(context.GetFloat64(consts.ValidatorPrefix + "user_id")))
@@ -54,5 +55,17 @@ func (e *Encounters) Create(context *gin.Context) {
 		response.Success(context, consts.CurdStatusOkMsg, "")
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
+	}
+}
+
+func (e *Encounters) List(context *gin.Context) {
+	num := context.GetFloat64(consts.ValidatorPrefix + "num")
+	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
+
+	encounters := curd.CreateEncounterCurdFactory().List(int(num), int(skip))
+	if encounters != nil {
+		response.Success(context, consts.CurdStatusOkMsg, encounters)
+	} else {
+		response.Fail(context, errcode.ErrDataNoFound, errcode.ErrMsg[errcode.ErrDataNoFound], "")
 	}
 }

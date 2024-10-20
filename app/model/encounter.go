@@ -6,7 +6,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-
 )
 
 func CreateEncounterFactory(sqlType string) *Encounter {
@@ -51,4 +50,14 @@ func (e *Encounter) InsertDate(c *gin.Context) bool {
 		variable.ZapLog.Error("Encounter 数据绑定出错", zap.Error(err))
 	}
 	return false
+}
+
+func (e *Encounter) Show(num, skip int) (temp []EncounterList) {
+	sql := `SELECT user_id, title, avatar, avatar_height, avatar_width, e.updated_at,
+		user_name, user_avatar FROM encounters e JOIN tb_users u ON e.user_id = u.id
+		LIMIT ? OFFSET ?
+	`
+	_ = e.Raw(sql, num, skip).Scan(&temp)
+
+	return
 }
