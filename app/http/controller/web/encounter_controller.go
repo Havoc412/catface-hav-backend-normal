@@ -26,7 +26,7 @@ func (e *Encounters) Create(context *gin.Context) {
 		avatarWidth := variable.ConfigYml.GetFloat64("FileUploadSetting.AvatarWidth")
 
 		srcPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterPhotos", "hum_"+userId, avatar)
-		dstPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterAvatar", "hum_"+userId, avatar)
+		dstPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterAvatar", avatar)
 		avatarHeight, err := upload_file.ResizeImage(srcPath, dstPath, int(avatarWidth))
 		if err != nil {
 			response.Fail(context, consts.FilesUploadFailCode, consts.FilesUploadFailMsg, "")
