@@ -37,10 +37,6 @@ func (e *Encounters) Create(context *gin.Context) {
 		context.Set(consts.ValidatorPrefix+"avatar_width", int(avatarWidth))
 	}
 	// 将 Array 转化为 string 类型
-<<<<<<< HEAD
-=======
-	animals_id := data_transfer.GetIntSlice(context, "animals_id")
->>>>>>> 1f88b110bfca3168fbb371e7fdb316cb53ee0cd0
 	if res, err := data_transfer.ConvertSliceToString(animals_id); err == nil {
 		context.Set(consts.ValidatorPrefix+"animals_id", res)
 	} else {
