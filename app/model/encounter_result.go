@@ -2,6 +2,7 @@ package model
 
 import "time"
 
+// TIP 用这种方式绑定 GORM 的 Raw 就会比较有效了。
 type EncounterList struct {
 	UserId       int `form:"user_id" json:"user_id"`
 	Title        string
