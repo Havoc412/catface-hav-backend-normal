@@ -15,3 +15,13 @@ func TestUsers(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestEncouner(t *testing.T) {
+	Init()
+
+	encounter := model.Encounter{}
+	err := DB.AutoMigrate(&encounter)
+	if err != nil {
+		t.Error(err)
+	}
+}

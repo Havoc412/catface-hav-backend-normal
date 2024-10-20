@@ -5,7 +5,9 @@ import (
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/interf"
 	"encoding/json"
+	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -72,4 +74,16 @@ func GetIntSlice(context *gin.Context, key string) (ss []int) {
 	}
 	context.Set(consts.ValidatorPrefix+key, ss)
 	return
+}
+
+// ConvertSliceToString 是一个泛型函数，可以接受任何类型的切片
+func ConvertSliceToString[T any](slice []T) (string, error) {
+	var strBuilder strings.Builder
+	for i, v := range slice {
+		if i > 0 {
+			strBuilder.WriteString(",")
+		}
+		strBuilder.WriteString(fmt.Sprintf("%v", v))
+	}
+	return strBuilder.String(), nil
 }

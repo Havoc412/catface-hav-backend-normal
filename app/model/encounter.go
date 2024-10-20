@@ -15,11 +15,11 @@ func CreateEncounterFactory(sqlType string) *Encounter {
 type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单次的记录。
 	BaseModel
 	// TAG 外键关联
-	UserId     int
-	UsersModel UsersModel
-	AnimalsId  string `gorm:"size:20"` // TODO 关联对象存在上限
+	UsersModelId int `gorm:"column:user_id" json:"user_id"`
+	UsersModel   UsersModel
+	AnimalsId    string `gorm:"size:20"` // TODO 关联对象存在上限
 
-	Title   string `gorm:"size:20"`
+	Title   string `gorm:"size:20;column:title"`
 	Content string
 	// Time 从 CreatedAt 中解析
 

@@ -4,6 +4,7 @@ import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/data_transfer"
+	"catface/app/model"
 	"catface/app/service/upload_file"
 	"catface/app/utils/response"
 	"path/filepath"
@@ -34,10 +35,24 @@ func (e *Encounters) Create(context *gin.Context) {
 		context.Set(consts.ValidatorPrefix+"avatar_height", avatarHeight)
 		context.Set(consts.ValidatorPrefix+"avatar_width", int(avatarWidth))
 	}
+	// 将 Array 转化为 string 类型
+	animals_id := data_transfer.GetIntSlice(context, "animals_id")
+	if res, err := data_transfer.ConvertSliceToString(animals_id); err == nil {
+		context.Set(consts.ValidatorPrefix+"animals_id", res)
+	} else {
+		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
+		return
+	}
+	if res, err := data_transfer.ConvertSliceToString(photos); err == nil {
+		context.Set(consts.ValidatorPrefix+"photos", res)
+	} else {
+		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
+		return
+	}
 	// Real Insert
-	// if model.CreateEncounterFactory("").InsertDate(context) {
-	// 	response.Success(context, consts.CurdStatusOkMsg, "")
-	// } else {
-	// 	response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
-	// }
+	if model.CreateEncounterFactory("").InsertDate(context) {
+		response.Success(context, consts.CurdStatusOkMsg, "")
+	} else {
+		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
+	}
 }
