@@ -6,15 +6,15 @@ import (
 	"testing"
 )
 
-// func TestUsers(t *testing.T) {
-// 	Init()
+func TestUsers(t *testing.T) {
+	Init()
 
-// 	user := model.UsersModel{}
-// 	err := DB.AutoMigrate(&user)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// }
+	user := model.UsersModel{}
+	err := DB.AutoMigrate(&user)
+	if err != nil {
+		t.Error(err)
+	}
+}
 
 func TestEncouner(t *testing.T) {
 	Init()

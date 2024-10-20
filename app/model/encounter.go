@@ -17,10 +17,17 @@ type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单�
 	// TAG 外键关联
 	UsersModelId int `gorm:"column:user_id" json:"user_id"`
 	UsersModel   UsersModel
+<<<<<<< HEAD
 	AnimalsId    string `gorm:"size:20" json:"animals_id"` // TODO 关联对象存在上限
 
 	Title   string `gorm:"size:20;column:title" json:"title"`
 	Content string `json:"content"`
+=======
+	AnimalsId    string `gorm:"size:20"` // TODO 关联对象存在上限
+
+	Title   string `gorm:"size:20;column:title"`
+	Content string
+>>>>>>> 1f88b110bfca3168fbb371e7fdb316cb53ee0cd0
 	// Time 从 CreatedAt 中解析
 
 	// TAG Avatar 最好是压缩后的备份图像
