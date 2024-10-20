@@ -69,6 +69,7 @@ FileUploadSetting:
     - "text/plain; charset=utf-8"     #txt log json等文本文件
     # - "video/mp4"      #视频文件，例如：mp4
     # - "audio/mpeg"     #音频文件，例如: mp3
+  AvatarWidth: 200
 
 # casbin 权限控制api接口
 Casbin:

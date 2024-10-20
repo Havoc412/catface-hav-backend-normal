@@ -1,9 +1,11 @@
 package data_transfer
 
 import (
+	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/interf"
 	"encoding/json"
+	"reflect"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -35,4 +37,39 @@ func DataAddContext(validatorInterface interf.ValidatorInterface, extraAddDataPr
 		}
 	}
 	return nil
+}
+
+// getSlice 是一个通用的辅助函数，用于从 context 中获取切片。
+func getSlice(context *gin.Context, ValidatorPrefix string, key string, elemType reflect.Type) interface{} {
+	if val, ok := context.Get(ValidatorPrefix + key); ok && val != nil {
+		if slice, ok := val.([]interface{}); ok {
+			result := reflect.MakeSlice(reflect.SliceOf(elemType), 0, len(slice))
+			for _, item := range slice {
+				if reflect.TypeOf(item) == elemType {
+					result = reflect.Append(result, reflect.ValueOf(item))
+				}
+			}
+			return result.Interface()
+		}
+	}
+	return nil
+}
+
+// GetStringSlice 从 context 中获取字符串切片。
+func GetStringSlice(context *gin.Context, key string) (ss []string) {
+	if val := getSlice(context, consts.ValidatorPrefix, key, reflect.TypeOf("")); val != nil {
+		ss = val.([]string)
+	}
+	// INFO 同时重新装载。
+	context.Set(consts.ValidatorPrefix+key, ss)
+	return
+}
+
+// GetIntSlice 从 context 中获取整数切片。
+func GetIntSlice(context *gin.Context, key string) (ss []int) {
+	if val := getSlice(context, consts.ValidatorPrefix, key, reflect.TypeOf(0)); val != nil {
+		ss = val.([]int)
+	}
+	context.Set(consts.ValidatorPrefix+key, ss)
+	return
 }
