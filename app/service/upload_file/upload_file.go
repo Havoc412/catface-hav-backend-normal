@@ -44,7 +44,7 @@ func Upload(context *gin.Context, savePath string) (r bool, finnalSavePath inter
 // 文件上传可以设置按照 xxx年-xx月 格式存储
 func generateYearMonthPath(savePathPre string) (string, string) {
 	returnPath := variable.BasePath + variable.ConfigYml.GetString("FileUploadSetting.UploadFileReturnPath")
-	curYearMonth := time.Now().Format("2006_01")
+	curYearMonth := time.Now().Format("2004_04")
 	newSavePathPre := savePathPre + curYearMonth
 	newReturnPathPre := returnPath + curYearMonth
 	// 相关路径不存在，创建目录

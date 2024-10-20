@@ -1,8 +1,14 @@
 package upload_file
 
 import (
+	"catface/app/global/my_errors"
 	"catface/app/global/variable"
+	"catface/app/utils/md5_encrypt"
+	"errors"
+	"fmt"
 	"image"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 
@@ -55,4 +61,41 @@ func ResizeImage(srcPath string, dstPath string, targetWidth int) (targetHeight 
 	}
 	err = imaging.Save(dstImg, dstPath)
 	return
+}
+
+func DownloadImage(imageUrl, dstPath string) error {
+	resp, err := http.Get(imageUrl)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态码
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("图片下载失败，状态码: %d", resp.StatusCode)
+	}
+
+	if sequence := variable.SnowFlake.GetId(); sequence > 0 {
+		saveFileName := fmt.Sprintf("%d%s", sequence, filepath.Base(imageUrl))
+		saveFileName = md5_encrypt.MD5(saveFileName) + ".jpg"
+
+		fullSavePath := filepath.Join(dstPath, saveFileName)
+		file, err := os.Create(fullSavePath)
+		if err != nil {
+			variable.ZapLog.Error("文件保存出错：" + err.Error())
+			return err
+		}
+		defer file.Close()
+
+		_, err = io.Copy(file, resp.Body)
+		if err != nil {
+			variable.ZapLog.Error("文件写入出错：" + err.Error())
+			return err
+		}
+	} else {
+		err := errors.New(my_errors.ErrorsSnowflakeGetIdFail)
+		variable.ZapLog.Error("文件保存出错：" + err.Error())
+		return err
+	}
+	return nil
 }
