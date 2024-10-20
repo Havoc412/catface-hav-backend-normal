@@ -181,7 +181,7 @@ func (u *Users) WeixinLogin(context *gin.Context) {
 			if userToken, err := userTokenFactory.GenerateToken(userModel.Id, userModel.UserName, userModel.SessionKey, variable.ConfigYml.GetInt64("Token.JwtTokenCreatedExpireAt")); err == nil {
 				if userTokenFactory.RecordLoginToken(userToken, context.ClientIP()) {
 					data := gin.H{
-						"userId":     userModel.Id,
+						"user_id":    userModel.Id,
 						"user_name":  userName,
 						"permission": userModel.Permission,
 						"token":      userToken,
