@@ -1,6 +1,7 @@
 package upload_file
 
 import (
+	"catface/app/global/variable"
 	"image"
 	// "image/jpeg"
 	"os"
@@ -44,6 +45,13 @@ func ResizeImage(srcPath string, dstPath string, targetWidth int) (targetHeight 
 	// draw.CatmullRom.Scale(dstImg, dstImg.Bounds(), srcImg, srcImg.Bounds(), draw.Over, nil)
 
 	// Save
+	// 相关路径不存在，创建目录
+	if _, err = os.Stat(dstPath); err != nil {
+		if err = os.MkdirAll(dstPath, os.ModePerm); err != nil {
+			variable.ZapLog.Error("文件上传创建目录出错" + err.Error())
+			return
+		}
+	}
 	err = imaging.Save(dstImg, dstPath)
 	return
 }

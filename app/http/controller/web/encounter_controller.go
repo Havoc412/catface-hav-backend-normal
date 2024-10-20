@@ -7,6 +7,7 @@ import (
 	"catface/app/service/upload_file"
 	"catface/app/utils/response"
 	"path/filepath"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +19,7 @@ func (e *Encounters) Create(context *gin.Context) {
 	// TODO 处理 Photos 文件，然后处理出 Avatar，并获取压缩后的 宽高，以及文件的存储路径。
 	photos := data_transfer.GetStringSlice(context, "photos")
 	if len(photos) > 0 {
-		userId := context.GetString(consts.ValidatorPrefix + "user_id")
+		userId := strconv.Itoa(int(context.GetFloat64(consts.ValidatorPrefix + "user_id")))
 		avatar := photos[0]
 		avatarWidth := variable.ConfigYml.GetFloat64("FileUploadSetting.AvatarWidth")
 
