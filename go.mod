@@ -24,6 +24,7 @@ require (
 	github.com/pilu/fresh v0.0.0-20240621171608-8d1fef547a99 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230126093431-47fa9a501578 // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	modernc.org/libc v1.22.2 // indirect
 	modernc.org/mathutil v1.5.0 // indirect
@@ -42,6 +43,7 @@ require (
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/dchest/captcha v1.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/disintegration/imaging v1.6.2
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.5 // indirect
 	github.com/gin-contrib/pprof v1.5.0 // indirect

@@ -11,14 +11,14 @@ import (
 
 type Create struct {
 	UserId    int    `form:"user_id" json:"user_id" binding:"required,numeric"`
-	AnimalsId string `form:"animals_id" json:"animals_id" binding:"required"`
+	AnimalsId []int  `form:"animals_id" json:"animals_id" binding:"required"`
 	Title     string `form:"title" json:"title" binding:"required"`
 	Content   string `form:"content" json:"content"`
 
 	// Avatar string `form:"avatar" json:"avatar"`
-	Photos    string  `form:"photos" json:"photos"` // INFO 如果 Photo 为空，那就选取 Animals 的 Avatar
-	Laitude   float64 `form:"latitude" json:"latitude"`
-	Longitude float64 `form:"longitude" json:"longitude"`
+	Photos    []string `form:"photos" json:"photos"` // INFO 如果 Photo 为空，那就选取 Animals 的 Avatar
+	Laitude   float64  `form:"latitude" json:"latitude"`
+	Longitude float64  `form:"longitude" json:"longitude"`
 }
 
 func (c Create) CheckParams(context *gin.Context) {
