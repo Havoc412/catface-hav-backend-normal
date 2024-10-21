@@ -17,9 +17,9 @@ func CreateEncounterFactory(sqlType string) *Encounter {
 type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单次的记录。
 	BaseModel
 	// TAG 外键关联
-	UsersModelId int64 `gorm:"column:user_id" json:"user_id"`
-	UsersModel   UsersModel
-	AnimalsId    string `gorm:"size:20" json:"animals_id"` // TODO 关联对象存在上限
+	UsersModelId int64       `gorm:"column:user_id" json:"user_id"`
+	UsersModel   *UsersModel `json:"users_model,omitempty"`     // INFO 由于 Detail 返回空子段有些麻烦，先尝试采用指针。
+	AnimalsId    string      `gorm:"size:20" json:"animals_id"` // TODO 关联对象存在上限
 
 	Title   string `gorm:"size:20;column:title" json:"title"`
 	Content string `json:"content"`

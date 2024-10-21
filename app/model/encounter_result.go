@@ -16,3 +16,9 @@ type EncounterList struct {
 	UserName   string `form:"user_name" json:"userName"`
 	UserAvatar string `form:"user_avatar" json:"userAvatar"`
 }
+
+type EncounterDetail struct {
+	Encounter  Encounter
+	UsersModel UsersModel `json:"user"`
+	Animals    []Animal   `json:"animals"`
+}

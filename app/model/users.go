@@ -24,21 +24,21 @@ func CreateUserFactory(sqlType string) *UsersModel {
 
 type UsersModel struct {
 	BaseModel
-	UserName string `gorm:"column:user_name;size:20" json:"user_name"`
-	Pass     string `json:"-"` // INFO 暂时用不到，但先保留。
-	Phone    string `json:"phone"`
-	RealName string `gorm:"column:real_name" json:"real_name"`
+	UserName string `gorm:"column:user_name;size:20" json:"user_name,omitempty"`
+	Pass     string `json:"pass,omitempty"` // INFO 暂时用不到，但先保留。
+	Phone    string `json:"phone,omitempty"`
+	RealName string `gorm:"column:real_name" json:"real_name,omitempty"`
 	// TAG 状态管理
-	Status      uint8  `json:"status"` // QUESTION
-	Token       string `json:"token"`
-	LoginTimes  uint64 `json:"login_times"`
-	LastLoginIp string `gorm:"column:last_login_ip" json:"last_login_ip"`
+	Status      uint8  `json:"status,omitempty"` // QUESTION
+	Token       string `json:"token,omitempty"`
+	LoginTimes  uint64 `json:"login_times,omitempty"`
+	LastLoginIp string `gorm:"column:last_login_ip" json:"last_login_ip,omitempty"`
 	// TAG MySELF
-	UserAvatar string `gorm:"column:user_avatar;size:255" json:"user_avatar"` // TODO 暂时存储 url，之后考虑需要把文件上传到 Nginx
-	Permission uint8  `json:"permission" gorm:"default:9"`
+	UserAvatar string `gorm:"column:user_avatar;size:255" json:"user_avatar,omitempty"` // TODO 暂时存储 url，之后考虑需要把文件上传到 Nginx
+	Permission uint8  `json:"permission,omitempty" gorm:"default:9"`
 	// TAG 微信登录相关
-	OpenId     string `gorm:"column:open_id;size:35;index" json:"open_id"`
-	SessionKey string `gorm:"column:session_key;size:35" json:"session_key"`
+	OpenId     string `gorm:"column:open_id;size:35;index" json:"open_id,omitempty"`
+	SessionKey string `gorm:"column:session_key;size:35" json:"session_key,omitempty"`
 }
 
 // 表名

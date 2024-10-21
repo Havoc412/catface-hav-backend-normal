@@ -21,7 +21,7 @@ func (e *EncounterCurd) List(num, skip, user_id int) []model.EncounterList {
 	return model.CreateEncounterFactory("").Show(num, skip, user_id)
 }
 
-func (e *EncounterCurd) Detail(id string) *model.Encounter {
+func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 	// 0. check id
 	idInt, err := strconv.Atoi(id)
 	if err != nil {
@@ -47,6 +47,9 @@ func (e *EncounterCurd) Detail(id string) *model.Encounter {
 	_ = animals
 
 	// 4. 合并
-
-	return nil
+	return &model.EncounterDetail{
+		Encounter:  *encounter,
+		UsersModel: *user,
+		Animals:    animals,
+	}
 }
