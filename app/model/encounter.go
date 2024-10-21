@@ -17,7 +17,7 @@ func CreateEncounterFactory(sqlType string) *Encounter {
 type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单次的记录。
 	BaseModel
 	// TAG 外键关联
-	UsersModelId int `gorm:"column:user_id" json:"user_id"`
+	UsersModelId int64 `gorm:"column:user_id" json:"user_id"`
 	UsersModel   UsersModel
 	AnimalsId    string `gorm:"size:20" json:"animals_id"` // TODO 关联对象存在上限
 
@@ -69,7 +69,6 @@ func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
 	// err := e.Raw(sql, user_id, num, skip).Scan(&temp).Error
 	// fmt.Println(err)
 
-	// 使用 Debug 方法打印详细日志
 	var rows *gorm.DB
 	if rows = e.Raw(sql, user_id, num, skip); rows.Error != nil {
 		log.Println("查询失败:", rows.Error)
@@ -98,4 +97,27 @@ func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
 	}
 
 	return
+}
+
+func (e *Encounter) ShowByID(id int64) (temp *Encounter, err error) {
+	// 1. search encounter
+	if err = e.Where("id = ?", id).First(&temp).Error; err != nil {
+		return
+	}
+	return
+	// // 2. search user data
+	// user := UsersModel{BaseModel: BaseModel{Id: encounter.UsersModelId}}
+	// if err := user.Select("user_name", "user_avatar").First(&user).Error; err != nil {
+	// 	return
+	// }
+
+	// // 3. search animals data
+	// animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
+	// var animals []Animal
+	// if err := e.Model(&animals).Select("id", "avatar", "name").Where("id in (?)", animals_id).Find(&animals).Error; err != nil {
+	// 	return
+	// }
+
+	// // TODO 4. 然后整合
+	// return
 }

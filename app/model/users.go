@@ -348,3 +348,17 @@ func (u *UsersModel) WeixinLogin(openId, sessionKey, name, avatar, ip string) (t
 	}
 	return
 }
+
+func (u *UsersModel) ShowByID(id int64, attrs ...string) (temp *UsersModel, err error) {
+	db := u.DB.Table(u.TableName())
+
+	if len(attrs) > 0 {
+		db = db.Select(attrs)
+	}
+
+	err = db.Where("id in (?)", id).First(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Animal ShowByIDs Error", zap.Error(err))
+	}
+	return
+}

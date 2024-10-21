@@ -58,4 +58,7 @@ func WebRegisterValidator() {
 	containers.Set(key, encounter.Create{})
 	key = consts.ValidatorPrefix + "EncounterList"
 	containers.Set(key, encounter.List{})
+	key = consts.ValidatorPrefix + "EncounterDetail"
+	containers.Set(key, encounter.Detial{})
+
 }

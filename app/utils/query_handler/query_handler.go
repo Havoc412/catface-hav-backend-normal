@@ -18,6 +18,16 @@ func StringToUint8Array(in string) []uint8 {
 	return out
 }
 
+func StringToint64Array(in string) []int64 {
+	var out []int64
+	_arr := strings.Split(in, ",")
+	for _, c := range _arr {
+		tmp, _ := strconv.ParseUint(c, 10, 8)
+		out = append(out, int64(tmp))
+	}
+	return out
+}
+
 func StringToStringArray(in string) []string {
 	return strings.Split(in, ",")
 }

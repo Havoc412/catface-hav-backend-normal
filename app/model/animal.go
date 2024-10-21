@@ -69,3 +69,17 @@ func (a *Animal) ShowByID(id int) *Animal {
 	}
 	return &temp
 }
+
+func (a *Animal) ShowByIDs(ids []int64, attrs ...string) (temp []Animal) {
+	db := a.DB.Table(a.TableName())
+
+	if len(attrs) > 0 {
+		db = db.Select(attrs)
+	}
+
+	err := db.Where("id in (?)", ids).Find(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Animal ShowByIDs Error", zap.Error(err))
+	}
+	return
+}

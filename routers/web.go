@@ -3,12 +3,10 @@ package routers
 import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
-
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
-
 	// TODO validatorFactory "catface/app/http/validator/core/factory"
 	"catface/app/utils/gin_release"
 	"net/http"
@@ -131,6 +129,8 @@ func InitWebRouter() *gin.Engine {
 		{
 			// GET 获取列表； POST 上传
 			encounter.GET("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterList"))
+			encounter.GET(":encounter_id", validatorFactory.Create(consts.ValidatorPrefix+"EncounterDetail"))
+
 			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterStore"))
 		}
 		// }

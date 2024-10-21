@@ -70,3 +70,14 @@ func (e *Encounters) List(context *gin.Context) {
 		response.Fail(context, errcode.ErrDataNoFound, errcode.ErrMsg[errcode.ErrDataNoFound], "")
 	}
 }
+
+func (e *Encounters) Detail(context *gin.Context) {
+	encounterId := context.Param("encounter_id")
+
+	encounters := curd.CreateEncounterCurdFactory().Detail(encounterId)
+	if encounters != nil {
+		response.Success(context, consts.CurdStatusOkMsg, encounters)
+	} else {
+		response.Fail(context, errcode.ErrDataNoFound, errcode.ErrMsg[errcode.ErrDataNoFound], "")
+	}
+}
