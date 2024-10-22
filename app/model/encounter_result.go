@@ -18,7 +18,7 @@ type EncounterList struct {
 }
 
 type EncounterDetail struct {
-	Encounter  Encounter
+	Encounter  Encounter  `json:"encounter"`
 	UsersModel UsersModel `json:"user"`
 	Animals    []Animal   `json:"animals"`
 }

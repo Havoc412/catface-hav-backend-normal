@@ -34,8 +34,12 @@ func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 		return nil
 	}
 
+	// 1.1 处理 Photos 为 []string，同时忽略原本的 Photos 字段。
+	encounter.PhotosSlice = query_handler.StringToStringArray(encounter.Photos)
+	encounter.Photos = ""
+
 	// 2. user data
-	user, err := model.CreateUserFactory("").ShowByID(encounter.UsersModelId, "user_avatar", "user_name")
+	user, err := model.CreateUserFactory("").ShowByID(encounter.UsersModelId, "user_avatar", "user_name", "id")
 	if err != nil {
 		return nil
 	}
@@ -43,7 +47,7 @@ func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 
 	// 3. animals data
 	animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
-	animals := model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name")
+	animals := model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name", "id")
 	_ = animals
 
 	// 4. 合并
