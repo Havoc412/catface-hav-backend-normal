@@ -23,7 +23,7 @@ type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单�
 
 	Title   string `gorm:"size:20;column:title" json:"title"`
 	Content string `json:"content"`
-	Level   uint8  `json:"level" gorm:"level;default:1"`
+	Level   uint8  `json:"level" gorm:"column:level;default:1"`
 	// Time 从 CreatedAt 中解析
 
 	// TAG Avatar 最好是压缩后的备份图像

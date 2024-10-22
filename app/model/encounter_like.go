@@ -6,4 +6,5 @@ type EncounterLike struct {
 	UsersModel   UsersModel
 	EncounterId  int `gorm:"column:encounter_id" json:"encounter_id"`
 	Encounter    Encounter
+	DeletedAt
 }

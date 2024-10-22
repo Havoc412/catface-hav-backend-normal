@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/plugin/soft_delete"
 )
 
 type BaseModel struct {
@@ -22,6 +23,16 @@ type BriefModel struct {
 	Id     int64  `json:"id"`
 	NameZh string `json:"name_zh"`
 	NameEn string `json:"name_en"`
+}
+
+type Color struct {
+	ColorFont       string `json:"color_font" gorm:"type:char(10)"`
+	ColorBackground string `json:"color_background" gorm:"type:char(10)"`
+}
+
+type DeletedAt struct {
+	DeletedAt *time.Time            `json:"deleted_at" gorm:"defalt:NULL"`
+	IsDel     soft_delete.DeletedAt `gorm:"softDelete:flag"`
 }
 
 func UseDbConn(sqlType string) *gorm.DB {
