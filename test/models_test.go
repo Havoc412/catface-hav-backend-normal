@@ -35,3 +35,26 @@ func TestEncounterLike(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestEncounterLevel(t *testing.T) {
+	Init()
+
+	encounterLevel := model.EncounerLevel{}
+	err := DB.AutoMigrate(&encounterLevel)
+	if err != nil {
+		t.Error(err)
+	}
+
+	ZH := []string{"日常", "重大", "标志", "代办", "日程"}
+	EN := []string{"daily", "serious", "flag", "todo", "schedule"}
+
+	for i := 0; i < len(ZH); i++ {
+		encounterLevel := model.EncounerLevel{
+			BriefModel: model.BriefModel{
+				NameZh: ZH[i],
+				NameEn: EN[i],
+			},
+		}
+		DB.Create(&encounterLevel)
+	}
+}
