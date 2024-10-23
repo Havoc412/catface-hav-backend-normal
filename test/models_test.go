@@ -3,8 +3,8 @@ package test
 
 import (
 	"catface/app/model"
+	"fmt"
 	"testing"
-
 )
 
 func TestUsers(t *testing.T) {
@@ -74,6 +74,24 @@ func TestEncounterLike_Create_and_Delete(t *testing.T) {
 		EncounterId:  15,
 	}
 
-	DB.Create(&encounterLike)
-	DB.Delete(&encounterLike)
+	// DB.Create(&encounterLike)
+	// DB.Delete(&encounterLike)
+
+	// time.Sleep(2 * time.Second)
+
+	// encounterLike = model.EncounterLike{
+	// 	UsersModelId: 1,
+	// 	EncounterId:  15,
+	// }
+	DB.Unscoped().Where("encounter_id", encounterLike.EncounterId).First(&encounterLike)
+	fmt.Println(encounterLike.Id, encounterLike.IsDel)
+
+	// INFO 这样操作无效
+	res := DB.Where("id = ?", encounterLike.Id).Update("is_del", nil)
+	fmt.Println(res.RowsAffected)
+
+	// INFO 这样有效。
+	encounterLike.IsDel = 0
+	res2 := DB.Save(&encounterLike)
+	fmt.Println(res2.RowsAffected)
 }
