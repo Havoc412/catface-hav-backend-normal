@@ -94,4 +94,5 @@ require (
 	gorm.io/driver/sqlserver v1.5.3
 	gorm.io/gorm v1.25.12
 	gorm.io/plugin/dbresolver v1.5.3
+	gorm.io/plugin/soft_delete v1.2.1
 )

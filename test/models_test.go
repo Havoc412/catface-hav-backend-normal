@@ -4,6 +4,7 @@ package test
 import (
 	"catface/app/model"
 	"testing"
+
 )
 
 func TestUsers(t *testing.T) {
@@ -36,7 +37,7 @@ func TestEncounterLike(t *testing.T) {
 	}
 }
 
-func TestEncounterLevel(t *testing.T) {
+func TestEncounterLevel_Insert(t *testing.T) {
 	Init()
 
 	encounterLevel := model.EncounerLevel{}
@@ -63,4 +64,16 @@ func TestEncounterLevel(t *testing.T) {
 		}
 		DB.Create(&encounterLevel)
 	}
+}
+
+func TestEncounterLike_Create_and_Delete(t *testing.T) {
+	Init()
+
+	encounterLike := model.EncounterLike{
+		UsersModelId: 1,
+		EncounterId:  15,
+	}
+
+	DB.Create(&encounterLike)
+	DB.Delete(&encounterLike)
 }

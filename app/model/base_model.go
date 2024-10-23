@@ -32,7 +32,7 @@ type Color struct {
 
 type DeletedAt struct {
 	DeletedAt *time.Time            `json:"deleted_at" gorm:"defalt:NULL"`
-	IsDel     soft_delete.DeletedAt `gorm:"softDelete:flag"`
+	IsDel     soft_delete.DeletedAt `gorm:"softDelete:flag,DeletedAtField:DeletedAt"`
 }
 
 func UseDbConn(sqlType string) *gorm.DB {
