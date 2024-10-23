@@ -62,7 +62,7 @@ func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
 			EXISTS (
 				SELECT 1
 				FROM encounter_likes l
-				WHERE l.user_id = ? AND l.encounter_id = e.id
+				WHERE l.user_id = ? AND l.encounter_id = e.id AND l.is_del = 0
 			) AS ue_like
 		FROM encounters e 
 		JOIN tb_users u ON e.user_id = u.id
