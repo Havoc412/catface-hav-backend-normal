@@ -10,8 +10,8 @@ import (
 )
 
 type Delete struct {
-	UserId      int64 `form:"user_id" json:"user_id"`
-	EncounterId int64 `form:"encounter_id" json:"encounter_id"`
+	UserId      int64 `form:"user_id" json:"user_id" binding:"required,min=1"`
+	EncounterId int64 `form:"encounter_id" json:"encounter_id" binding:"required,min=1"`
 }
 
 func (d Delete) CheckParams(context *gin.Context) {

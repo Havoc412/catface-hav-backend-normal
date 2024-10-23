@@ -10,8 +10,8 @@ import (
 )
 
 type Create struct {
-	UserId      int64 `form:"user_id" json:"user_id"`
-	EncounterId int64 `form:"encounter_id" json:"encounter_id"`
+	UserId      int `form:"user_id" json:"user_id" binding:"required,min=1"`
+	EncounterId int `form:"encounter_id" json:"encounter_id" binding:"required,min=1"`
 }
 
 func (c Create) CheckParams(context *gin.Context) {
