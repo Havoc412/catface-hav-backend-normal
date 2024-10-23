@@ -48,7 +48,7 @@ func getSelectAttrs(attrs string) (validSelectedFields []string) {
 	return
 }
 
-func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilzation string, status string, num int, skip int) []model.Animal {
+func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilzation string, status string, num int, skip int, userId int) (temp []model.AnimalWithLikeList) {
 	validSelectedFields := getSelectAttrs(attrs)
 	genderArray := query_handler.StringToUint8Array(gender)
 	breedArray := query_handler.StringToUint8Array(breed)
@@ -59,7 +59,16 @@ func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilzati
 		num = 10
 	}
 
-	return model.CreateAnimalFactory("mysql").Show(validSelectedFields, genderArray, breedArray, sterilzationArray, statusArray, num, skip)
+	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilzationArray, statusArray, num, skip)
+
+	for i := range animals {
+		animalWithLike := model.AnimalWithLikeList{
+			Animal: animals[i],
+			Like:   model.CreateAnimalLikeFactory("").Liked(userId, int(animals[i].Id)),
+		}
+		temp = append(temp, animalWithLike)
+	}
+	return
 }
 
 func (a *AnimalsCurd) Detail(id string) *model.Animal {

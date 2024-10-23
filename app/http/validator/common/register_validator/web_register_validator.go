@@ -72,5 +72,4 @@ func WebRegisterValidator() {
 	containers.Set(key, encounter_like.Create{})
 	key = consts.ValidatorPrefix + "EncounterLikeDelete"
 	containers.Set(key, encounter_like.Delete{})
-
 }

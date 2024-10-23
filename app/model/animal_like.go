@@ -25,6 +25,17 @@ func (a *AnimalLike) Create(userId, animalId int) bool {
 func (a *AnimalLike) SoftDelete(userId, animalId int) bool {
 	a.UsersModelId = userId
 
-	a.Unscoped().Where("animal_id = ? AND user_id = ?", a.AnimalId, a.UsersModelId).First(a)
+	a.Unscoped().Where("animal_id = ? AND user_id = ?", animalId, a.UsersModelId).First(a)
 	return a.Delete(a).Error == nil
+}
+
+/**
+ * @description: 查询是否存在关注记录
+ * @param {*} userId
+ * @param {int} animalId
+ * @return {*}
+ */
+func (a *AnimalLike) Liked(userId, animalId int) bool {
+	// 需要考虑 IsDel = 0;
+	return a.Where("animal_id = ? AND user_id = ?", animalId, userId).First(a).RowsAffected > 0
 }

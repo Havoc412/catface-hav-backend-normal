@@ -21,8 +21,9 @@ func (a *Animals) List(context *gin.Context) {
 	status := context.GetString(consts.ValidatorPrefix + "status")
 	num := context.GetFloat64(consts.ValidatorPrefix + "num")
 	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
+	userId := context.GetFloat64(consts.ValidatorPrefix + "user_id")
 
-	animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilzation, status, int(num), int(skip))
+	animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilzation, status, int(num), int(skip), int(userId))
 	if animals != nil {
 		response.Success(context, consts.CurdStatusOkMsg, animals)
 	} else {
