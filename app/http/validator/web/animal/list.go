@@ -17,7 +17,7 @@ type List struct {
 	Status       string `form:"status" json:"status"`
 	Num          int    `form:"num" json:"num"`
 	Skip         int    `form:"skip" json:"skip"`
-	UserId       int    `form:"user_id" json:"user_id" binding:"required,min=1"`
+	UserId       int    `form:"user_id" json:"user_id"`
 }
 
 func (l List) CheckParams(context *gin.Context) {
