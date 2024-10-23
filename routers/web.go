@@ -3,12 +3,10 @@ package routers
 import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
-
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
-
 	// TODO validatorFactory "catface/app/http/validator/core/factory"
 	"catface/app/utils/gin_release"
 	"net/http"
@@ -123,6 +121,9 @@ func InitWebRouter() *gin.Engine {
 		{
 			animal.GET("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalList"))
 			animal.GET(":anm_id", validatorFactory.Create(consts.ValidatorPrefix+"AnimalDetail"))
+
+			animal.POST("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeCreate"))
+			animal.DELETE("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeDelete"))
 		}
 
 		// backend.Use(authorization.CheckTokenAuth()) // INFO token 检查

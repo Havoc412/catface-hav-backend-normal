@@ -95,3 +95,12 @@ func TestEncounterLike_Create_and_Delete(t *testing.T) {
 	res2 := DB.Save(&encounterLike)
 	fmt.Println(res2.RowsAffected)
 }
+
+func TestAnimalLike(t *testing.T) {
+	Init()
+	animalLike := model.AnimalLike{}
+	err := DB.AutoMigrate(&animalLike)
+	if err != nil {
+		t.Error(err)
+	}
+}

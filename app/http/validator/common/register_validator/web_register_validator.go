@@ -6,6 +6,7 @@ import (
 	"catface/app/http/validator/common/upload_files"
 	"catface/app/http/validator/common/websocket"
 	"catface/app/http/validator/web/animal"
+	"catface/app/http/validator/web/animal_like"
 	"catface/app/http/validator/web/encounter"
 	"catface/app/http/validator/web/encounter_like"
 	"catface/app/http/validator/web/users"
@@ -53,6 +54,11 @@ func WebRegisterValidator() {
 	containers.Set(key, animal.List{})
 	key = consts.ValidatorPrefix + "AnimalDetail"
 	containers.Set(key, animal.Detail{})
+
+	key = consts.ValidatorPrefix + "AnimalLikeCreate"
+	containers.Set(key, animal_like.Create{})
+	key = consts.ValidatorPrefix + "AnimalLikeDelete"
+	containers.Set(key, animal_like.Delete{})
 
 	// TAG Encounter
 	key = consts.ValidatorPrefix + "EncounterStore"
