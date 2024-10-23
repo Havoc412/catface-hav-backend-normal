@@ -17,7 +17,7 @@ func (e *EncounterLike) Create(userId, encounterId int) bool {
 	e.UsersModelId = userId
 	e.EncounterId = encounterId
 
-	e.Where("encounter_id = ?", e.EncounterId).First(e)
+	e.Unscoped().Where("encounter_id = ?", e.EncounterId).First(e)
 	e.IsDel = 0 //
 	if err := e.Save(e).Error; err != nil {
 		return false
@@ -25,11 +25,11 @@ func (e *EncounterLike) Create(userId, encounterId int) bool {
 	return true
 }
 
-func (e *EncounterLike) Delete(userId, encounterId int) bool {
+func (e *EncounterLike) SoftDelete(userId, encounterId int) bool {
 	e.UsersModelId = userId
-	e.EncounterId = encounterId
 	//
-	if err := e.Where("encounter_id = ?", e.EncounterId).Delete(e).Error; err != nil {
+	e.Where("encounter_id = ?", encounterId).First(e)
+	if err := e.Delete(e).Error; err != nil {
 		return false
 	}
 	return true

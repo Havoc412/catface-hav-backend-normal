@@ -22,3 +22,15 @@ func (e *EncounterLike) Create(context *gin.Context) {
 
 	}
 }
+
+func (e *EncounterLike) Delete(context *gin.Context) {
+	userId := context.GetFloat64(consts.ValidatorPrefix + "user_id")
+	encounterId := context.GetFloat64(consts.ValidatorPrefix + "encounter_id")
+
+	if model.CreateEncounterLikeFactory("").SoftDelete(int(userId), int(encounterId)) {
+		response.Success(context, "取消点赞成功", nil)
+	} else {
+		response.Fail(context, consts.CurdDeleteFailCode, consts.CurdDeleteFailMsg+",删除错误", "")
+
+	}
+}
