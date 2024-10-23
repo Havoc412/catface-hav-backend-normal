@@ -132,6 +132,10 @@ func InitWebRouter() *gin.Engine {
 			encounter.GET(":encounter_id", validatorFactory.Create(consts.ValidatorPrefix+"EncounterDetail"))
 
 			encounter.POST("", validatorFactory.Create(consts.ValidatorPrefix+"EncounterStore"))
+
+			// Like / unlike
+			encounter.GET("like", validatorFactory.Create(consts.ValidatorPrefix+"EncounterLikeCreate"))
+			// encounter.DELETE("like", validatorFactory.Create(consts.ValidatorPrefix+"EncounterLikeDestroy"))
 		}
 		// }
 	}

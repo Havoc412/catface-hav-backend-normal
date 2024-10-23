@@ -7,6 +7,7 @@ import (
 	"catface/app/http/validator/common/websocket"
 	"catface/app/http/validator/web/animal"
 	"catface/app/http/validator/web/encounter"
+	"catface/app/http/validator/web/encounter_like"
 	"catface/app/http/validator/web/users"
 )
 
@@ -60,5 +61,8 @@ func WebRegisterValidator() {
 	containers.Set(key, encounter.List{})
 	key = consts.ValidatorPrefix + "EncounterDetail"
 	containers.Set(key, encounter.Detial{})
+
+	key = consts.ValidatorPrefix + "EncounterLikeCreate"
+	containers.Set(key, encounter_like.Create{})
 
 }
