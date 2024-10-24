@@ -127,5 +127,5 @@ func main() {
 	autoMigrateTable()
 	fmt.Println("autoMigrateTable over.")
 
-	insertData() // INFO 记得用完注释掉
+	// insertData() // INFO 记得用完注释掉
 }

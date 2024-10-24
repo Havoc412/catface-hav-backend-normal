@@ -33,8 +33,9 @@ type Animal struct {
 	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关
 	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径
 	// CatFace
-	FaceBreeds     string `json:"face_breeds,omitempty" gorm:"size:20"`
-	FaceBreedProbs string `json:"face_breed_probs,omitempty" gorm:"size:20"`
+	FaceModelScore float64 `json:"face_model_score,omitempty" gorm:"defalut:0"` // 评估面部模型得分
+	FaceBreeds     string  `json:"face_breeds,omitempty" gorm:"size:20"`
+	FaceBreedProbs string  `json:"face_breed_probs,omitempty" gorm:"size:20"`
 }
 
 func (a *Animal) TableName() string {
