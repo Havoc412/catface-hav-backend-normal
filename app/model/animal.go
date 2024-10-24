@@ -29,7 +29,7 @@ type Animal struct {
 	AvatarHeight uint16 `json:"avatar_height,omitempty"`                    // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。  // INFO 暂时没用到
 	AvatarWidth  uint16 `json:"avatar_width,omitempty"`                     // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。
 	HeadImg      string `gorm:"type:varchar(10)" json:"head_img,omitempty"` // Head 默认处理为正方形。
-	Photos       string `gorm:"type:varchar(100)" json:"photos,omitempty"`  // 图片数组
+	Photos       string `gorm:"type:varchar(255)" json:"photos,omitempty"`  // 图片数组
 	// TAG POI
 	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
 	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关

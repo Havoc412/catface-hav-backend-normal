@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -27,10 +28,10 @@ func Upload(context *gin.Context, savePath string) (r bool, finnalSavePath inter
 		saveFileName := fmt.Sprintf("%d%s", sequence, file.Filename)
 		saveFileName = md5_encrypt.MD5(saveFileName) + path.Ext(saveFileName)
 
-		if saveErr = context.SaveUploadedFile(file, newSavePath+saveFileName); saveErr == nil {
+		if saveErr = context.SaveUploadedFile(file, filepath.Join(newSavePath, saveFileName)); saveErr == nil {
 			//  上传成功,返回资源的相对路径，这里请根据实际返回绝对路径或者相对路径
 			finnalSavePath = gin.H{
-				"path": strings.ReplaceAll(newReturnPath+saveFileName, variable.BasePath, ""),
+				"path": strings.ReplaceAll(filepath.Join(newReturnPath, saveFileName), variable.BasePath, ""),
 			}
 			return true, finnalSavePath
 		}
@@ -44,9 +45,9 @@ func Upload(context *gin.Context, savePath string) (r bool, finnalSavePath inter
 // 文件上传可以设置按照 xxx年-xx月 格式存储
 func generateYearMonthPath(savePathPre string) (string, string) {
 	returnPath := variable.BasePath + variable.ConfigYml.GetString("FileUploadSetting.UploadFileReturnPath")
-	curYearMonth := time.Now().Format("2004_04")
-	newSavePathPre := savePathPre + curYearMonth
-	newReturnPathPre := returnPath + curYearMonth
+	curYearMonth := time.Now().In(time.Local).Format("2006_01")
+	newSavePathPre := filepath.Join(savePathPre, curYearMonth)
+	newReturnPathPre := filepath.Join(returnPath, curYearMonth)
 	// 相关路径不存在，创建目录
 	if _, err := os.Stat(newSavePathPre); err != nil {
 		if err = os.MkdirAll(newSavePathPre, os.ModePerm); err != nil {
