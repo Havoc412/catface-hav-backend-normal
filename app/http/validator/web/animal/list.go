@@ -10,14 +10,14 @@ import (
 )
 
 type List struct {
-	Attrs        string `form:"attrs" json:"attrs"`
-	Gender       string `form:"gender" json:"gender"`
-	Breed        string `form:"breed" json:"breed"`
-	Sterilzation string `form:"sterilzation" json:"sterilzation"`
-	Status       string `form:"status" json:"status"`
-	Num          int    `form:"num" json:"num"`
-	Skip         int    `form:"skip" json:"skip"`
-	UserId       int    `form:"user_id" json:"user_id"`
+	Attrs         string `form:"attrs" json:"attrs"`
+	Gender        string `form:"gender" json:"gender"`
+	Breed         string `form:"breed" json:"breed"`
+	Sterilization string `form:"sterilization" json:"sterilization"`
+	Status        string `form:"status" json:"status"`
+	Num           int    `form:"num" json:"num"`
+	Skip          int    `form:"skip" json:"skip"`
+	UserId        int    `form:"user_id" json:"user_id"`
 }
 
 func (l List) CheckParams(context *gin.Context) {

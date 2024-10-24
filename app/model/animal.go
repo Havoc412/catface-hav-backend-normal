@@ -47,14 +47,14 @@ func (a *Animal) TableName() string {
 	return "animals"
 }
 
-func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilzation []uint8, status []uint8, num int, skip int) (temp []Animal) {
+func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilization []uint8, status []uint8, num int, skip int) (temp []Animal) {
 	db := a.DB.Table(a.TableName()).Limit(int(num)).Offset(int(skip)).Select(attrs)
 
 	// 创建条件映射
 	conditions := map[string][]uint8{
 		"gender":        gender,
 		"breed":         breed,
-		"sterilization": sterilzation,
+		"sterilization": sterilization,
 		"status":        status,
 	}
 
