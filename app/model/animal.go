@@ -18,6 +18,8 @@ type Animal struct {
 	Gender        uint8  `json:"gender,omitempty"`                                                  // 性别
 	Breed         uint8  `json:"breed,omitempty"`                                                   // 品种
 	Sterilization uint8  `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
+	Vaccination   uint8  `json:"vaccination,omitempty"`                                             // 免疫状态
+	Deworming     uint8  `json:"deworming,omitempty"`                                               // 驱虫状态
 	NickNames     string `gorm:"type:varchar(31)" json:"nick_names,omitempty"`                      // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
 	Status        uint8  `json:"status,omitempty"`                                                  // 状态
 	Description   string `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍

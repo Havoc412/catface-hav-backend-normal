@@ -19,3 +19,11 @@ type AnmStatus struct {
 type AnmGender struct {
 	BriefModel
 }
+
+type AnmVaccination struct {
+	BriefModel
+}
+
+type AnmDeworming struct {
+	BriefModel
+}

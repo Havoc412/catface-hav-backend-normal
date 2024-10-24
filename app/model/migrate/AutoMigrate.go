@@ -14,7 +14,8 @@ var DB *gorm.DB // 这种写法是方柏包外使用
 
 // 自动迁移表
 func autoMigrateTable() {
-	err := DB.AutoMigrate(&model.Animal{}, &model.AnmBreed{}, &model.AnmSterilzation{}, &model.AnmStatus{}, &model.AnmGender{})
+	err := DB.AutoMigrate(&model.Animal{}, &model.AnmBreed{}, &model.AnmSterilzation{}, &model.AnmStatus{}, &model.AnmGender{},
+		&model.AnmVaccination{}, &model.AnmDeworming{})
 	if err != nil {
 		fmt.Println("autoMigrateTable error:", err)
 	}
@@ -99,24 +100,70 @@ func testInsertStatus() {
 	}
 }
 
+func testInsertVaccination() {
+	// 定义状态数据
+	vaccinationsZH := []string{"不明", "未接种", "部分接种", "完全接种"}
+	vaccinationsEN := []string{"unknown", "unvaccinated", "partially_vaccinated", "fully_vaccinated"}
+
+	for i := 0; i < len(vaccinationsZH); i++ {
+		vaccination := model.AnmVaccination{
+			BriefModel: model.BriefModel{
+				NameZh: vaccinationsZH[i],
+				NameEn: vaccinationsEN[i],
+			},
+		}
+
+		tx := DB.Create(&vaccination)
+		if tx.Error != nil {
+			fmt.Println("insert vaccination error:", tx.Error)
+		}
+	}
+}
+
+func testInsertDeworming() {
+	// 定义状态数据
+	dewormingZH := []string{"不明", "未驱虫", "已驱虫"}
+	dewormingEN := []string{"unknown", "undewormed", "dewormed"}
+
+	for i := 0; i < len(dewormingZH); i++ {
+		deworming := model.AnmDeworming{
+			BriefModel: model.BriefModel{
+				NameZh: dewormingZH[i],
+				NameEn: dewormingEN[i],
+			},
+		}
+
+		tx := DB.Create(&deworming)
+		if tx.Error != nil {
+			fmt.Println("insert vaccination error:", tx.Error)
+		}
+	}
+}
+
 func insertData() {
 	// testInsertSterilzation()
 	// fmt.Println("testInsertSterilzation success.")
 
-	testInsertBreed()
-	fmt.Println("testInsertBreed success.")
+	// testInsertBreed()
+	// fmt.Println("testInsertBreed success.")
 
 	// testInsertStatus()
 	// fmt.Println("testInsertStatus success.")
 
 	// testInsertAnmGender()
 	// fmt.Println("testInsertAnmGender success.")
+
+	testInsertVaccination()
+	fmt.Println("testInsertVaccination success.")
+
+	testInsertDeworming()
+	fmt.Println("testInsertDeworming success.")
 }
 
 func main() {
 	// 1.
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		"root", "Havocantelope412#", "113.44.68.213", "3306", "hav_cats") // danger MySQL
+		"root", "Havocantelope412#", "113.44.68.213", "3306", "hav_cats") // ATT MySQL
 	fmt.Println("dsn:", dsn)
 	dbMySQL, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
