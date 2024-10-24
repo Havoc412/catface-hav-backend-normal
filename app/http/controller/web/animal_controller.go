@@ -56,3 +56,8 @@ func (a *Animals) Detail(context *gin.Context) {
 		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
 	}
 }
+func (a *Animals) Create(context *gin.Context) {
+	poi := context.GetStringMap(consts.ValidatorPrefix + "poi")
+	// TODO 感觉这里就是获取信息之后，然后解析后再存储，方便后续 Model 直接绑定到数据。
+	_ = poi
+}

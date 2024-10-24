@@ -121,6 +121,7 @@ func InitWebRouter() *gin.Engine {
 		{
 			animal.GET("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalList"))
 			animal.GET(":anm_id", validatorFactory.Create(consts.ValidatorPrefix+"AnimalDetail"))
+			animal.POST("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalCreate"))
 
 			animal.POST("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeCreate"))
 			animal.DELETE("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeDelete"))
