@@ -39,8 +39,8 @@ type Animal struct {
 	FaceBreeds     string  `json:"face_breeds,omitempty" gorm:"size:20"`
 	FaceBreedProbs string  `json:"face_breed_probs,omitempty" gorm:"size:20"`
 	// 上传者 ID
-	UsersModelId int64 `gorm:"column:user_id" json:"user_id"` // 上传者 ID
-	UsersModel   *UsersModel
+	UsersModelId int64       `gorm:"column:user_id" json:"user_id"` // 上传者 ID
+	UsersModel   *UsersModel `json:"users_model,omitempty"`
 }
 
 func (a *Animal) TableName() string {
