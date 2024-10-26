@@ -16,8 +16,9 @@ import (
 )
 
 func Upload(context *gin.Context, savePath string) (r bool, finnalSavePath interface{}) {
-
 	newSavePath, newReturnPath := generateYearMonthPath(savePath)
+
+	// time.Sleep(2 * time.Second) // TEST 模拟服务器的访问延迟。
 
 	//  1.获取上传的文件名(参数验证器已经验证完成了第一步错误，这里简化)
 	file, _ := context.FormFile(variable.ConfigYml.GetString("FileUploadSetting.UploadFileField")) //  file 是一个文件结构体（文件对象）
