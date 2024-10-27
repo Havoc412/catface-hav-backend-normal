@@ -9,8 +9,8 @@ Gormv2: # 只针对 gorm  操作数据库有效
       DataBase: "hav_cats"
       Port: 3306
       Prefix: "tb_"   #  目前没有用到该配置项
-      User: "root"
-      Pass: ""
+      User: "catface"
+      Pass: "catface2024WHU#"
       Charset: "utf8"
       SetMaxIdleConns: 10
       SetMaxOpenConns: 128
