@@ -6,7 +6,6 @@ import (
 	"catface/app/http/validator/common/location"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/utils/response"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -23,13 +22,13 @@ type Health struct {
 }
 
 type Create struct {
-	Name        string     `form:"name" json:"name" binding:"required"`
-	Breed       uint8      `form:"breed" json:"breed" binding:"required"`
-	Gender      uint8      `form:"gender" json:"gender" binding:"required"`
-	Status      uint8      `form:"status" json:"status" binding:"required"`
-	Description string     `form:"description" json:"description"`
-	Birthday    *time.Time `form:"birthday" json:"birthday" binding:"required"` // TODO 如何定义不明？
-	Photos      []string   `form:"photos" json:"photos"`
+	Name        string   `form:"name" json:"name" binding:"required"`
+	Breed       uint8    `form:"breed" json:"breed" binding:"required"`
+	Gender      uint8    `form:"gender" json:"gender" binding:"required"`
+	Status      uint8    `form:"status" json:"status" binding:"required"`
+	Description string   `form:"description" json:"description"`
+	Birthday    string   `form:"birthday" json:"birthday"`
+	Photos      []string `form:"photos" json:"photos"`
 
 	Health Health       `form:"health" json:"health"`
 	UserId int          `form:"user_id" json:"user_id" binding:"required,numeric"`

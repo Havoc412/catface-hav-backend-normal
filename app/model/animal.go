@@ -2,8 +2,10 @@ package model
 
 import (
 	"catface/app/global/variable"
+	"catface/app/utils/data_bind"
 	"catface/app/utils/gorm_v2"
 
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
@@ -14,7 +16,7 @@ func CreateAnimalFactory(sqlType string) *Animal {
 type Animal struct {
 	BaseModel            // 假设 BaseModel 中不需要添加 omitempty 标签
 	Name          string `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
-	Birthday      string `json:"birthday,omitempty"`                                                // 生日
+	Birthday      string `gorm:"size:10" json:"birthday,omitempty"`                                 // 生日；就简单存string就好
 	Gender        uint8  `json:"gender,omitempty"`                                                  // 性别
 	Breed         uint8  `json:"breed,omitempty"`                                                   // 品种
 	Sterilization uint8  `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
@@ -25,10 +27,10 @@ type Animal struct {
 	Description   string `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
 	Tags          string `json:"tags,omitempty"`
 	// TAG imaegs
-	Avatar       string `gorm:"type:varchar(10)" json:"avatar,omitempty"`   // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。
+	Avatar       string `gorm:"type:varchar(50)" json:"avatar,omitempty"`   // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。
 	AvatarHeight uint16 `json:"avatar_height,omitempty"`                    // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。  // INFO 暂时没用到
 	AvatarWidth  uint16 `json:"avatar_width,omitempty"`                     // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。
-	HeadImg      string `gorm:"type:varchar(10)" json:"head_img,omitempty"` // Head 默认处理为正方形。
+	HeadImg      string `gorm:"type:varchar(50)" json:"head_img,omitempty"` // Head 默认处理为正方形。
 	Photos       string `gorm:"type:varchar(255)" json:"photos,omitempty"`  // 图片数组
 	// TAG POI
 	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
@@ -88,4 +90,20 @@ func (a *Animal) ShowByIDs(ids []int64, attrs ...string) (temp []Animal) {
 		variable.ZapLog.Error("Animal ShowByIDs Error", zap.Error(err))
 	}
 	return
+}
+
+func (a *Animal) InsertDate(c *gin.Context) (int64, bool) {
+	var tmp Animal
+	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {
+		if res := a.Create(&tmp); res.Error == nil {
+			// 获取插入的 ID
+			insertedID := tmp.Id
+			return insertedID, true
+		} else {
+			variable.ZapLog.Error("Animal 数据新增出错", zap.Error(res.Error))
+		}
+	} else {
+		variable.ZapLog.Error("Animal 数据绑定出错", zap.Error(err))
+	}
+	return 0, false
 }
