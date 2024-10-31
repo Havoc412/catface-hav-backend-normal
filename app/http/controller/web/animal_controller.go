@@ -14,7 +14,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
