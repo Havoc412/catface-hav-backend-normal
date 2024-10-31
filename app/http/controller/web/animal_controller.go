@@ -14,6 +14,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
@@ -138,7 +139,9 @@ func (a *Animals) Create(context *gin.Context) {
 		if err != nil {
 			// TODO 特殊返回，成功了一半？或者需要清空原有的操作？不过感觉这一步几乎不会出错。
 		}
-		response.Success(context, consts.CurdStatusOkMsg, "")
+		response.Success(context, consts.CurdStatusOkMsg, gin.H{
+			"anm_id": anm_id,
+		})
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
 	}
