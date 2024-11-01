@@ -2,7 +2,10 @@ module catface
 
 go 1.22.5
 
-require gorm.io/driver/mysql v1.5.7
+require (
+	github.com/elastic/go-elasticsearch/v8 v8.15.0
+	gorm.io/driver/mysql v1.5.7
+)
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
@@ -10,11 +13,12 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.6.0 // indirect
-	github.com/elastic/go-elasticsearch/v8 v8.15.0 // indirect
 	github.com/glebarez/go-sqlite v1.20.3 // indirect
 	github.com/glebarez/sqlite v1.7.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-resty/resty/v2 v2.15.3 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
@@ -25,6 +29,7 @@ require (
 	github.com/microsoft/go-mssqldb v1.6.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230126093431-47fa9a501578 // indirect
+	github.com/yankeguo/zhipu v0.1.2 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
@@ -88,11 +93,11 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0
 	golang.org/x/arch v0.10.0 // indirect
-	golang.org/x/crypto v0.27.0 // indirect
+	golang.org/x/crypto v0.28.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.29.0 // indirect
-	golang.org/x/sys v0.25.0 // indirect
-	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/net v0.30.0 // indirect
+	golang.org/x/sys v0.26.0 // indirect
+	golang.org/x/text v0.19.0 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

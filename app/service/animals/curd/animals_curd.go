@@ -61,11 +61,24 @@ func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilizat
 
 	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilizationArray, statusArray, num, skip)
 
+	// 状态记录
+	var likeRes []bool
+	var err error
+
 	if userId > 0 {
+		// Like：批量查询
+		var animalIds []int
+		for _, animal := range animals {
+			animalIds = append(animalIds, int(animal.Id))
+		}
+		likeRes, err = model.CreateAnimalLikeFactory("").LikedBatch(userId, animalIds)
+	}
+
+	if err == nil && userId > 0 {
 		for i := range animals {
 			animalWithLike := model.AnimalWithLikeList{
 				Animal: animals[i],
-				Like:   model.CreateAnimalLikeFactory("").Liked(userId, int(animals[i].Id)),
+				Like:   likeRes[i],
 			}
 			temp = append(temp, animalWithLike)
 		}
