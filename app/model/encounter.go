@@ -19,8 +19,8 @@ type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单�
 	BaseModel
 	// TAG 外键关联
 	UsersModelId int64       `gorm:"column:user_id" json:"user_id"`
-	UsersModel   *UsersModel `json:"users_model,omitempty"`     // INFO 由于 Detail 返回空子段有些麻烦，先尝试采用指针。
-	AnimalsId    string      `gorm:"size:20" json:"animals_id"` // TODO 关联对象存在上限
+	UsersModel   *UsersModel `json:"users_model,omitempty"` // INFO 由于 Detail 返回空子段有些麻烦，先尝试采用指针。
+	// AnimalsId    string      `gorm:"size:20" json:"animals_id"` // 关联对象存在上限  // INFO 还是采取分表，方便查询。
 
 	Title     string   `gorm:"size:20;column:title" json:"title"`
 	Content   string   `json:"content"`
@@ -44,18 +44,18 @@ func (e *Encounter) TableName() string {
 	return "encounters"
 }
 
-func (e *Encounter) InsertDate(c *gin.Context) bool {
+func (e *Encounter) InsertDate(c *gin.Context) (int64, bool) {
 	var tmp Encounter
 	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {
 		if res := e.Create(&tmp); res.Error == nil {
-			return true
+			return tmp.Id, true
 		} else {
 			variable.ZapLog.Error("Encounter 数据新增出错", zap.Error(res.Error))
 		}
 	} else {
 		variable.ZapLog.Error("Encounter 数据绑定出错", zap.Error(err))
 	}
-	return false
+	return 0, false
 }
 
 func formatEncounterList(rows *gorm.DB) (temp []EncounterList, err error) {

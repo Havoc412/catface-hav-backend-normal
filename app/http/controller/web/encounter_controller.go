@@ -37,24 +37,25 @@ func (e *Encounters) Create(context *gin.Context) {
 		context.Set(consts.ValidatorPrefix+"avatar_width", float64(avatarWidth))
 	}
 	// 将 Array 转化为 string 类型
-	animals_id := data_transfer.GetFloat64Slice(context, "animals_id")
-	if res, err := data_transfer.ConvertSliceToString(animals_id); err == nil {
-		context.Set(consts.ValidatorPrefix+"animals_id", res)
-	} else {
-		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
-		return
-	}
 	if res, err := data_transfer.ConvertSliceToString(photos); err == nil {
 		context.Set(consts.ValidatorPrefix+"photos", res)
 	} else {
 		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
 		return
 	}
-	// Real Insert
-	if model.CreateEncounterFactory("").InsertDate(context) {
+	// Real Insert - 1: EA LINK
+	animals_id := data_transfer.GetFloat64Slice(context, "animals_id") // 由于是 Slice 就交给 EAlink 内部遍历时处理。
+	// Real Insert - 2: ENC
+	if encounter_id, ok := model.CreateEncounterFactory("").InsertDate(context); ok && encounter_id > 0 {
+		if !model.CreateEncounterAnimalLinkFactory("").Insert(int(encounter_id), animals_id) {
+			// TODO 异常处理。
+			response.Fail(context, errcode.ErrEaLinkInstert, errcode.ErrMsg[errcode.ErrEaLinkInstert], "")
+			return
+		}
+
 		response.Success(context, consts.CurdStatusOkMsg, "")
 	} else {
-		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
+		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+", 新增错误", "")
 	}
 }
 

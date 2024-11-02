@@ -50,17 +50,16 @@ func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 	if err != nil {
 		return nil
 	}
-	_ = user
 
 	// 3. animals data
-	animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
-	animals := model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name", "id")
-	_ = animals
+	// animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
+	// animals := model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name", "id")
+	// _ = animals
 
 	// 4. 合并
 	return &model.EncounterDetail{
 		Encounter:  *encounter,
 		UsersModel: *user,
-		Animals:    animals,
+		// Animals:    animals,
 	}
 }

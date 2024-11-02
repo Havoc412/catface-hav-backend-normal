@@ -9,6 +9,7 @@ func init() {
 	GeneralMsgInit(ErrMsg)
 	AnimalMsgInit(ErrMsg)
 	UserMsgInit(ErrMsg)
+	EnocunterMsgInit(ErrMsg)
 }
 
 func GeneralMsgInit(m msg) {
