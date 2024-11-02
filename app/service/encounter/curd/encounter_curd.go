@@ -14,11 +14,18 @@ type EncounterCurd struct {
 	encounter *model.Encounter
 }
 
-func (e *EncounterCurd) List(num, skip, user_id int) []model.EncounterList {
+func (e *EncounterCurd) List(num, skip, user_id int, mode string) (result []model.EncounterList) {
 	if num == 0 {
-		num = 15
+		num = 10
 	}
-	return model.CreateEncounterFactory("").Show(num, skip, user_id)
+
+	var likedAnimalIds []int
+	switch mode {
+	case "liked":
+		likedAnimalIds = model.CreateAnimalLikeFactory("").LikedCats(user_id)
+	}
+	result = model.CreateEncounterFactory("").Show(num, skip, user_id, likedAnimalIds)
+	return
 }
 
 func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {

@@ -4,6 +4,7 @@ import (
 	"catface/app/global/variable"
 	"catface/app/utils/data_bind"
 	"log"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -57,31 +58,12 @@ func (e *Encounter) InsertDate(c *gin.Context) bool {
 	return false
 }
 
-func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
-	sql := `
-		SELECT e.id, e.user_id, title, avatar, avatar_height, avatar_width, e.updated_at, user_name, user_avatar,
-			EXISTS (
-				SELECT 1
-				FROM encounter_likes l
-				WHERE l.user_id = ? AND l.encounter_id = e.id AND l.is_del = 0
-			) AS ue_like
-		FROM encounters e 
-		JOIN tb_users u ON e.user_id = u.id
-		LIMIT ? OFFSET ?
-	`
-	// err := e.Raw(sql, user_id, num, skip).Scan(&temp).Error
-	// fmt.Println(err)
-
-	var rows *gorm.DB
-	if rows = e.Raw(sql, user_id, num, skip); rows.Error != nil {
-		log.Println("查询失败:", rows.Error)
-		return nil
-	}
+func formatEncounterList(rows *gorm.DB) (temp []EncounterList, err error) {
 	// 获取底层的 sql.Rows 对象
 	sqlRows, err := rows.Rows()
 	if err != nil {
 		log.Println("获取 sql.Rows 失败:", err)
-		return nil
+		return nil, err
 	}
 	defer sqlRows.Close()
 
@@ -99,6 +81,49 @@ func (e *Encounter) Show(num, skip, user_id int) (temp []EncounterList) {
 		temp = append(temp, item)
 	}
 
+	return
+}
+
+func (e *Encounter) Show(num, skip, user_id int, animals_id []int) (temp []EncounterList) {
+	// SATGE - 1：build SQL
+	var sqlBuilder strings.Builder
+
+	// 构建基础查询
+	sqlBuilder.WriteString(`
+		SELECT e.id, e.user_id, title, avatar, avatar_height, avatar_width, e.updated_at, user_name, user_avatar,
+			EXISTS (
+				SELECT 1
+				FROM encounter_likes l
+				WHERE l.user_id = ? AND l.encounter_id = e.id AND l.is_del = 0
+			) AS ue_like
+		FROM encounters e 
+		JOIN tb_users u ON e.user_id = u.id
+	`)
+
+	// 动态插入 animals_id 条件
+	if len(animals_id) > 0 {
+		sqlBuilder.WriteString("WHERE e.animal_id IN (?)")
+	}
+
+	// 添加排序和分页
+	sqlBuilder.WriteString(`
+		ORDER BY e.updated_at DESC
+		LIMIT ? OFFSET ?
+	`)
+
+	sql := sqlBuilder.String() // 获取到 SQL；
+
+	// STAGE - 2: Exe SQL
+	var rows *gorm.DB
+	if rows = e.Raw(sql, user_id, num, skip); rows.Error != nil {
+		log.Println("查询失败:", rows.Error)
+		return nil
+	}
+	var err error
+	if temp, err = formatEncounterList(rows); err != nil {
+		log.Println("格式化数据失败:", err)
+		return nil
+	}
 	return
 }
 

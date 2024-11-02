@@ -10,9 +10,10 @@ import (
 )
 
 type List struct {
-	Num    int `form:"num" json:"num"`
-	Skip   int `form:"skip" json:"skip"`
-	UserId int `form:"user_id" json:"user_id"`
+	Num    int    `form:"num" json:"num"`
+	Skip   int    `form:"skip" json:"skip"`
+	UserId int    `form:"user_id" json:"user_id"`
+	Mode   string `form:"mode" json:"mode"`
 }
 
 func (l List) CheckParams(context *gin.Context) {

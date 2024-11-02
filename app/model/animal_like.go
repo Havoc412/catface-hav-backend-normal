@@ -62,3 +62,22 @@ func (a *AnimalLike) LikedBatch(userId int, animalIds []int) ([]bool, error) {
 
 	return likedResults, nil
 }
+
+/**
+ * @description: 获取所有关注的猫咪id
+ * @param {int} userId
+ * @return {*}
+ */
+func (a *AnimalLike) LikedCats(userId int) (res []int) {
+	var results []AnimalLike
+	db := a.Select("animal_id").Where("user_id = ?", userId).Find(&results)
+	if db.Error != nil {
+		return nil
+	}
+
+	for _, result := range results {
+		res = append(res, result.AnimalId)
+	}
+
+	return
+}
