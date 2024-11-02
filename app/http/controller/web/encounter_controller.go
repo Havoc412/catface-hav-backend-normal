@@ -13,6 +13,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 )
 
 type Encounters struct {
@@ -43,9 +44,9 @@ func (e *Encounters) Create(context *gin.Context) {
 		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
 		return
 	}
-	// Real Insert - 1: EA LINK
+	// Real Insert - 1: ENC
 	animals_id := data_transfer.GetFloat64Slice(context, "animals_id") // 由于是 Slice 就交给 EAlink 内部遍历时处理。
-	// Real Insert - 2: ENC
+	// Real Insert - 2: EA LINK
 	if encounter_id, ok := model.CreateEncounterFactory("").InsertDate(context); ok && encounter_id > 0 {
 		if !model.CreateEncounterAnimalLinkFactory("").Insert(int(encounter_id), animals_id) {
 			// TODO 异常处理。
