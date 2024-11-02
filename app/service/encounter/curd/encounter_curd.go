@@ -4,6 +4,7 @@ import (
 	"catface/app/model"
 	"catface/app/utils/query_handler"
 	"strconv"
+
 )
 
 func CreateEncounterCurdFactory() *EncounterCurd {
@@ -52,14 +53,15 @@ func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 	}
 
 	// 3. animals data
-	// animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
-	// animals := model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name", "id")
-	// _ = animals
+	var animals []model.Animal
+	if animals_id, ok := model.CreateEncounterAnimalLinkFactory("").ShowByEncounterId(encounter.Id); ok {
+		animals = model.CreateAnimalFactory("").ShowByIDs(animals_id, "avatar", "name", "id")
+	}
 
 	// 4. 合并
 	return &model.EncounterDetail{
 		Encounter:  *encounter,
 		UsersModel: *user,
-		// Animals:    animals,
+		Animals:    animals,
 	}
 }

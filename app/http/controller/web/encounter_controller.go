@@ -48,8 +48,7 @@ func (e *Encounters) Create(context *gin.Context) {
 	animals_id := data_transfer.GetFloat64Slice(context, "animals_id") // 由于是 Slice 就交给 EAlink 内部遍历时处理。
 	// Real Insert - 2: EA LINK
 	if encounter_id, ok := model.CreateEncounterFactory("").InsertDate(context); ok && encounter_id > 0 {
-		if !model.CreateEncounterAnimalLinkFactory("").Insert(int(encounter_id), animals_id) {
-			// TODO 异常处理。
+		if !model.CreateEncounterAnimalLinkFactory("").Insert(int64(encounter_id), animals_id) {
 			response.Fail(context, errcode.ErrEaLinkInstert, errcode.ErrMsg[errcode.ErrEaLinkInstert], "")
 			return
 		}

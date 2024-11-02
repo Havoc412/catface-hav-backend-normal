@@ -11,10 +11,12 @@ type EncounterList struct {
 	AvatarHeight int        `form:"avatar_height" json:"height"`
 	AvatarWidth  int        `form:"avatar_width" json:"width"`
 	UpdatedAt    *time.Time `form:"updated_at" json:"time"` // TIP 设为 *time.Time，omitempty 和 autoUpdated 就都可以生效
-	Like         bool       `form:"ue_like" json:"like"`
 
-	UserName   string `form:"user_name" json:"userName"`
-	UserAvatar string `form:"user_avatar" json:"userAvatar"`
+	Like            bool `form:"ue_like" json:"like"`
+	UseAnimalAvatar bool `form:"use_animal_avatar" json:"use_animal_avatar"`
+
+	UserName   string `form:"user_name" json:"user_name"`
+	UserAvatar string `form:"user_avatar" json:"user_avatar"`
 }
 
 type EncounterDetail struct {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+
 )
 
 func CreateAnimalFactory(sqlType string) *Animal {
@@ -69,7 +70,7 @@ func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilizati
 	return
 }
 
-func (a *Animal) ShowByID(id int) *Animal {
+func (a *Animal) ShowByID(id int64) *Animal {
 	var temp Animal
 	err := a.DB.Table(a.TableName()).Model(&temp).Where("id = ?", id).Scan(&temp).Error
 	if err != nil {

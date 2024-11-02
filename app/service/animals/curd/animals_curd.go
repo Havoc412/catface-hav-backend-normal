@@ -6,6 +6,7 @@ import (
 	"catface/app/utils/query_handler"
 	"fmt"
 	"strconv"
+
 )
 
 func CreateAnimalsCurdFactory() *AnimalsCurd {
@@ -102,5 +103,5 @@ func (a *AnimalsCurd) Detail(id string) *model.Animal {
 		return nil
 	}
 
-	return model.CreateAnimalFactory("mysql").ShowByID(idInt)
+	return model.CreateAnimalFactory("mysql").ShowByID(int64(idInt))
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
 )
 
 func CreateEncounterFactory(sqlType string) *Encounter {
@@ -77,7 +78,20 @@ func formatEncounterList(rows *gorm.DB) (temp []EncounterList, err error) {
 			log.Println("扫描失败:", err)
 			continue
 		}
+		// STAGE: Set link Status
 		item.Like = ueLikeInt == 1
+		// STAGE: Check Url exist
+		if item.Avatar == "" {
+			if animal_id, ok := CreateEncounterAnimalLinkFactory("").ShowByEncounterIdFirst(int64(item.Id)); ok {
+				if animal := CreateAnimalFactory("").ShowByID(animal_id); animal != nil {
+					item.Avatar = animal.Avatar
+					item.AvatarHeight = int(animal.AvatarHeight)
+					item.AvatarWidth = int(animal.AvatarWidth)
+					item.UseAnimalAvatar = true
+				}
+			}
+		}
+		// append
 		temp = append(temp, item)
 	}
 

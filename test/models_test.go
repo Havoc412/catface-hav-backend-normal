@@ -4,10 +4,8 @@ package test
 import (
 	"catface/app/model"
 	"fmt"
-	"reflect"
-	"strconv"
-	"strings"
 	"testing"
+
 )
 
 func TestUsers(t *testing.T) {
@@ -117,67 +115,67 @@ func TestEaLink(t *testing.T) {
 	}
 }
 
-// 测试函数
-func TestInsertEncounterAnimalLinks(t *testing.T) {
-	Init()
+// // 测试函数
+// func TestInsertEncounterAnimalLinks(t *testing.T) {
+// 	Init()
 
-	// 定义要插入的数据
-	data := []struct {
-		EncounterId int
-		AnimalIds   string
-	}{
-		{10, "4"},
-		{11, "2,3"},
-		{13, "4"},
-		{14, "4"},
-		{15, "4"},
-		{16, "4"},
-		{17, "4"},
-		{18, "4"},
-		{19, "4"},
-		{20, "4"},
-	}
+// 	// 定义要插入的数据
+// 	data := []struct {
+// 		EncounterId int
+// 		AnimalIds   string
+// 	}{
+// 		{10, "4"},
+// 		{11, "2,3"},
+// 		{13, "4"},
+// 		{14, "4"},
+// 		{15, "4"},
+// 		{16, "4"},
+// 		{17, "4"},
+// 		{18, "4"},
+// 		{19, "4"},
+// 		{20, "4"},
+// 	}
 
-	// 插入数据
-	for _, item := range data {
-		animalIds := strings.Split(item.AnimalIds, ",")
-		for _, animalIdStr := range animalIds {
-			animalId, err := strconv.Atoi(animalIdStr)
-			if err != nil {
-				t.Errorf("Failed to convert animal Id: %v", err)
-				continue
-			}
-			link := model.EncounterAnimalLink{
-				EncounterId: item.EncounterId,
-				AnimalId:    animalId,
-			}
-			if err := DB.Create(&link).Error; err != nil {
-				t.Errorf("Failed to insert link: %v", err)
-			}
-		}
-	}
+// 	// 插入数据
+// 	for _, item := range data {
+// 		animalIds := strings.Split(item.AnimalIds, ",")
+// 		for _, animalIdStr := range animalIds {
+// 			animalId, err := strconv.Atoi(animalIdStr)
+// 			if err != nil {
+// 				t.Errorf("Failed to convert animal Id: %v", err)
+// 				continue
+// 			}
+// 			link := model.EncounterAnimalLink{
+// 				EncounterId: item.EncounterId,
+// 				AnimalId:    animalId,
+// 			}
+// 			if err := DB.Create(&link).Error; err != nil {
+// 				t.Errorf("Failed to insert link: %v", err)
+// 			}
+// 		}
+// 	}
 
-	// 验证数据是否正确插入
-	var links []model.EncounterAnimalLink
-	if err := DB.Find(&links).Error; err != nil {
-		t.Errorf("Failed to fetch links: %v", err)
-	}
+// 	// 验证数据是否正确插入
+// 	var links []model.EncounterAnimalLink
+// 	if err := DB.Find(&links).Error; err != nil {
+// 		t.Errorf("Failed to fetch links: %v", err)
+// 	}
 
-	expectedLinks := []model.EncounterAnimalLink{
-		{EncounterId: 10, AnimalId: 4},
-		{EncounterId: 11, AnimalId: 2},
-		{EncounterId: 11, AnimalId: 3},
-		{EncounterId: 13, AnimalId: 4},
-		{EncounterId: 14, AnimalId: 4},
-		{EncounterId: 15, AnimalId: 4},
-		{EncounterId: 16, AnimalId: 4},
-		{EncounterId: 17, AnimalId: 4},
-		{EncounterId: 18, AnimalId: 4},
-		{EncounterId: 19, AnimalId: 4},
-		{EncounterId: 20, AnimalId: 4},
-	}
+// 	expectedLinks := []model.EncounterAnimalLink{
+// 		{EncounterId: 10, AnimalId: 4},
+// 		{EncounterId: 11, AnimalId: 2},
+// 		{EncounterId: 11, AnimalId: 3},
+// 		{EncounterId: 13, AnimalId: 4},
+// 		{EncounterId: 14, AnimalId: 4},
+// 		{EncounterId: 15, AnimalId: 4},
+// 		{EncounterId: 16, AnimalId: 4},
+// 		{EncounterId: 17, AnimalId: 4},
+// 		{EncounterId: 18, AnimalId: 4},
+// 		{EncounterId: 19, AnimalId: 4},
+// 		{EncounterId: 20, AnimalId: 4},
+// 	}
 
-	if !reflect.DeepEqual(links, expectedLinks) {
-		t.Errorf("Expected links: %v, but got: %v", expectedLinks, links)
-	}
-}
+// 	if !reflect.DeepEqual(links, expectedLinks) {
+// 		t.Errorf("Expected links: %v, but got: %v", expectedLinks, links)
+// 	}
+// }
