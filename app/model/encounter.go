@@ -104,19 +104,20 @@ func (e *Encounter) Show(num, skip, user_id int, animals_id []int) (temp []Encou
 
 	// 构建基础查询
 	sqlBuilder.WriteString(`
-		SELECT e.id, e.user_id, title, avatar, avatar_height, avatar_width, e.updated_at, user_name, user_avatar,
-			EXISTS (
-				SELECT 1
-				FROM encounter_likes l
-				WHERE l.user_id = ? AND l.encounter_id = e.id AND l.is_del = 0
-			) AS ue_like
-		FROM encounters e 
-		JOIN tb_users u ON e.user_id = u.id
-	`)
+SELECT e.id, e.user_id, title, avatar, avatar_height, avatar_width, e.updated_at, user_name, user_avatar,
+	EXISTS (
+		SELECT 1
+		FROM encounter_likes l
+		WHERE l.user_id = ? AND l.encounter_id = e.id AND l.is_del = 0
+	) AS ue_like
+FROM encounters e 
+JOIN tb_users u ON e.user_id = u.id`)
 
 	// 动态插入 animals_id 条件
 	if len(animals_id) > 0 {
-		sqlBuilder.WriteString("WHERE e.animal_id IN (?)")
+		sqlBuilder.WriteString(`
+JOIN encounter_animal_links eal ON e.id = eal.encounter_id
+WHERE eal.animal_id IN (?)`)
 	}
 
 	// 添加排序和分页
@@ -129,7 +130,12 @@ func (e *Encounter) Show(num, skip, user_id int, animals_id []int) (temp []Encou
 
 	// STAGE - 2: Exe SQL
 	var rows *gorm.DB
-	if rows = e.Raw(sql, user_id, num, skip); rows.Error != nil {
+	if len(animals_id) > 0 {
+		rows = e.Raw(sql, user_id, animals_id, num, skip)
+	} else {
+		rows = e.Raw(sql, user_id, num, skip)
+	}
+	if rows.Error != nil {
 		log.Println("查询失败:", rows.Error)
 		return nil
 	}
