@@ -67,4 +67,7 @@ const (
 	ErrorCasbinCreateAdaptFail        string = "casbin NewAdapterByDBUseTableName 发生错误："
 	ErrorCasbinCreateEnforcerFail     string = "casbin NewEnforcer 发生错误："
 	ErrorCasbinNewModelFromStringFail string = "NewModelFromString 调用时出错："
+
+	// GLM 部分
+	ErrorsGlmClientInitFail string = "GLM Client 初始化失败"
 )

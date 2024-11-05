@@ -9,8 +9,10 @@ import (
 	"strings"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/yankeguo/zhipu"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
 )
 
 var (
@@ -40,6 +42,9 @@ var (
 
 	//casbin 全局操作指针
 	Enforcer *casbin.SyncedEnforcer
+
+	// GLM 全局客户端
+	GlmClient *zhipu.Client
 )
 
 func init() {

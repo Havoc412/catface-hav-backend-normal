@@ -15,6 +15,8 @@ import (
 	"catface/app/utils/zap_factory"
 	"log"
 	"os"
+
+	"github.com/yankeguo/zhipu"
 )
 
 func checkRequiredFolders() {
@@ -103,5 +105,12 @@ func init() {
 	//10.全局注册 validator 错误翻译器,zh 代表中文，en 代表英语
 	if err := validator_translation.InitTrans("zh"); err != nil {
 		log.Fatal(my_errors.ErrorsValidatorTransInitFail + err.Error())
+	}
+
+	// 11. GLM 客户端启动
+	var err error
+	variable.GlmClient, err = zhipu.NewClient(zhipu.WithAPIKey(variable.ConfigYml.GetString("Glm.ApiKey")))
+	if err != nil {
+		log.Fatal(my_errors.ErrorsGlmClientInitFail + err.Error())
 	}
 }
