@@ -9,6 +9,7 @@ import (
 	"catface/app/http/validator/web/animal_like"
 	"catface/app/http/validator/web/encounter"
 	"catface/app/http/validator/web/encounter_like"
+	"catface/app/http/validator/web/nlp"
 	"catface/app/http/validator/web/users"
 )
 
@@ -74,4 +75,8 @@ func WebRegisterValidator() {
 	containers.Set(key, encounter_like.Create{})
 	key = consts.ValidatorPrefix + "EncounterLikeDelete"
 	containers.Set(key, encounter_like.Delete{})
+
+	// TAG NLP
+	key = consts.ValidatorPrefix + "NlpTitle"
+	containers.Set(key, nlp.Title{})
 }

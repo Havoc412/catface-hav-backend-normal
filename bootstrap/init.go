@@ -27,6 +27,9 @@ func checkRequiredFolders() {
 	if _, err := os.Stat(variable.BasePath + "/config/gorm_v2.yml"); err != nil {
 		log.Fatal(my_errors.ErrorsConfigGormNotExists + err.Error())
 	}
+	if _, err := os.Stat(variable.BasePath + "/config/prompts.yml"); err != nil {
+		log.Fatal(my_errors.ErrorsPromptsYmlNotExists + err.Error())
+	}
 	//2.检查public目录是否存在
 	if _, err := os.Stat(variable.BasePath + "/public/"); err != nil {
 		log.Fatal(my_errors.ErrorsPublicNotExists + err.Error())
@@ -54,6 +57,9 @@ func init() {
 	// config>gorm_v2.yml 启动文件变化监听事件
 	variable.ConfigGormv2Yml = variable.ConfigYml.Clone("gorm_v2")
 	variable.ConfigGormv2Yml.ConfigFileChangeListen()
+
+	variable.PromptsYml = variable.ConfigYml.Clone("prompts")
+	variable.PromptsYml.ConfigFileChangeListen()
 
 	// 5.初始化全局日志句柄，并载入日志钩子处理函数
 	variable.ZapLog = zap_factory.CreateZapFactory(sys_log_hook.ZapLogHandler)

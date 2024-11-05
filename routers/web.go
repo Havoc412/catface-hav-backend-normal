@@ -3,10 +3,12 @@ package routers
 import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
+
 	// "catface/app/http/controller/captcha"	// 验证码组件
 	// "catface/app/http/middleware/authorization"
 	"catface/app/http/middleware/cors"
 	validatorFactory "catface/app/http/validator/core/factory"
+
 	// TODO validatorFactory "catface/app/http/validator/core/factory"
 	"catface/app/utils/gin_release"
 	"net/http"
@@ -140,6 +142,11 @@ func InitWebRouter() *gin.Engine {
 			// Like / unlike
 			encounter.POST("like", validatorFactory.Create(consts.ValidatorPrefix+"EncounterLikeCreate"))
 			encounter.DELETE("like", validatorFactory.Create(consts.ValidatorPrefix+"EncounterLikeDelete"))
+		}
+
+		nlp := backend.Group("nlp")
+		{
+			nlp.POST("title", validatorFactory.Create(consts.ValidatorPrefix+"NlpTitle"))
 		}
 		// }
 	}
