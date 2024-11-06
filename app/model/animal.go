@@ -7,7 +7,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-
 )
 
 func CreateAnimalFactory(sqlType string) *Animal {
@@ -15,6 +14,7 @@ func CreateAnimalFactory(sqlType string) *Animal {
 }
 
 type Animal struct {
+	// UPDATE 或者这里都应该采取外键连接？
 	BaseModel            // 假设 BaseModel 中不需要添加 omitempty 标签
 	Name          string `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
 	Birthday      string `gorm:"size:10" json:"birthday,omitempty"`                                 // 生日；就简单存string就好
@@ -34,6 +34,7 @@ type Animal struct {
 	HeadImg      string `gorm:"type:varchar(50)" json:"head_img,omitempty"` // Head 默认处理为正方形。
 	Photos       string `gorm:"type:varchar(255)" json:"photos,omitempty"`  // 图片数组
 	// TAG POI
+	Department     uint8   `gorm:"column:department" json:"department"`
 	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
 	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关
 	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径
