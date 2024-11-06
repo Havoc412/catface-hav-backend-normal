@@ -189,8 +189,8 @@ func TestDepartment_Insert(t *testing.T) {
 	}
 
 	// 定义要插入的部门名称
-	departmentsZh := []string{"信部", "医学部", "工部", "文理", "湖滨", "枫园"}
-	departmentsEn := []string{"it", "medical", "engine", "art", "lake", "maple"}
+	departmentsZh := []string{"其他", "信部", "医学部", "工部", "文理", "湖滨", "枫园"}
+	departmentsEn := []string{"other", "it", "medical", "engine", "art", "lake", "maple"}
 
 	// 插入数据
 	for i := 0; i < len(departmentsZh); i++ {
