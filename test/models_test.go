@@ -5,7 +5,6 @@ import (
 	"catface/app/model"
 	"fmt"
 	"testing"
-
 )
 
 func TestUsers(t *testing.T) {
@@ -179,3 +178,46 @@ func TestEaLink(t *testing.T) {
 // 		t.Errorf("Expected links: %v, but got: %v", expectedLinks, links)
 // 	}
 // }
+
+// TestDepartment_Insert 测试 Department 模型的自动迁移和数据插入
+func TestDepartment_Insert(t *testing.T) {
+	Init()
+
+	// 自动迁移 Department 表
+	if err := DB.AutoMigrate(&model.Department{}); err != nil {
+		t.Errorf("Failed to auto migrate Department table: %v", err)
+	}
+
+	// 定义要插入的部门名称
+	departmentsZh := []string{"信部", "医学部", "工部", "文理", "湖滨", "枫园"}
+	departmentsEn := []string{"it", "medical", "engine", "art", "lake", "maple"}
+
+	// 插入数据
+	for i := 0; i < len(departmentsZh); i++ {
+		department := model.Department{
+			BriefModel: model.BriefModel{
+				NameZh: departmentsZh[i],
+				NameEn: departmentsEn[i],
+			},
+		}
+		if err := DB.Create(&department).Error; err != nil {
+			t.Errorf("Failed to insert data into Department table: %v", err)
+		}
+	}
+
+	// 查询数据并检查
+	var result []model.Department
+	if err := DB.Find(&result).Error; err != nil {
+		t.Errorf("Failed to query data from Department table: %v", err)
+	}
+
+	if len(result) != len(departmentsZh) {
+		t.Errorf("Expected %d departments, got %d", len(departmentsZh), len(result))
+	}
+
+	for i, dept := range result {
+		if dept.NameZh != departmentsZh[i] || dept.NameEn != departmentsEn[i] {
+			t.Errorf("Expected department name '%s' (zh) and '%s' (en), got '%s' (zh) and '%s' (en)", departmentsZh[i], departmentsEn[i], dept.NameZh, dept.NameEn)
+		}
+	}
+}
