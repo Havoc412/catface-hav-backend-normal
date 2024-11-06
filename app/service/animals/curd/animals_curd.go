@@ -6,7 +6,6 @@ import (
 	"catface/app/utils/query_handler"
 	"fmt"
 	"strconv"
-
 )
 
 func CreateAnimalsCurdFactory() *AnimalsCurd {
@@ -49,18 +48,19 @@ func getSelectAttrs(attrs string) (validSelectedFields []string) {
 	return
 }
 
-func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilization string, status string, num int, skip int, userId int) (temp []model.AnimalWithLikeList) {
+func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilization string, status string, department string, num int, skip int, userId int) (temp []model.AnimalWithLikeList) {
 	validSelectedFields := getSelectAttrs(attrs)
 	genderArray := query_handler.StringToUint8Array(gender)
 	breedArray := query_handler.StringToUint8Array(breed)
 	sterilizationArray := query_handler.StringToUint8Array(sterilization)
 	statusArray := query_handler.StringToUint8Array(status)
+	departmentArray := query_handler.StringToUint8Array(department)
 
 	if num == 0 {
 		num = 10
 	}
 
-	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilizationArray, statusArray, num, skip)
+	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilizationArray, statusArray, departmentArray, num, skip)
 
 	// 状态记录
 	var likeRes []bool

@@ -15,6 +15,7 @@ type List struct {
 	Breed         string `form:"breed" json:"breed"`
 	Sterilization string `form:"sterilization" json:"sterilization"`
 	Status        string `form:"status" json:"status"`
+	Department    string `form:"department" json:"department"`
 	Num           int    `form:"num" json:"num"`
 	Skip          int    `form:"skip" json:"skip"`
 	UserId        int    `form:"user_id" json:"user_id"`

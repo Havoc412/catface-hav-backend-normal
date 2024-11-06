@@ -34,7 +34,7 @@ type Animal struct {
 	HeadImg      string `gorm:"type:varchar(50)" json:"head_img,omitempty"` // Head 默认处理为正方形。
 	Photos       string `gorm:"type:varchar(255)" json:"photos,omitempty"`  // 图片数组
 	// TAG POI
-	Department     uint8   `gorm:"column:department" json:"department"`
+	Department     uint8   `gorm:"column:department" json:"department,omitempty"`
 	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
 	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关
 	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径
@@ -43,7 +43,7 @@ type Animal struct {
 	FaceBreeds     string  `json:"face_breeds,omitempty" gorm:"size:20"`
 	FaceBreedProbs string  `json:"face_breed_probs,omitempty" gorm:"size:20"`
 	// 上传者 ID
-	UsersModelId int64       `gorm:"column:user_id" json:"user_id"` // 上传者 ID
+	UsersModelId int64       `gorm:"column:user_id" json:"user_id,omitempty"` // 上传者 ID
 	UsersModel   *UsersModel `json:"users_model,omitempty"`
 }
 
@@ -51,7 +51,7 @@ func (a *Animal) TableName() string {
 	return "animals"
 }
 
-func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilization []uint8, status []uint8, num int, skip int) (temp []Animal) {
+func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilization []uint8, status []uint8, department []uint8, num int, skip int) (temp []Animal) {
 	db := a.DB.Table(a.TableName()).Limit(int(num)).Offset(int(skip)).Select(attrs)
 
 	// 创建条件映射
@@ -60,9 +60,10 @@ func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilizati
 		"breed":         breed,
 		"sterilization": sterilization,
 		"status":        status,
+		"department":    department,
 	}
 
-	db = gorm_v2.BuildWhere(db, conditions)
+	db = gorm_v2.BuildWhere(db, conditions) // TIP 这里的 Where 条件连接就很方便了。
 
 	err := db.Find(&temp).Error
 	if err != nil {
