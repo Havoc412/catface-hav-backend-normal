@@ -5,6 +5,7 @@ const (
 	ErrAnimal
 	ErrUser
 	ErrEncounter
+	ErrNlp
 )
 
 const (

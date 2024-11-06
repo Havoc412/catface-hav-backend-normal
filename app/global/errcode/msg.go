@@ -10,6 +10,7 @@ func init() {
 	AnimalMsgInit(ErrMsg)
 	UserMsgInit(ErrMsg)
 	EnocunterMsgInit(ErrMsg)
+	NlpMsgInit(ErrMsg)
 }
 
 func GeneralMsgInit(m msg) {
