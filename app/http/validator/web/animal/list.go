@@ -19,10 +19,12 @@ type List struct {
 	Num           int    `form:"num" json:"num"`
 	Skip          int    `form:"skip" json:"skip"`
 	UserId        int    `form:"user_id" json:"user_id"`
+
+	Mode string `form:"mode" json:"mode"` // INFO 控制 animal_ctl 的查询模式。 // default: 简单调用 List 函数 || prefer: 优先返回和用户关联度更高的目标。
 }
 
 func (l List) CheckParams(context *gin.Context) {
-	if err := context.ShouldBind(&l); err != nil { // INFO 这一条是必要的，看来对数据的解析页在其中。
+	if err := context.ShouldBind(&l); err != nil {
 		// 将表单参数验证器出现的错误直接交给错误翻译器统一处理即可
 		response.ValidatorError(context, err)
 		return

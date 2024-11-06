@@ -31,12 +31,22 @@ func (a *Animals) List(context *gin.Context) {
 	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
 	userId := context.GetFloat64(consts.ValidatorPrefix + "user_id")
 
-	animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, int(num), int(skip), int(userId))
-	if animals != nil {
-		response.Success(context, consts.CurdStatusOkMsg, animals)
-	} else {
-		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
+	mode := context.GetString(consts.ValidatorPrefix + "mode")
+
+	if mode == consts.AnimalPreferMode {
+		preferList(context)
+	} else { // 其余都是 默认模式。
+		animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, int(num), int(skip), int(userId))
+		if animals != nil {
+			response.Success(context, consts.CurdStatusOkMsg, animals)
+		} else {
+			response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
+		}
 	}
+}
+
+func preferList(context *gin.Context) {
+	// TODO 先去考虑一下前端筛选的实现方式。
 }
 
 // v0.1
