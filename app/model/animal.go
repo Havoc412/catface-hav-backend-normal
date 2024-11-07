@@ -51,7 +51,7 @@ func (a *Animal) TableName() string {
 	return "animals"
 }
 
-func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilization []uint8, status []uint8, department []uint8, num int, skip int) (temp []Animal) {
+func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilization []uint8, status []uint8, department []uint8, notInIds []int64, num int, skip int) (temp []Animal) {
 	db := a.DB.Table(a.TableName()).Limit(int(num)).Offset(int(skip)).Select(attrs)
 
 	// 创建条件映射
@@ -64,6 +64,10 @@ func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilizati
 	}
 
 	db = gorm_v2.BuildWhere(db, conditions) // TIP 这里的 Where 条件连接就很方便了。
+
+	if len(notInIds) > 0 {
+		db = db.Where("id not in (?)", notInIds)
+	}
 
 	err := db.Find(&temp).Error
 	if err != nil {

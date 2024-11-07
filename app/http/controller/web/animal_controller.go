@@ -8,6 +8,8 @@ import (
 	"catface/app/model"
 	"catface/app/service/animals/curd"
 	"catface/app/service/upload_file"
+	"catface/app/utils/query_handler"
+	"catface/app/utils/redis_factory"
 	"catface/app/utils/response"
 	"os"
 	"path/filepath"
@@ -19,6 +21,16 @@ import (
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
 }
 
+// contains 检查 id 是否在 ids 切片中
+func contains(ids []int, id int) bool {
+	for _, v := range ids {
+		if v == id {
+			return true
+		}
+	}
+	return false
+}
+
 func (a *Animals) List(context *gin.Context) {
 	// 1. Get Params
 	attrs := context.GetString(consts.ValidatorPrefix + "attrs")
@@ -27,26 +39,95 @@ func (a *Animals) List(context *gin.Context) {
 	sterilization := context.GetString(consts.ValidatorPrefix + "sterilization")
 	status := context.GetString(consts.ValidatorPrefix + "status")
 	department := context.GetString(consts.ValidatorPrefix + "department")
-	num := context.GetFloat64(consts.ValidatorPrefix + "num")
-	skip := context.GetFloat64(consts.ValidatorPrefix + "skip")
+	num := int(context.GetFloat64(consts.ValidatorPrefix + "num"))
+	skip := int(context.GetFloat64(consts.ValidatorPrefix + "skip"))
 	userId := context.GetFloat64(consts.ValidatorPrefix + "user_id")
 
 	mode := context.GetString(consts.ValidatorPrefix + "mode")
 
+	var preferCatsId []int64
+	var redis_num int
+	var key int64
 	if mode == consts.AnimalPreferMode {
-		preferList(context)
-	} else { // 其余都是 默认模式。
-		animals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, int(num), int(skip), int(userId))
-		if animals != nil {
-			response.Success(context, consts.CurdStatusOkMsg, animals)
+		key = int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
+
+		redisClient := redis_factory.GetOneRedisClient()
+		defer redisClient.ReleaseOneRedisClient()
+		if key != 0 {
+			redis_num, _ = redisClient.Int(redisClient.Execute("get", key))
 		} else {
-			response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
+			key = variable.SnowFlake.GetId()
 		}
+
+		if redis_num == skip {
+			preferCatsId, _ = getPreferCatsId(int(userId), int(num))
+			redis_num += len(preferCatsId)
+		}
+
+		if _, err := redisClient.String(redisClient.Execute("set", key, redis_num)); err != nil {
+		}
+	}
+
+	var animalsWithLike []model.AnimalWithLikeList
+	if len(preferCatsId) > 0 {
+		// 创建一个 map 来存储查询结果
+		animalMap := make(map[int64]model.Animal, len(preferCatsId))
+
+		attrsSlice := query_handler.StringToStringArray(attrs)
+		attrsSlice = append(attrsSlice, "id")
+		animals := model.CreateAnimalFactory("").ShowByIDs(preferCatsId, attrsSlice...)
+
+		for _, v := range animals {
+			animalMap[v.Id] = v
+		}
+
+		// 根据 preferCatsId 的顺序构建最终结果列表
+		for _, id := range preferCatsId {
+			if animal, ok := animalMap[id]; ok {
+				animalsWithLike = append(animalsWithLike, model.AnimalWithLikeList{Animal: animal})
+			}
+		}
+	}
+
+	// 计算还需要多少动物
+	num -= len(animalsWithLike)
+	skip -= redis_num
+	if num > 0 {
+		additionalAnimals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, preferCatsId, num, skip, int(userId))
+		// 将 additionalAnimals 整合到 animalsWithLike 的后面
+		animalsWithLike = append(animalsWithLike, additionalAnimals...)
+	}
+
+	if animalsWithLike != nil {
+		response.Success(context, consts.CurdStatusOkMsg, gin.H{
+			"animals": animalsWithLike,
+			"key":     key,
+		})
+	} else {
+		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
 	}
 }
 
-func preferList(context *gin.Context) {
-	// TODO 先去考虑一下前端筛选的实现方式。
+// UPDATE 就先简单一些，主要就依靠 encounter - animal_id 来获取一个目标。
+func getPreferCatsId(userId, num int) ([]int64, error) {
+	// STAGE check 一下 key 是否存在。
+	// if key != "" {
+	// 	redisClient := redis_factory.GetOneRedisClient()
+	// 	defer redisClient.ReleaseOneRedisClient()
+	// 	if res, err := redisClient.Bool(redisClient.Execute("get", key)); err != nil {
+	// 		if res { // 如果 redis 返回的是 1，则代表 prefer 已经耗尽了。
+	// 			return nil, err
+	// 		}
+	// 	}
+	// }
+	// STAGE - 1 模块一，无视条件，获取路遇过的 id 列表；先获取 ID，然后再去查询细节信息。
+	encounteredCats, err := model.CreateEncounterFactory("").EncounteredCats(userId, num)
+
+	if err != nil {
+		// variable.ZapLog.Error("获取用户浏览记录失败", Zap.Error(err))
+		return encounteredCats, err
+	}
+	return encounteredCats, nil
 }
 
 // v0.1

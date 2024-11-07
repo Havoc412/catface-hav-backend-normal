@@ -4,6 +4,7 @@ import (
 	"catface/app/model"
 	"catface/app/utils/query_handler"
 	"strconv"
+
 )
 
 func CreateEncounterCurdFactory() *EncounterCurd {
@@ -21,8 +22,8 @@ func (e *EncounterCurd) List(num, skip, user_id int, mode string) (result []mode
 
 	var likedAnimalIds []int
 	switch mode {
-	case "liked":
-		likedAnimalIds = model.CreateAnimalLikeFactory("").LikedCats(user_id)
+		case "liked":
+			likedAnimalIds = model.CreateAnimalLikeFactory("").LikedCats(user_id)
 	}
 	result = model.CreateEncounterFactory("").Show(num, skip, user_id, likedAnimalIds)
 	return

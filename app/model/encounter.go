@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
 )
 
 func CreateEncounterFactory(sqlType string) *Encounter {
@@ -99,7 +98,7 @@ func formatEncounterList(rows *gorm.DB) (temp []EncounterList, err error) {
 }
 
 func (e *Encounter) Show(num, skip, user_id int, animals_id []int) (temp []EncounterList) {
-	// SATGE - 1：build SQL
+	// STAGE - 1：build SQL
 	var sqlBuilder strings.Builder
 
 	// 构建基础查询
@@ -122,8 +121,8 @@ WHERE eal.animal_id IN (?)`)
 
 	// 添加排序和分页
 	sqlBuilder.WriteString(`
-		ORDER BY e.updated_at DESC
-		LIMIT ? OFFSET ?
+ORDER BY e.updated_at DESC
+LIMIT ? OFFSET ?
 	`)
 
 	sql := sqlBuilder.String() // 获取到 SQL；
@@ -168,4 +167,43 @@ func (e *Encounter) ShowByID(id int64) (temp *Encounter, err error) {
 
 	// // TODO 4. 然后整合
 	// return
+}
+
+func (e *Encounter) EncounteredCats(user_id, num int) ([]int64, error) {
+	sql := `SELECT eal.animal_id 
+            FROM encounter_animal_links eal
+            JOIN encounters e 
+                ON e.id = eal.encounter_id AND e.user_id = ?
+			ORDER BY e.updated_at DESC
+			LIMIT ?`
+
+	rows, err := e.Raw(sql, user_id, num).Rows()
+	if err != nil {
+		log.Println("查询失败:", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Scan 同时去重。
+	var temp []int64
+	seen := make(map[int64]bool)
+
+	for rows.Next() {
+		var animal_id int64
+		if err := rows.Scan(&animal_id); err != nil {
+			log.Println("扫描失败:", err)
+			return nil, err
+		}
+		if !seen[animal_id] {
+			seen[animal_id] = true
+			temp = append(temp, animal_id)
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Println("遍历失败:", err)
+		return nil, err
+	}
+
+	return temp, nil
 }

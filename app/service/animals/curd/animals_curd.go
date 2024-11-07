@@ -48,7 +48,7 @@ func getSelectAttrs(attrs string) (validSelectedFields []string) {
 	return
 }
 
-func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilization string, status string, department string, num int, skip int, userId int) (temp []model.AnimalWithLikeList) {
+func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilization string, status string, department string, notInIds []int64, num int, skip int, userId int) (temp []model.AnimalWithLikeList) {
 	validSelectedFields := getSelectAttrs(attrs)
 	genderArray := query_handler.StringToUint8Array(gender)
 	breedArray := query_handler.StringToUint8Array(breed)
@@ -60,7 +60,7 @@ func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilizat
 		num = 10
 	}
 
-	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilizationArray, statusArray, departmentArray, num, skip)
+	animals := model.CreateAnimalFactory("").Show(validSelectedFields, genderArray, breedArray, sterilizationArray, statusArray, departmentArray, notInIds, num, skip)
 
 	// 状态记录
 	var likeRes []bool

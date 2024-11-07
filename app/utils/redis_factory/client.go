@@ -10,7 +10,6 @@ import (
 
 	"github.com/gomodule/redigo/redis"
 	"go.uber.org/zap"
-
 )
 
 var redisPool *redis.Pool
