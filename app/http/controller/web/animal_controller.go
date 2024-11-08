@@ -21,16 +21,6 @@ import (
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
 }
 
-// contains 检查 id 是否在 ids 切片中
-func contains(ids []int, id int) bool {
-	for _, v := range ids {
-		if v == id {
-			return true
-		}
-	}
-	return false
-}
-
 func (a *Animals) List(context *gin.Context) {
 	// 1. Get Params
 	attrs := context.GetString(consts.ValidatorPrefix + "attrs")
@@ -236,5 +226,17 @@ func (a *Animals) Create(context *gin.Context) {
 		})
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
+	}
+}
+
+func (a *Animals) Name(context *gin.Context) {
+	attrs := context.GetString(consts.ValidatorPrefix + "attrs")
+	name := context.GetString(consts.ValidatorPrefix + "name")
+
+	animals := curd.CreateAnimalsCurdFactory().ShowByName(attrs, name)
+	if animals != nil {
+		response.Success(context, consts.CurdStatusOkMsg, animals)
+	} else {
+		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
 	}
 }

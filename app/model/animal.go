@@ -99,6 +99,26 @@ func (a *Animal) ShowByIDs(ids []int64, attrs ...string) (temp []Animal) {
 	return
 }
 
+/**
+ * @description: 采取前后通配符的方式，同时查询 name & nick_names 字段
+ * @param {string} name
+ * @param {...string} attrs
+ * @return {*}
+ */
+func (a *Animal) ShowByName(name string, attrs ...string) (temp []Animal) {
+	db := a.DB.Table(a.TableName())
+
+	if len(attrs) > 0 {
+		db = db.Select(attrs)
+	}
+
+	err := db.Where("name LIKE ? OR nick_names LIKE ?", "%"+name+"%", "%"+name+"%").Find(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Animal ShowByName Error", zap.Error(err))
+	}
+	return
+}
+
 func (a *Animal) InsertDate(c *gin.Context) (int64, bool) {
 	var tmp Animal
 	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {

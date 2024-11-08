@@ -2,6 +2,7 @@ package curd
 
 import (
 	"catface/app/model"
+	"catface/app/utils/gorm_v2"
 	"catface/app/utils/model_handler"
 	"catface/app/utils/query_handler"
 	"fmt"
@@ -90,6 +91,22 @@ func (a *AnimalsCurd) List(attrs string, gender string, breed string, sterilizat
 			}
 			temp = append(temp, animalWithLike)
 		}
+	}
+
+	return
+}
+
+func (a *AnimalsCurd) ShowByName(attrs string, name string) (temp []model.AnimalWithNickNameHit) {
+	validSelectedFields := getSelectAttrs(attrs)
+
+	animals := model.CreateAnimalFactory("").ShowByName(name, validSelectedFields...)
+
+	for _, animal := range animals {
+		animalWithNameHit := model.AnimalWithNickNameHit{
+			Animal:      animal,
+			NickNameHit: !gorm_v2.IsLikePatternMatch(animal.Name, name), // 通过对比 name，然后取反。
+		}
+		temp = append(temp, animalWithNameHit)
 	}
 
 	return
