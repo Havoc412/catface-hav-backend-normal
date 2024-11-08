@@ -104,7 +104,7 @@ func (a *AnimalsCurd) ShowByName(attrs string, name string) (temp []model.Animal
 	for _, animal := range animals {
 		animalWithNameHit := model.AnimalWithNickNameHit{
 			Animal:      animal,
-			NickNameHit: !gorm_v2.IsLikePatternMatch(animal.Name, name), // 通过对比 name，然后取反。
+			NickNameHit: !gorm_v2.IsLikePatternMatch(animal.Name, name), // 通过对比 name，然后取反；主要是不想让 SQL 过于复杂，、处理起来也麻烦。
 		}
 		temp = append(temp, animalWithNameHit)
 	}
