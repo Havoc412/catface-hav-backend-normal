@@ -3,11 +3,16 @@ package encounter
 import (
 	"catface/app/global/consts"
 	"catface/app/http/controller/web"
+	"catface/app/http/validator/common/location"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"
 )
+
+type Extra struct {
+	Topics []string `form:"topics" json:"topics"`
+}
 
 type Create struct {
 	UserId    int    `form:"user_id" json:"user_id" binding:"required,numeric"`
@@ -16,9 +21,10 @@ type Create struct {
 	Content   string `form:"content" json:"content"`
 
 	// Avatar string `form:"avatar" json:"avatar"`
-	Photos    []string `form:"photos" json:"photos"` // INFO 如果 Photo 为空，那就选取 Animals 的 Avatar
-	Laitude   float64  `form:"latitude" json:"latitude"`
-	Longitude float64  `form:"longitude" json:"longitude"`
+	Photos []string `form:"photos" json:"photos"` // INFO 如果 Photo 为空，那就选取 Animals 的 Avatar
+
+	Poi   location.Poi `form:"poi" json:"poi"`
+	Extra Extra        `form:"extra" json:"extra"`
 }
 
 func (c Create) CheckParams(context *gin.Context) {

@@ -18,13 +18,13 @@ type Animal struct {
 	BaseModel            // 假设 BaseModel 中不需要添加 omitempty 标签
 	Name          string `gorm:"type:varchar(20)" json:"name,omitempty"`                            // 名称
 	Birthday      string `gorm:"size:10" json:"birthday,omitempty"`                                 // 生日；就简单存string就好
-	Gender        uint8  `json:"gender,omitempty"`                                                  // 性别
-	Breed         uint8  `json:"breed,omitempty"`                                                   // 品种
-	Sterilization uint8  `json:"sterilization,omitempty"`                                           // 1 不明 2 未绝育 3 已绝育
-	Vaccination   uint8  `json:"vaccination,omitempty"`                                             // 免疫状态
-	Deworming     uint8  `json:"deworming,omitempty"`                                               // 驱虫状态
+	Gender        uint8  `gorm:"default:1" json:"gender,omitempty"`                                 // 性别
+	Breed         uint8  `gorm:"default:1" json:"breed,omitempty"`                                  // 品种
+	Sterilization uint8  `gorm:"default:1" json:"sterilization,omitempty"`                          // 1 不明 2 未绝育 3 已绝育
+	Vaccination   uint8  `gorm:"default:1" json:"vaccination,omitempty"`                            // 免疫状态
+	Deworming     uint8  `gorm:"default:1" json:"deworming,omitempty"`                              // 驱虫状态
 	NickNames     string `gorm:"type:varchar(31)" json:"nick_names,omitempty"`                      // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
-	Status        uint8  `json:"status,omitempty"`                                                  // 状态
+	Status        uint8  `gorm:"default:1" json:"status,omitempty"`                                 // 状态
 	Description   string `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
 	Tags          string `json:"tags,omitempty"`
 	// TAG imaegs
@@ -34,7 +34,7 @@ type Animal struct {
 	HeadImg      string `gorm:"type:varchar(50)" json:"head_img,omitempty"` // Head 默认处理为正方形。
 	Photos       string `gorm:"type:varchar(255)" json:"photos,omitempty"`  // 图片数组
 	// TAG POI
-	Department     uint8   `gorm:"column:department" json:"department,omitempty"`
+	Department     uint8   `gorm:"column:department;default:1" json:"department,omitempty"`
 	Latitude       float64 `json:"latitude,omitempty"`        // POI 位置相关
 	Longitude      float64 `json:"longitude,omitempty"`       // POI 位置相关
 	ActivityRadius uint64  `json:"activity_radius,omitempty"` // 活动半径

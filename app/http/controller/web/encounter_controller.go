@@ -13,7 +13,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-
 )
 
 type Encounters struct {
@@ -37,14 +36,35 @@ func (e *Encounters) Create(context *gin.Context) {
 		context.Set(consts.ValidatorPrefix+"avatar_height", float64(avatarHeight))
 		context.Set(consts.ValidatorPrefix+"avatar_width", float64(avatarWidth))
 	}
-	// 将 Array 转化为 string 类型
+	poi := context.GetStringMap(consts.ValidatorPrefix + "poi")
+	if poi != nil {
+		// 感觉这里就是获取信息之后，然后解析后再存储，方便后续 Model 直接绑定到数据。
+		latitude := poi["latitude"].(float64)
+		longitude := poi["longitude"].(float64)
+		context.Set(consts.ValidatorPrefix+"latitude", latitude)
+		context.Set(consts.ValidatorPrefix+"longitude", longitude)
+	}
+	extra := context.GetStringMap(consts.ValidatorPrefix + "extra")
+	var tags []string
+	if extra != nil {
+		context.Set(consts.ValidatorPrefix+"topics", extra["topics"])
+		tags = data_transfer.GetStringSlice(context, "topics")
+		context.Set(consts.ValidatorPrefix+"tags", tags) // INFO 这里字段没有直接匹配上。
+	}
+	// STAGE - 2
 	if res, err := data_transfer.ConvertSliceToString(photos); err == nil {
 		context.Set(consts.ValidatorPrefix+"photos", res)
 	} else {
 		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
 		return
 	}
-	// Real Insert - 1: ENC
+	if res, err := data_transfer.ConvertSliceToString(tags); err == nil {
+		context.Set(consts.ValidatorPrefix+"tags", res)
+	} else {
+		response.Fail(context, consts.ValidatorParamsCheckFailCode, consts.ValidatorParamsCheckFailMsg, "")
+		return
+	}
+	// STAGE -3: Real Insert - 1: ENC
 	animals_id := data_transfer.GetFloat64Slice(context, "animals_id") // 由于是 Slice 就交给 EAlink 内部遍历时处理。
 	// Real Insert - 2: EA LINK
 	if encounter_id, ok := model.CreateEncounterFactory("").InsertDate(context); ok && encounter_id > 0 {
@@ -53,7 +73,9 @@ func (e *Encounters) Create(context *gin.Context) {
 			return
 		}
 
-		response.Success(context, consts.CurdStatusOkMsg, "")
+		response.Success(context, consts.CurdStatusOkMsg, gin.H{
+			"encounter_id": encounter_id,
+		})
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+", 新增错误", "")
 	}
