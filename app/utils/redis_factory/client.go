@@ -6,6 +6,9 @@ import (
 	"catface/app/global/variable"
 	"catface/app/utils/yml_config"
 	"catface/app/utils/yml_config/ymlconfig_interf"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
@@ -161,3 +164,43 @@ func (r *RedisClient) Bytes(reply interface{}, err error) ([]byte, error) {
 }
 
 // 以上封装了很多最常见类型转换函数，其他您可以参考以上格式自行封装
+
+// 配合 List 类型使用; 配合 lpush 来获取返回的信息。 // UPDATE 感觉 前后的 [] 机制，应该是 go 导致的，em，肯定能优化，
+func (r *RedisClient) Int64sFromList(reply interface{}, err error) ([]int64, error) {
+	values, err := redis.Values(reply, err)
+	if err != nil {
+		return nil, err
+	}
+	// fmt.Println("len", len(values))
+
+	if len(values) == 0 {
+		return nil, fmt.Errorf("empty values")
+	}
+
+	// 假设 values 只有一个元素，且该元素是一个字符串 // INFO 这里返回的是一个 []uint8 的类型，但是处理的时候 string化 就会 导致前后的 '[]'
+	strValue := string(values[0].([]byte))
+	// fmt.Println("Original string:", strValue)
+
+	// 去掉前后的括号
+	strValue = strings.TrimPrefix(strValue, "[")
+	strValue = strings.TrimSuffix(strValue, "]")
+	// fmt.Println("Trimmed string:", strValue)
+
+	// 拆分成单独的数字字符串
+	strValues := strings.Split(strValue, " ")
+	// fmt.Println("Split values:", strValues)
+
+	var result []int64
+	for _, str := range strValues {
+		// 将字符串转换为 int64
+		intValue, err := strconv.ParseInt(str, 10, 64)
+		if err != nil {
+			return nil, err
+		}
+
+		// 将转换后的 int64 值添加到结果切片中
+		result = append(result, intValue)
+	}
+
+	return result, nil
+}

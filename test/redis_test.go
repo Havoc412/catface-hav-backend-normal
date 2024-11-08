@@ -38,17 +38,35 @@ func TestRedisKeyInt64(t *testing.T) {
 
 	id := variable.SnowFlake.GetId()
 
-	res, err := redisClient.String(redisClient.Execute("set", id, 1))
+	_, err := redisClient.String(redisClient.Execute("set", id, 10))
 	if err != nil {
 		t.Errorf("单元测试失败,%s\n", err.Error())
 	}
 
-	if res, err = redisClient.String(redisClient.Execute("get", id)); err != nil {
+	if res, err := redisClient.Int(redisClient.Execute("get", id)); err != nil {
 		t.Errorf("单元测试失败,%s\n", err.Error())
 	} else {
-		t.Logf("单元测试通过,%s\n", res)
+		t.Logf("单元测试通过,%d\n", res)
 	}
 }
+
+// func TestRedisKeyInt64s(t *testing.T) {
+// 	redisClient := redis_factory.GetOneRedisClient()
+// 	defer redisClient.ReleaseOneRedisClient()
+
+// 	key := variable.SnowFlake.GetId()
+
+// 	_, err := redisClient.String(redisClient.Execute("set", key, []int64{1, 2, 3}))
+// 	if err != nil {
+// 		t.Errorf("单元测试失败,%s\n", err.Error())
+// 	}
+
+// 	if res, err := redisClient.Int64s(redisClient.Execute("get", key)); err != nil {
+// 		t.Errorf("单元测试失败,%s\n", err.Error())
+// 	} else {
+// 		t.Logf("单元测试通过,%v\n", res)
+// 	}
+// }
 
 // hash 键、值
 func TestRedisHashKey(t *testing.T) {
@@ -133,3 +151,22 @@ func TestRedisMulti(t *testing.T) {
 }
 
 //  其他请参照以上示例即可
+
+// 测试 redis 的列表属性
+func TestRedisList(t *testing.T) {
+	redisClient := redis_factory.GetOneRedisClient()
+	defer redisClient.ReleaseOneRedisClient()
+
+	key := variable.SnowFlake.GetId()
+	list := []int64{1, 2, 6}
+	_, err := redisClient.Int64(redisClient.Execute("lpush", key, list))
+	if err != nil {
+		t.Errorf("单元测试失败,%s\n", err.Error())
+	}
+
+	if res, err := redisClient.Int64sFromList(redisClient.Execute("lrange", key, 0, -1)); err != nil {
+		t.Errorf("单元测试失败,%s\n", err.Error())
+	} else {
+		t.Logf("单元测试通过,%v\n", res)
+	}
+}

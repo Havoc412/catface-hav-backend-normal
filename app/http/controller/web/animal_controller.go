@@ -46,7 +46,7 @@ func (a *Animals) List(context *gin.Context) {
 	mode := context.GetString(consts.ValidatorPrefix + "mode")
 
 	var preferCatsId []int64
-	var redis_num int
+	var redis_preferCatsId []int64
 	var key int64
 	if mode == consts.AnimalPreferMode {
 		key = int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
@@ -54,17 +54,17 @@ func (a *Animals) List(context *gin.Context) {
 		redisClient := redis_factory.GetOneRedisClient()
 		defer redisClient.ReleaseOneRedisClient()
 		if key != 0 {
-			redis_num, _ = redisClient.Int(redisClient.Execute("get", key))
+			redis_preferCatsId, _ = redisClient.Int64sFromList(redisClient.Execute("lrange", key, 0, -1))
 		} else {
 			key = variable.SnowFlake.GetId()
 		}
 
-		if redis_num == skip {
+		if len(redis_preferCatsId) == skip {
 			preferCatsId, _ = getPreferCatsId(int(userId), int(num))
-			redis_num += len(preferCatsId)
-		}
+			redis_preferCatsId = append(redis_preferCatsId, preferCatsId...)
 
-		if _, err := redisClient.String(redisClient.Execute("set", key, redis_num)); err != nil {
+			if _, err := redisClient.String(redisClient.Execute("lpush", key, redis_preferCatsId)); err != nil {
+			}
 		}
 	}
 
@@ -91,9 +91,9 @@ func (a *Animals) List(context *gin.Context) {
 
 	// 计算还需要多少动物
 	num -= len(animalsWithLike)
-	skip -= redis_num
+	skip = max(0, skip-len(redis_preferCatsId))
 	if num > 0 {
-		additionalAnimals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, preferCatsId, num, skip, int(userId))
+		additionalAnimals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, redis_preferCatsId, num, skip, int(userId))
 		// 将 additionalAnimals 整合到 animalsWithLike 的后面
 		animalsWithLike = append(animalsWithLike, additionalAnimals...)
 	}
@@ -155,6 +155,7 @@ func (a *Animals) Detail(context *gin.Context) {
 		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
 	}
 }
+
 func (a *Animals) Create(context *gin.Context) {
 	userId := strconv.Itoa(int(context.GetFloat64(consts.ValidatorPrefix + "user_id")))
 	// STAGE-1 Get Params

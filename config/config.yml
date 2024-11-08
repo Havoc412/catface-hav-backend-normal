@@ -22,7 +22,8 @@ Token:
   IsCacheToRedis: 0                #用户token是否缓存到redis, 如果已经正确配置了redis,建议设置为1, 开启redis缓存token，（1=用户token缓存到redis; 0=token只存在于mysql）
 
 Redis:
-  Host: "113.44.68.213"  # 服务器本地调用。 开发时也在本地启动一个。
+  # Host: "113.44.68.213"  # 服务器本地调用。 开发时也在本地启动一个。
+  Host: "127.0.0.1"
   Port: 6379
   Auth: ""
   MaxIdle: 10

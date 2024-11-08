@@ -21,7 +21,7 @@ type List struct {
 	UserId        int    `form:"user_id" json:"user_id"`
 
 	Mode string `form:"mode" json:"mode"` // INFO 控制 animal_ctl 的查询模式。 // default: 简单调用 List 函数 || prefer: 优先返回和用户关联度更高的目标。
-	Ket  string `form:"key" json:"key"`   // redis の key 值。
+	Key  int64  `form:"key" json:"key"`   // redis の key 值。
 }
 
 func (l List) CheckParams(context *gin.Context) {

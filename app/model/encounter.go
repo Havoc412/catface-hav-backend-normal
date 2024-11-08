@@ -169,11 +169,18 @@ func (e *Encounter) ShowByID(id int64) (temp *Encounter, err error) {
 	// return
 }
 
+/**
+ * @description: 过去 1 个月，发送过路遇表的 ids，同时去重。
+ * @param {*} user_id
+ * @param {int} num
+ * @return {*}
+ */
 func (e *Encounter) EncounteredCats(user_id, num int) ([]int64, error) {
 	sql := `SELECT eal.animal_id 
             FROM encounter_animal_links eal
             JOIN encounters e 
                 ON e.id = eal.encounter_id AND e.user_id = ?
+			WHERE e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
 			ORDER BY e.updated_at DESC
 			LIMIT ?`
 
