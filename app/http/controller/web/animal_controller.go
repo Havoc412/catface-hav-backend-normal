@@ -94,7 +94,7 @@ func (a *Animals) List(context *gin.Context) {
 			"key":     key,
 		})
 	} else {
-		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], "")
+		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], errcode.ErrMsgForUser[errcode.AnimalNoFind])
 	}
 }
 

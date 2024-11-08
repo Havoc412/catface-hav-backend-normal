@@ -4,6 +4,8 @@ type msg map[int]string
 
 var ErrMsg msg
 
+var ErrMsgForUser msg
+
 func init() {
 	ErrMsg = make(msg)
 	GeneralMsgInit(ErrMsg)
@@ -11,6 +13,10 @@ func init() {
 	UserMsgInit(ErrMsg)
 	EnocunterMsgInit(ErrMsg)
 	NlpMsgInit(ErrMsg)
+
+	// INGO
+	ErrMsgForUser = make(msg)
+	AnimalMsgUserInit(ErrMsgForUser)
 }
 
 func GeneralMsgInit(m msg) {

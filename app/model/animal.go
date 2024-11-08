@@ -69,7 +69,7 @@ func (a *Animal) Show(attrs []string, gender []uint8, breed []uint8, sterilizati
 		db = db.Where("id not in (?)", notInIds)
 	}
 
-	err := db.Find(&temp).Error
+	err := db.Order("updated_at DESC").Find(&temp).Error
 	if err != nil {
 		variable.ZapLog.Error("Animal Show Error", zap.Error(err))
 	}
