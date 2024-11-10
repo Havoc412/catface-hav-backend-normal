@@ -119,4 +119,5 @@ func init() {
 	if err != nil {
 		log.Fatal(my_errors.ErrorsGlmClientInitFail + err.Error())
 	}
+
 }
