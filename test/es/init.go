@@ -13,7 +13,7 @@ func InitElastic() {
 	var err error
 	ElasticClient, err = elasticsearch.NewClient(elasticsearch.Config{
 		// Addresses: []string{"http://113.44.68.213:9200"},
-		Addresses: []string{"http://127.0.0.1:9200"},
+		Addresses: []string{"http://localhost:9200"}, // TIP 用 localhost 可以，127.0.0.1 无效...
 		// Username:  "elastic",
 		// Password:  "U8n61yn*Sp4Kvbuqo_K8",
 	})

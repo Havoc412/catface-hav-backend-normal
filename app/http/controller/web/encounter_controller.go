@@ -74,7 +74,9 @@ func (e *Encounters) Create(context *gin.Context) {
 			return
 		}
 		// 3. ES speed
-		// TODO
+		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 1 {
+			// TODO
+		}
 
 		response.Success(context, consts.CurdStatusOkMsg, gin.H{
 			"encounter_id": encounter_id,

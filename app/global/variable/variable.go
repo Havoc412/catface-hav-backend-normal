@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/yankeguo/zhipu"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
 )
 
 var (
@@ -46,6 +46,9 @@ var (
 
 	// GLM 全局客户端
 	GlmClient *zhipu.Client
+
+	// ES 全局客户端
+	ElasticClient *elasticsearch.Client
 )
 
 func init() {
