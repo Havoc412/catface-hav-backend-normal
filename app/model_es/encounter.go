@@ -14,6 +14,10 @@ import (
 )
 
 func CreateEncounterESFactory(encounter *model.Encounter) *Encounter {
+	if encounter == nil { // UPDATE 这样写好丑。
+		return &Encounter{}
+	}
+
 	// 我把数值绑定到了工厂创建当中。
 	return &Encounter{
 		Id:      encounter.Id,
@@ -75,6 +79,7 @@ func (e *Encounter) InsertDocument() error {
 	return nil
 }
 
+// TODO 改正，仿 Insert
 func (e *Encounter) UpdateDocument(client *elasticsearch.Client, encounter *Encounter) error {
 	ctx := context.Background()
 
@@ -123,7 +128,7 @@ func (e *Encounter) UpdateDocument(client *elasticsearch.Client, encounter *Enco
  * @param {string} query
  * @return {*} 对应 Encounter 的 id，然后交给 MySQL 来查询详细的信息？
  */
-func (e *Encounter) QueryDocumentsMatchAll(client *elasticsearch.Client, query string) ([]int64, error) {
+func (e *Encounter) QueryDocumentsMatchAll(query string) ([]int64, error) {
 	ctx := context.Background()
 
 	// 创建查询请求
@@ -151,7 +156,7 @@ func (e *Encounter) QueryDocumentsMatchAll(client *elasticsearch.Client, query s
 	}
 
 	// 发送请求
-	res, err := req.Do(ctx, client)
+	res, err := req.Do(ctx, variable.ElasticClient)
 	if err != nil {
 		return nil, err
 	}

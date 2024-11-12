@@ -173,6 +173,20 @@ func (e *Encounter) ShowByID(id int64) (temp *Encounter, err error) {
 	// return
 }
 
+func (e *Encounter) ShowByIDs(ids []int64, attrs ...string) (temp []Encounter) {
+	db := e.DB.Table(e.TableName())
+
+	if len(attrs) > 0 {
+		db = db.Select(attrs)
+	}
+
+	err := db.Where("id in (?)", ids).Find(&temp).Error
+	if err != nil {
+		variable.ZapLog.Error("Encounter ShowByIDs Error", zap.Error(err))
+	}
+	return
+}
+
 /**
  * @description: 过去 1 个月，发送过路遇表的 ids，同时去重。
  * @param {*} user_id
