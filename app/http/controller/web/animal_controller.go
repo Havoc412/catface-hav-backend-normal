@@ -154,8 +154,8 @@ func (a *Animals) Create(context *gin.Context) {
 		avatar := photos[0]
 		avatarWidth := variable.ConfigYml.GetFloat64("FileUploadSetting.AvatarWidth")
 
-		srcPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "hum_"+userId, avatar)
-		dstPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsAvatar", avatar)
+		srcPath := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "hum_"+userId, avatar)
+		dstPath := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsAvatar", avatar)
 		avatarHeight, err := upload_file.ResizeImage(srcPath, dstPath, int(avatarWidth))
 		if err != nil {
 			response.Fail(context, consts.FilesUploadFailCode, consts.FilesUploadFailMsg, "")
@@ -215,8 +215,8 @@ func (a *Animals) Create(context *gin.Context) {
 	// STAGE-3
 	if anm_id, ok := model.CreateAnimalFactory("").InsertDate(context); ok {
 		// 转移 photos 到 anm；采用 rename dir 的方式
-		oldName := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "hum_"+userId)
-		newName := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "anm_"+strconv.FormatInt(anm_id, 10))
+		oldName := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "hum_"+userId)
+		newName := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "anm_"+strconv.FormatInt(anm_id, 10))
 		err := os.Rename(oldName, newName)
 		if err != nil {
 			// TODO 特殊返回，成功了一半？或者需要清空原有的操作？不过感觉这一步几乎不会出错。
