@@ -156,6 +156,12 @@ Glm:
   ApiKey: "0cf510ebc01599dba2a593069c1bdfbc.nQBQ4skP8xBh7ijU"
   DefaultModel: "glm-4-flash"
 
+
+# qiNiu 云存储配置
+QiNiu:
+  AccessKey: "bI1MpHUBA9OCg4uSJkuJRmScuCJfOlbePe8fCENo"
+  SecretKey: "UP5-GmSmAYNbMlSb6LYLuKZ-fT35nlEzGvOKKm9S"
+
 ElasticSearch:
   Addr: "http://localhost:9200"
   UserName: "elastic"
