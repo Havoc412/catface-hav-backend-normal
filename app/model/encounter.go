@@ -44,18 +44,22 @@ func (e *Encounter) TableName() string {
 	return "encounters"
 }
 
-func (e *Encounter) InsertDate(c *gin.Context) (int64, bool) {
-	var tmp Encounter
+/**
+ * @description:
+ * @param {*gin.Context} c
+ * @return {*} 返回创建的绑定对象，之后 model_es 的利用。
+ */
+func (e *Encounter) InsertDate(c *gin.Context) (tmp Encounter, ok bool) {
 	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {
 		if res := e.Create(&tmp); res.Error == nil {
-			return tmp.Id, true
+			return tmp, true
 		} else {
 			variable.ZapLog.Error("Encounter 数据新增出错", zap.Error(res.Error))
 		}
 	} else {
 		variable.ZapLog.Error("Encounter 数据绑定出错", zap.Error(err))
 	}
-	return 0, false
+	return tmp, false
 }
 
 func formatEncounterList(rows *gorm.DB) (temp []EncounterList, err error) {

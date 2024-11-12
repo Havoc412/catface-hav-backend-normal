@@ -64,3 +64,20 @@ func init() {
 		log.Fatal(my_errors.ErrorsBasePath)
 	}
 }
+
+func init() {
+	// 1. 初始化程序根目录
+	if curPath, err := os.Getwd(); err == nil {
+		// 路径进行处理，兼容单元测试程序启动时的奇怪路径
+		if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-test") {
+			// 替换 \ 为 /，然后移除 /test 及其后的内容
+			curPath = strings.ReplaceAll(curPath, "\\", "/")
+			parts := strings.Split(curPath, "/test")
+			BasePath = parts[0]
+		} else {
+			BasePath = curPath
+		}
+	} else {
+		log.Fatal(my_errors.ErrorsBasePath)
+	}
+}
