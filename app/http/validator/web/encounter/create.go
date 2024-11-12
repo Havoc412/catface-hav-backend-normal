@@ -19,6 +19,7 @@ type Create struct {
 	AnimalsId []int  `form:"animals_id" json:"animals_id" binding:"required"`
 	Title     string `form:"title" json:"title" binding:"required"`
 	Content   string `form:"content" json:"content"`
+	Level     int    `form:"level" json:"level"`
 
 	// Avatar string `form:"avatar" json:"avatar"`
 	Photos []string `form:"photos" json:"photos"` // INFO 如果 Photo 为空，那就选取 Animals 的 Avatar

@@ -19,7 +19,7 @@ type Upload struct {
 func (u *Upload) StartUpload(context *gin.Context) {
 	// TODO 如果之后要存储到 Linux 服务器上特殊路径下，就需要修改这里。
 	dir_name := context.GetString(consts.ValidatorPrefix + "dir_name")
-	savePath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), dir_name)
+	savePath := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), dir_name)
 
 	if r, finnalSavePath := upload_file.Upload(context, savePath); r == true {
 		response.Success(context, consts.CurdStatusOkMsg, finnalSavePath)
