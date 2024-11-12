@@ -6,6 +6,7 @@ import (
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/model"
+	"catface/app/model_es"
 	"catface/app/service/encounter/curd"
 	"catface/app/service/upload_file"
 	"catface/app/utils/response"
@@ -25,8 +26,8 @@ func (e *Encounters) Create(context *gin.Context) {
 		avatar := photos[0]
 		avatarWidth := variable.ConfigYml.GetFloat64("FileUploadSetting.AvatarWidth")
 
-		srcPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterPhotos", "hum_"+userId, avatar)
-		dstPath := filepath.Join(variable.BasePath, variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterAvatar", avatar)
+		srcPath := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterPhotos", "hum_"+userId, avatar)
+		dstPath := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "encounterAvatar", avatar)
 		avatarHeight, err := upload_file.ResizeImage(srcPath, dstPath, int(avatarWidth))
 		if err != nil {
 			response.Fail(context, consts.FilesUploadFailCode, consts.FilesUploadFailMsg, "")
@@ -67,14 +68,21 @@ func (e *Encounters) Create(context *gin.Context) {
 	// STAGE -3: Real Insert - 1: ENC
 	animals_id := data_transfer.GetFloat64Slice(context, "animals_id") // 由于是 Slice 就交给 EAlink 内部遍历时处理。
 	// Real Insert - 2: EA LINK
-	if encounter_id, ok := model.CreateEncounterFactory("").InsertDate(context); ok && encounter_id > 0 {
-		if !model.CreateEncounterAnimalLinkFactory("").Insert(int64(encounter_id), animals_id) {
-			response.Fail(context, errcode.ErrEaLinkInstert, errcode.ErrMsg[errcode.ErrEaLinkInstert], "")
-			return
+	if encounter, ok := model.CreateEncounterFactory("").InsertDate(context); ok {
+		// 2: EA Links; // TIP 感觉直接使用 go 会直接且清晰。
+		go model.CreateEncounterAnimalLinkFactory("").Insert(encounter.Id, animals_id)
+		// if !model.CreateEncounterAnimalLinkFactory("").Insert(int64(encounter_id), animals_id) {
+		// 	response.Fail(context, errcode.ErrEaLinkInstert, errcode.ErrMsg[errcode.ErrEaLinkInstert], errcode.ErrMsgForUser[errcode.ErrEaLinkInstert])
+		// 	return
+		// }
+
+		// 3. ES speed
+		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 1 {
+			go model_es.CreateEncounterESFactory(&encounter).InsertDocument()
 		}
 
 		response.Success(context, consts.CurdStatusOkMsg, gin.H{
-			"encounter_id": encounter_id,
+			"encounter_id": encounter.Id,
 		})
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+", 新增错误", "")

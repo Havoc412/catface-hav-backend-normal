@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/yankeguo/zhipu"
 )
 
@@ -118,6 +119,15 @@ func init() {
 	variable.GlmClient, err = zhipu.NewClient(zhipu.WithAPIKey(variable.ConfigYml.GetString("Glm.ApiKey")))
 	if err != nil {
 		log.Fatal(my_errors.ErrorsGlmClientInitFail + err.Error())
+	}
+
+
+	// 12. ES 客户端启动
+	variable.ElasticClient, err = elasticsearch.NewClient(elasticsearch.Config{
+		Addresses: []string{variable.ConfigYml.GetString("ElasticSearch.Addr")},
+	})
+	if err != nil {
+		log.Fatal(my_errors.ErrorsInitConnFail + err.Error())
 	}
 
 }

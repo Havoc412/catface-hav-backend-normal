@@ -71,4 +71,7 @@ const (
 
 	// GLM 部分
 	ErrorsGlmClientInitFail string = "GLM Client 初始化失败"
+
+	// ES 部分
+	ErrorsInitConnFail string = "初始化 Elasticsearch 连接失败"
 )

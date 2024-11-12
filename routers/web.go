@@ -149,6 +149,11 @@ func InitWebRouter() *gin.Engine {
 		{
 			nlp.POST("title", validatorFactory.Create(consts.ValidatorPrefix+"NlpTitle"))
 		}
+
+		search := backend.Group("search")
+		{
+			search.GET("", validatorFactory.Create(consts.ValidatorPrefix+"SearchAll"))
+		}
 		// }
 	}
 

@@ -17,6 +17,7 @@ func init() {
 	// INGO
 	ErrMsgForUser = make(msg)
 	AnimalMsgUserInit(ErrMsgForUser)
+	EncounterMsgUserInit(ErrMsgForUser)
 }
 
 func GeneralMsgInit(m msg) {

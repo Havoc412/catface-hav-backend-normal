@@ -141,17 +141,17 @@ func testInsertDeworming() {
 }
 
 func insertData() {
-	// testInsertSterilzation()
-	// fmt.Println("testInsertSterilzation success.")
+	testInsertSterilzation()
+	fmt.Println("testInsertSterilzation success.")
 
-	// testInsertBreed()
-	// fmt.Println("testInsertBreed success.")
+	testInsertBreed()
+	fmt.Println("testInsertBreed success.")
 
-	// testInsertStatus()
-	// fmt.Println("testInsertStatus success.")
+	testInsertStatus()
+	fmt.Println("testInsertStatus success.")
 
-	// testInsertAnmGender()
-	// fmt.Println("testInsertAnmGender success.")
+	testInsertAnmGender()
+	fmt.Println("testInsertAnmGender success.")
 
 	testInsertVaccination()
 	fmt.Println("testInsertVaccination success.")
@@ -163,7 +163,8 @@ func insertData() {
 func main() {
 	// 1.
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		"root", "Havocantelope412#", "113.44.68.213", "3306", "hav_cats") // ATT MySQL
+		// "root", "Havocantelope412#", "113.44.68.213", "3306", "hav_cats") // ATT MySQL	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		"root", "havocantelope412", "127.0.0.1", "3306", "hav_cats") // ATT MySQL
 	fmt.Println("dsn:", dsn)
 	dbMySQL, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

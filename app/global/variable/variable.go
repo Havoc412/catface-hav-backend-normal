@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"github.com/casbin/casbin/v2"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/yankeguo/zhipu"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-
 )
 
 var (
@@ -46,6 +46,9 @@ var (
 
 	// GLM 全局客户端
 	GlmClient *zhipu.Client
+
+	// ES 全局客户端
+	ElasticClient *elasticsearch.Client
 )
 
 func init() {
@@ -54,6 +57,23 @@ func init() {
 		// 路径进行处理，兼容单元测试程序程序启动时的奇怪路径
 		if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-test") {
 			BasePath = strings.Replace(strings.Replace(curPath, `\test`, "", 1), `/test`, "", 1)
+		} else {
+			BasePath = curPath
+		}
+	} else {
+		log.Fatal(my_errors.ErrorsBasePath)
+	}
+}
+
+func init() {
+	// 1. 初始化程序根目录
+	if curPath, err := os.Getwd(); err == nil {
+		// 路径进行处理，兼容单元测试程序启动时的奇怪路径
+		if len(os.Args) > 1 && strings.HasPrefix(os.Args[1], "-test") {
+			// 替换 \ 为 /，然后移除 /test 及其后的内容
+			curPath = strings.ReplaceAll(curPath, "\\", "/")
+			parts := strings.Split(curPath, "/test")
+			BasePath = parts[0]
 		} else {
 			BasePath = curPath
 		}
