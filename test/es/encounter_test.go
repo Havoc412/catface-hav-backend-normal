@@ -1,7 +1,6 @@
 package test
 
 import (
-	"catface/app/global/variable"
 	"catface/app/model"
 	"catface/app/model_es"
 	_ "catface/bootstrap"
@@ -35,7 +34,7 @@ func TestEncounterEs(t *testing.T) {
 	// }
 
 	// 查询文档
-	encounters, err := encounter.QueryDocumentsMatchAll(variable.ElasticClient, "猪皮")
+	encounters, err := encounter.QueryDocumentsMatchAll("猪皮")
 	if err != nil {
 		t.Fatalf("查询文档时出错: %s", err)
 	}
