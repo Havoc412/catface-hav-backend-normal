@@ -50,9 +50,10 @@ func (e *Encounters) Create(context *gin.Context) {
 	if extra != nil {
 		context.Set(consts.ValidatorPrefix+"topics", extra["topics"])
 		tags = data_transfer.GetStringSlice(context, "topics")
+		context.Set(consts.ValidatorPrefix+"tags_list", tags)
 		context.Set(consts.ValidatorPrefix+"tags", tags) // INFO 这里字段没有直接匹配上。
 	}
-	// STAGE - 2
+	// STAGE - 2: Make []string to String
 	if res, err := data_transfer.ConvertSliceToString(photos); err == nil {
 		context.Set(consts.ValidatorPrefix+"photos", res)
 	} else {
@@ -71,10 +72,6 @@ func (e *Encounters) Create(context *gin.Context) {
 	if encounter, ok := model.CreateEncounterFactory("").InsertDate(context); ok {
 		// 2: EA Links; // TIP 感觉直接使用 go 会直接且清晰。
 		go model.CreateEncounterAnimalLinkFactory("").Insert(encounter.Id, animals_id)
-		// if !model.CreateEncounterAnimalLinkFactory("").Insert(int64(encounter_id), animals_id) {
-		// 	response.Fail(context, errcode.ErrEaLinkInstert, errcode.ErrMsg[errcode.ErrEaLinkInstert], errcode.ErrMsgForUser[errcode.ErrEaLinkInstert])
-		// 	return
-		// }
 
 		// 3. ES speed
 		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 1 {

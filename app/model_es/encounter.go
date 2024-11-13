@@ -23,7 +23,7 @@ func CreateEncounterESFactory(encounter *model.Encounter) *Encounter {
 		Id:      encounter.Id,
 		Title:   encounter.Title,
 		Content: encounter.Content,
-		Tags:    encounter.TagsSlice, // TODO 暂时没有对此字段的查询。
+		Tags:    encounter.TagsList, // TODO 暂时没有对此字段的查询。
 	}
 }
 

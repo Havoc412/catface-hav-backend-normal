@@ -22,11 +22,11 @@ type Encounter struct { // Encounter 或者称为 post，指的就是 Human 单�
 	UsersModel   *UsersModel `json:"users_model,omitempty"` // INFO 由于 Detail 返回空子段有些麻烦，先尝试采用指针。
 	// AnimalsId    string      `gorm:"size:20" json:"animals_id"` // 关联对象存在上限  // INFO 还是采取分表，方便查询。
 
-	Title     string   `gorm:"size:20;column:title" json:"title"`
-	Content   string   `json:"content"`
-	Level     uint8    `json:"level" gorm:"column:level;default:1"`
-	Tags      string   `json:"tags,omitempty" gorm:"column:tags;size:50"`
-	TagsSlice []string `gorm:"-" json:"tags_list,omitempty"`
+	Title    string   `gorm:"size:20;column:title" json:"title"`
+	Content  string   `json:"content"`
+	Level    uint8    `json:"level" gorm:"column:level;default:1"`
+	Tags     string   `json:"tags,omitempty" gorm:"column:tags;size:50"`
+	TagsList []string `gorm:"-" json:"tags_list,omitempty"`
 
 	// TAG Avatar 最好是压缩后的备份图像
 	Avatar       string   `gorm:"type:varchar(50)" json:"avatar,omitempty"` // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。

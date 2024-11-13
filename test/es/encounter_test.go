@@ -14,9 +14,9 @@ func TestEncounterEs(t *testing.T) {
 		BaseModel: model.BaseModel{
 			Id: 4,
 		},
-		Title:     "猪皮伤势轻，需静养猪皮伤势轻，需静养",
-		Content:   "猪皮被带到医院检查了，拍片结果显示损伤不严重，静养即可自愈。建议这段时间不要折腾他，让老登好好休息。",
-		TagsSlice: []string{"猪皮", "脚伤", "骗保"},
+		Title:    "猪皮伤势轻，需静养猪皮伤势轻，需静养",
+		Content:  "猪皮被带到医院检查了，拍片结果显示损伤不严重，静养即可自愈。建议这段时间不要折腾他，让老登好好休息。",
+		TagsList: []string{"猪皮", "脚伤", "骗保"},
 	}
 
 	encounter := model_es.CreateEncounterESFactory(encounterOri)
