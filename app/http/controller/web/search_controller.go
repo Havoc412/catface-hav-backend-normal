@@ -27,14 +27,18 @@ func (s *Search) SearchAll(context *gin.Context) {
 	animals = model.CreateAnimalFactory("").ShowByName(query)
 
 	// 2. Encounter
-	encounterIds, _ := model_es.CreateEncounterESFactory(nil).QueryDocumentsMatchAll(query)
+	_, _ = model_es.CreateEncounterESFactory(nil).QueryDocumentsMatchAll(query)
 
-	if len(encounterIds) > 0 {
-		encounters = model.CreateEncounterFactory("").ShowByIDs(encounterIds)
-	}
+	// if len(encounterIds) > 0 {
+	// 	encounters = model.CreateEncounterFactory("").ShowByIDs(encounterIds)
+	// }
+
+	// 3. Knowledge
+	knowledges, _ := model_es.CreateKnowledgeESFactory().QueryDocumentsMatchAll(query, 3)
 
 	response.Success(context, consts.CurdStatusOkMsg, gin.H{
 		"animals":    animals,
 		"encounters": encounters,
+		"knowledges": knowledges,
 	})
 }

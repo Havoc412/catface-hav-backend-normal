@@ -3,6 +3,8 @@ package model_es
 import (
 	"bytes"
 	"catface/app/global/variable"
+	"catface/app/utils/data_bind"
+	"catface/app/utils/model_handler"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -141,4 +143,90 @@ func (k *Knowledge) RandomDocuments(num int) ([]*Knowledge, error) {
 	}
 
 	return documents, nil
+}
+
+/**
+ * @description: 使用 ES 的 match 匹配虽有字段，同时处理 highlight
+ * @param {string} query 查询字符串
+ * @param {int} num 查询数量
+ * @return {*}
+ */
+func (k *Knowledge) QueryDocumentsMatchAll(query string, num int) ([]Knowledge, error) {
+	ctx := context.Background()
+
+	body := fmt.Sprintf(`{
+  "size": %d,
+  "query": {
+    "bool": {
+      "should": [
+        { "match": {"title": "%s" }},
+        { "match": {"content": "%s" }}
+      ]
+    }
+  },
+ "highlight": {
+    "pre_tags": ["<em>"],
+    "post_tags": ["</em>"],
+    "fields": {
+      "title": {},
+      "content": {
+        "fragment_size" : 20
+      }
+    }
+  }
+}`, num, query, query) // TODO dirs 我还没想好如何处理
+	// 创建请求
+	req := esapi.SearchRequest{
+		Index: []string{k.IndexName()},
+		Body:  strings.NewReader(body),
+	}
+
+	// 发送请求
+	res, err := req.Do(ctx, variable.ElasticClient)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		var k map[string]interface{}
+		if err := json.NewDecoder(res.Body).Decode(&k); err != nil {
+			return nil, fmt.Errorf("error parsing the response body: %s", err)
+		} else {
+			return nil, fmt.Errorf("[%s] %s: %s",
+				res.Status(),
+				k["error"].(map[string]interface{})["type"],
+				k["error"].(map[string]interface{})["reason"],
+			)
+		}
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	hits, ok := result["hits"].(map[string]interface{})["hits"].([]interface{})
+	if !ok {
+		return nil, fmt.Errorf("error extracting hits from response")
+	}
+
+	var knowledges []Knowledge
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"].(map[string]interface{})
+		highlight := hitMap["highlight"].(map[string]interface{})
+
+		for k, v := range highlight {
+			source[k] = model_handler.TransStringSliceToString(v.([]interface{}))
+		}
+
+		var k Knowledge
+		if err := data_bind.ShouldBindFormMapToModel(source, &k); err != nil {
+			return nil, err
+		}
+		knowledges = append(knowledges, k)
+	}
+
+	return knowledges, nil
 }

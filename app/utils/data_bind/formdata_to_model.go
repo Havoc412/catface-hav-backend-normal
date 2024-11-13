@@ -80,3 +80,64 @@ func fieldSetValue(c *gin.Context, valueOf reflect.Value, typeOf reflect.Type, c
 		}
 	}
 }
+
+/**
+ * @description:
+ * @param {map[string]interface{}} m
+ * @param {interface{}} modelStruct
+ * @return {*}
+ */
+func ShouldBindFormMapToModel(m map[string]interface{}, modelStruct interface{}) error {
+	mTypeOf := reflect.TypeOf(modelStruct)
+	if mTypeOf.Kind() != reflect.Ptr {
+		return errors.New(modelStructMustPtr)
+	}
+	mValueOf := reflect.ValueOf(modelStruct)
+
+	mValueOfEle := mValueOf.Elem()
+	mtf := mValueOf.Elem().Type()
+	fieldNum := mtf.NumField()
+	for i := 0; i < fieldNum; i++ {
+		if !mtf.Field(i).Anonymous && mtf.Field(i).Type.Kind() != reflect.Struct {
+			fieldSetValueByMap(m, mValueOfEle, mtf, i)
+		} else if mtf.Field(i).Type.Kind() == reflect.Struct { // INFO 处理结构体。
+			// TODO 处理结构体(有名+匿名)
+		}
+	}
+	return nil
+}
+
+func fieldSetValueByMap(m map[string]interface{}, valueOf reflect.Value, typeOf reflect.Type, colIndex int) {
+	relaKey := typeOf.Field(colIndex).Tag.Get("json")
+	if relaKey != "-" {
+		switch typeOf.Field(colIndex).Type.Kind() {
+		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
+			valueOf.Field(colIndex).SetInt(int64(m[relaKey].(float64)))
+			return
+		case reflect.Float32, reflect.Float64:
+			valueOf.Field(colIndex).SetFloat(m[relaKey].(float64))
+			return
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			valueOf.Field(colIndex).SetUint(uint64(m[relaKey].(float64)))
+			return
+		case reflect.String:
+			valueOf.Field(colIndex).SetString(m[relaKey].(string))
+			return
+		case reflect.Bool:
+			valueOf.Field(colIndex).SetBool(m[relaKey].(bool))
+			return
+		case reflect.Slice:
+			interfaceSlice := m[relaKey].([]interface{})
+			stringSlice := make([]string, len(interfaceSlice))
+			// 遍历并进行类型断言
+			for i, v := range interfaceSlice {
+				stringSlice[i] = v.(string)
+			}
+			// 设置字段值
+			valueOf.Field(colIndex).Set(reflect.ValueOf(stringSlice))
+			return
+		default:
+			return
+		}
+	}
+}

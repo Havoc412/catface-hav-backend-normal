@@ -128,26 +128,22 @@ func (e *Encounter) UpdateDocument(client *elasticsearch.Client, encounter *Enco
  * @param {string} query
  * @return {*} 对应 Encounter 的 id，然后交给 MySQL 来查询详细的信息？
  */
-func (e *Encounter) QueryDocumentsMatchAll(query string) ([]int64, error) {
+func (e *Encounter) QueryDocumentsMatchAll(query string) ([]Encounter, error) {
 	ctx := context.Background()
 
 	// 创建查询请求
 	req := esapi.SearchRequest{ // UPDATE 同时实现查询高亮？
 		Index: []string{e.IndexName()},
+		// INFO 采取高光的设定，所以还是用 ES 的返回值会比较好； "_source": ["id"],
 		Body: strings.NewReader(fmt.Sprintf(`{
-			"_source": ["id"],
 			"query": {
 				"bool": {
 					"should": [
 						{
-							"match": {
-								"title": "%s"
-							}
+							"match": { "title": "%s" }
 						},
 						{
-							"match": {
-								"content": "%s"
-							}
+							"match": { "content": "%s" }
 						}
 					]
 				}
@@ -187,39 +183,37 @@ func (e *Encounter) QueryDocumentsMatchAll(query string) ([]int64, error) {
 		return nil, fmt.Errorf("error extracting hits from response")
 	}
 
-	fmt.Println(hits)
+	// // 转换为 id 切片
+	// var ids []int64
+	// for _, hit := range hits {
+	// 	hitMap := hit.(map[string]interface{})["_source"].(map[string]interface{})
+	// 	id := int64(hitMap["id"].(float64))
+	// 	ids = append(ids, id)
+	// }
+	// return ids, nil
 
-	// 转换为 id 切片
-	var ids []int64
+	// 转换为 Encounter 切片
+	var encounters []*Encounter
 	for _, hit := range hits {
-		hitMap := hit.(map[string]interface{})["_source"].(map[string]interface{})
-		id := int64(hitMap["id"].(float64))
-		ids = append(ids, id)
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"].(map[string]interface{})
+		// highlight := hitMap["highlight"].(map[string]interface{})
+
+		// TIP 将 []interface{} 转换为 []string
+		tagsInterface := source["tags"].([]interface{})
+		tags := make([]string, len(tagsInterface))
+		for i, tag := range tagsInterface {
+			tags[i] = tag.(string)
+		}
+
+		encounter := &Encounter{
+			Id:      int64(source["id"].(float64)),
+			Title:   source["title"].(string),
+			Content: source["content"].(string),
+			Tags:    tags,
+		}
+		encounters = append(encounters, encounter)
 	}
 
-	return ids, nil
-
-	// // 转换为 Encounter 切片
-	// var encounters []*Encounter
-	// for _, hit := range hits {
-	// 	hitMap := hit.(map[string]interface{})
-	// 	source := hitMap["_source"].(map[string]interface{})
-
-	// 	// TIP 将 []interface{} 转换为 []string
-	// 	tagsInterface := source["tags"].([]interface{})
-	// 	tags := make([]string, len(tagsInterface))
-	// 	for i, tag := range tagsInterface {
-	// 		tags[i] = tag.(string)
-	// 	}
-
-	// 	encounter := &Encounter{
-	// 		Id:      int64(source["id"].(float64)),
-	// 		Title:   source["title"].(string),
-	// 		Content: source["content"].(string),
-	// 		Tags:    tags,
-	// 	}
-	// 	encounters = append(encounters, encounter)
-	// }
-
-	// return encounters, nil
+	return []Encounter{}, nil
 }
