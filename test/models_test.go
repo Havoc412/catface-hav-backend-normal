@@ -46,7 +46,7 @@ func TestEncounterLevel_Insert(t *testing.T) {
 		t.Error(err)
 	}
 
-	ZH := []string{"日常", "重大", "标志", "代办", "日程"}
+	ZH := []string{"日常", "重要", "标志", "代办", "日程"}
 	EN := []string{"daily", "serious", "flag", "todo", "schedule"}
 	colorbg := []string{"#F0F0F0", "#FFD700", "#FF69B4", "#87CEFA", "#32CD32"}
 	colorfont := []string{"#333333", "#000000", "#FFFFFF", "#000000", "#FFFFFF"}
