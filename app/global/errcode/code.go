@@ -6,6 +6,7 @@ const (
 	ErrUser
 	ErrEncounter
 	ErrNlp
+	ErrKnowledge
 )
 
 const (

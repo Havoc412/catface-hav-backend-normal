@@ -154,6 +154,11 @@ func InitWebRouter() *gin.Engine {
 		{
 			search.GET("", validatorFactory.Create(consts.ValidatorPrefix+"SearchAll"))
 		}
+
+		knowledge := backend.Group("knowledge")
+		{
+			knowledge.GET("random", validatorFactory.Create(consts.ValidatorPrefix+"KnowledgeRandomList"))
+		}
 		// }
 	}
 
