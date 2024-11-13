@@ -6,6 +6,7 @@ import (
 	"catface/app/global/variable"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/model"
+	"catface/app/model_es"
 	"catface/app/service/animals/curd"
 	"catface/app/service/upload_file"
 	"catface/app/utils/query_handler"
@@ -190,6 +191,7 @@ func (a *Animals) Create(context *gin.Context) {
 		context.Set(consts.ValidatorPrefix+"tags", extra["tags"])
 		nickNames = data_transfer.GetStringSlice(context, "nick_names")
 		tags = data_transfer.GetStringSlice(context, "tags")
+		context.Set(consts.ValidatorPrefix+"nick_names_list", nickNames)
 		context.Set(consts.ValidatorPrefix+"nick_names", nickNames)
 		context.Set(consts.ValidatorPrefix+"tags", tags) // UPDATE 有点冗余，但是不用复杂代码；
 	}
@@ -213,16 +215,21 @@ func (a *Animals) Create(context *gin.Context) {
 		return
 	}
 	// STAGE-3
-	if anm_id, ok := model.CreateAnimalFactory("").InsertDate(context); ok {
+	if animal, ok := model.CreateAnimalFactory("").InsertDate(context); ok {
 		// 转移 photos 到 anm；采用 rename dir 的方式
 		oldName := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "hum_"+userId)
-		newName := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "anm_"+strconv.FormatInt(anm_id, 10))
+		newName := filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), "catsPhotos", "anm_"+strconv.FormatInt(animal.Id, 10))
 		err := os.Rename(oldName, newName)
 		if err != nil {
 			// TODO 特殊返回，成功了一半？或者需要清空原有的操作？不过感觉这一步几乎不会出错。
+			// TODO 或许直接采用 go 会比较好呢？
 		}
+
+		// 2. 将部分数据插入 ES；
+		go model_es.CreateAnimalESFactory(&animal).InsertDocument()
+
 		response.Success(context, consts.CurdStatusOkMsg, gin.H{
-			"anm_id": anm_id,
+			"anm_id": animal.Id,
 		})
 	} else {
 		response.Fail(context, consts.CurdCreatFailCode, consts.CurdCreatFailMsg+",新增错误", "")
