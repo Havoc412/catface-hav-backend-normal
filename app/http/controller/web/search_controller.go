@@ -2,8 +2,9 @@ package web
 
 import (
 	"catface/app/global/consts"
-	"catface/app/model"
 	"catface/app/model_es"
+	animal_curd "catface/app/service/animals/curd"
+	encouner_curd "catface/app/service/encounter/curd"
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"
@@ -20,18 +21,12 @@ type Search struct {
 func (s *Search) SearchAll(context *gin.Context) {
 	query := context.GetString(consts.ValidatorPrefix + "query")
 
-	var animals []model.Animal
-	var encounters []model.Encounter
-
 	// 1. Animal Name  // TODO 增加字段的过滤，看前端了。
-	animals = model.CreateAnimalFactory("").ShowByName(query)
+	// animals = model.CreateAnimalFactory("").ShowByName(query)
+	animals := animal_curd.CreateAnimalsCurdFactory().MatchAll(query, 3)
 
 	// 2. Encounter
-	_, _ = model_es.CreateEncounterESFactory(nil).QueryDocumentsMatchAll(query)
-
-	// if len(encounterIds) > 0 {
-	// 	encounters = model.CreateEncounterFactory("").ShowByIDs(encounterIds)
-	// }
+	encounters := encouner_curd.CreateEncounterCurdFactory().MatchAll(query, 3)
 
 	// 3. Knowledge
 	knowledges, _ := model_es.CreateKnowledgeESFactory().QueryDocumentsMatchAll(query, 3)

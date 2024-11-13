@@ -109,7 +109,7 @@ func ShouldBindFormMapToModel(m map[string]interface{}, modelStruct interface{})
 
 func fieldSetValueByMap(m map[string]interface{}, valueOf reflect.Value, typeOf reflect.Type, colIndex int) {
 	relaKey := typeOf.Field(colIndex).Tag.Get("json")
-	if relaKey != "-" {
+	if relaKey != "-" && m[relaKey] != nil {
 		switch typeOf.Field(colIndex).Type.Kind() {
 		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 			valueOf.Field(colIndex).SetInt(int64(m[relaKey].(float64)))

@@ -15,19 +15,20 @@ func CreateAnimalFactory(sqlType string) *Animal {
 
 type Animal struct {
 	// UPDATE 或者这里都应该采取外键连接？
-	BaseModel              // 假设 BaseModel 中不需要添加 omitempty 标签
-	Name          string   `gorm:"type:varchar(20)" json:"name,omitempty"`       // 名称
-	Birthday      string   `gorm:"size:10" json:"birthday,omitempty"`            // 生日；就简单存string就好
-	Gender        uint8    `gorm:"default:1" json:"gender,omitempty"`            // 性别
-	Breed         uint8    `gorm:"default:1" json:"breed,omitempty"`             // 品种
-	Sterilization uint8    `gorm:"default:1" json:"sterilization,omitempty"`     // 1 不明 2 未绝育 3 已绝育
-	Vaccination   uint8    `gorm:"default:1" json:"vaccination,omitempty"`       // 免疫状态
-	Deworming     uint8    `gorm:"default:1" json:"deworming,omitempty"`         // 驱虫状态
-	NickNames     string   `gorm:"type:varchar(31)" json:"nick_names,omitempty"` // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
-	NickNamesList []string `gorm:"-" json:"nick_names_list,omitempty"`
-	Status        uint8    `gorm:"default:1" json:"status,omitempty"`                                 // 状态
-	Description   string   `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
-	Tags          string   `json:"tags,omitempty"`
+	BaseModel                   // 假设 BaseModel 中不需要添加 omitempty 标签
+	Name               string   `gorm:"type:varchar(20)" json:"name,omitempty"`       // 名称
+	Birthday           string   `gorm:"size:10" json:"birthday,omitempty"`            // 生日；就简单存string就好
+	Gender             uint8    `gorm:"default:1" json:"gender,omitempty"`            // 性别
+	Breed              uint8    `gorm:"default:1" json:"breed,omitempty"`             // 品种
+	Sterilization      uint8    `gorm:"default:1" json:"sterilization,omitempty"`     // 1 不明 2 未绝育 3 已绝育
+	Vaccination        uint8    `gorm:"default:1" json:"vaccination,omitempty"`       // 免疫状态
+	Deworming          uint8    `gorm:"default:1" json:"deworming,omitempty"`         // 驱虫状态
+	NickNames          string   `gorm:"type:varchar(31)" json:"nick_names,omitempty"` // 别称，辅助查询；存储上采取 , 间隔符的方式; VARCHAR 会比较合适
+	NickNamesList      []string `gorm:"-" json:"nick_names_list,omitempty"`
+	NickNamesHighlight []string `gorm:"-" json:"nick_names_highlight,omitempty"`                           // INFO 配合 ES
+	Status             uint8    `gorm:"default:1" json:"status,omitempty"`                                 // 状态
+	Description        string   `gorm:"column:description;type:varchar(255)" json:"description,omitempty"` // 简明介绍
+	Tags               string   `json:"tags,omitempty"`
 	// TAG imaegs
 	Avatar       string `gorm:"type:varchar(50)" json:"avatar,omitempty"`   // 缩略图 url，为 Go 获取 Photo 之后压缩处理后的图像，单独存储。
 	AvatarHeight uint16 `json:"avatar_height,omitempty"`                    // 为了方便前端在加载图像前的骨架图 & 瀑布流展示。  // INFO 暂时没用到

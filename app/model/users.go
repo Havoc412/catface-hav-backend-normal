@@ -362,3 +362,14 @@ func (u *UsersModel) ShowByID(id int64, attrs ...string) (temp *UsersModel, err 
 	}
 	return
 }
+
+func (u *UsersModel) ShowByIDs(ids []int64, attrs ...string) (temp []UsersModel) {
+	db := u.DB.Table(u.TableName())
+
+	if len(attrs) > 0 {
+		db = db.Select(attrs)
+	}
+
+	db.Where("id in (?)", ids).Find(&temp)
+	return
+}

@@ -2,6 +2,7 @@ package curd
 
 import (
 	"catface/app/model"
+	"catface/app/model_es"
 	"catface/app/utils/query_handler"
 	"strconv"
 )
@@ -63,4 +64,46 @@ func (e *EncounterCurd) Detail(id string) *model.EncounterDetail {
 		UsersModel: *user,
 		Animals:    animals,
 	}
+}
+
+func (e *EncounterCurd) MatchAll(query string, num int) (tmp []model.Encounter) {
+	// 1. encounter ES
+	encountersFromES, err := model_es.CreateEncounterESFactory(nil).QueryDocumentsMatchAll(query, num)
+	if err != nil || len(encountersFromES) == 0 {
+		return nil
+	}
+
+	var ids []int64
+	for _, encounter := range encountersFromES {
+		ids = append(ids, encounter.Id)
+	}
+
+	// 2. encounter SQL
+	encountersFromSQL := model.CreateEncounterFactory("").ShowByIDs(ids, "id", "avatar", "user_id")
+
+	// 3. users
+	ids = nil
+	for _, encounter := range encountersFromSQL {
+		ids = append(ids, encounter.UsersModelId)
+	}
+	users := model.CreateUserFactory("").ShowByIDs(ids, "user_avatar", "user_name", "id")
+
+	// end. Merge
+	for _, enencountersFromES := range encountersFromES {
+		for _, encounter := range encountersFromSQL {
+			for _, user := range users {
+				if encounter.Id == enencountersFromES.Id && encounter.UsersModelId == user.Id {
+					encounter.TagsList = enencountersFromES.Tags
+					encounter.TagsHighlight = enencountersFromES.TagsHighlight
+					encounter.Title = enencountersFromES.Title
+					encounter.Content = enencountersFromES.Content
+
+					encounter.UsersModel = &user
+					tmp = append(tmp, encounter)
+				}
+			}
+		}
+	}
+
+	return
 }

@@ -218,6 +218,7 @@ func (k *Knowledge) QueryDocumentsMatchAll(query string, num int) ([]Knowledge, 
 		highlight := hitMap["highlight"].(map[string]interface{})
 
 		for k, v := range highlight {
+			// INFO Knowledge 暂时不涉及 keywords 类型，就先这样处理。
 			source[k] = model_handler.TransStringSliceToString(v.([]interface{}))
 		}
 

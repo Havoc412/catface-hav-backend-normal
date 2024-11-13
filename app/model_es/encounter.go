@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"catface/app/global/variable"
 	"catface/app/model"
+	"catface/app/utils/data_bind"
+	"catface/app/utils/model_handler"
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
@@ -33,6 +34,8 @@ type Encounter struct {
 	Title   string   `json:"title"`
 	Content string   `json:"content"`
 	Tags    []string `json:"tags"`
+
+	TagsHighlight []string `json:"tags_highlight"`
 }
 
 func (e *Encounter) IndexName() string {
@@ -128,92 +131,50 @@ func (e *Encounter) UpdateDocument(client *elasticsearch.Client, encounter *Enco
  * @param {string} query
  * @return {*} 对应 Encounter 的 id，然后交给 MySQL 来查询详细的信息？
  */
-func (e *Encounter) QueryDocumentsMatchAll(query string) ([]Encounter, error) {
-	ctx := context.Background()
+func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, error) {
+	body := fmt.Sprintf(`{
+  "size": %d, 
+  "query": {
+    "bool": {
+      "should": [
+        {"match": {"tags": "%s"}},
+        {"match": {"content": "%s"}},
+        {"match": {"title": "%s"}}
+      ]
+    }
+  },
+  "highlight": {
+    "pre_tags": ["<em>"],
+    "post_tags": ["</em>"],
+    "fields": {
+      "title": {},
+      "content": {
+        "fragment_size" : 15
+      },
+      "tags": {
+        "pre_tags": [""],
+        "post_tags": [""]
+      }
+    }
+  }
+}`, num, query, query, query)
 
-	// 创建查询请求
-	req := esapi.SearchRequest{ // UPDATE 同时实现查询高亮？
-		Index: []string{e.IndexName()},
-		// INFO 采取高光的设定，所以还是用 ES 的返回值会比较好； "_source": ["id"],
-		Body: strings.NewReader(fmt.Sprintf(`{
-			"query": {
-				"bool": {
-					"should": [
-						{
-							"match": { "title": "%s" }
-						},
-						{
-							"match": { "content": "%s" }
-						}
-					]
-				}
-			}
-		}`, query, query)),
-	}
-
-	// 发送请求
-	res, err := req.Do(ctx, variable.ElasticClient)
+	hits, err := model_handler.SearchRequest(body, e.IndexName())
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
 
-	if res.IsError() {
-		var e map[string]interface{}
-		if err := json.NewDecoder(res.Body).Decode(&e); err != nil {
-			return nil, fmt.Errorf("error parsing the response body: %s", err)
-		} else {
-			return nil, fmt.Errorf("[%s] %s: %s",
-				res.Status(),
-				e["error"].(map[string]interface{})["type"],
-				e["error"].(map[string]interface{})["reason"],
-			)
-		}
-	}
-
-	// 解析响应
-	var r map[string]interface{}
-	if err := json.NewDecoder(res.Body).Decode(&r); err != nil {
-		return nil, err
-	}
-
-	// 提取命中结果
-	hits, ok := r["hits"].(map[string]interface{})["hits"].([]interface{})
-	if !ok {
-		return nil, fmt.Errorf("error extracting hits from response")
-	}
-
-	// // 转换为 id 切片
-	// var ids []int64
-	// for _, hit := range hits {
-	// 	hitMap := hit.(map[string]interface{})["_source"].(map[string]interface{})
-	// 	id := int64(hitMap["id"].(float64))
-	// 	ids = append(ids, id)
-	// }
-	// return ids, nil
-
-	// 转换为 Encounter 切片
-	var encounters []*Encounter
+	var encounters []Encounter
 	for _, hit := range hits {
-		hitMap := hit.(map[string]interface{})
-		source := hitMap["_source"].(map[string]interface{})
-		// highlight := hitMap["highlight"].(map[string]interface{})
+		data := model_handler.MergeSouceWithHighlight(hit.(map[string]interface{}))
 
-		// TIP 将 []interface{} 转换为 []string
-		tagsInterface := source["tags"].([]interface{})
-		tags := make([]string, len(tagsInterface))
-		for i, tag := range tagsInterface {
-			tags[i] = tag.(string)
+		var encounter Encounter
+		if err := data_bind.ShouldBindFormMapToModel(data, &encounter); err != nil {
+			continue
 		}
 
-		encounter := &Encounter{
-			Id:      int64(source["id"].(float64)),
-			Title:   source["title"].(string),
-			Content: source["content"].(string),
-			Tags:    tags,
-		}
 		encounters = append(encounters, encounter)
 	}
 
-	return []Encounter{}, nil
+	return encounters, nil
 }

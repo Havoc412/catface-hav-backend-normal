@@ -2,6 +2,7 @@ package curd
 
 import (
 	"catface/app/model"
+	"catface/app/model_es"
 	"catface/app/utils/gorm_v2"
 	"catface/app/utils/model_handler"
 	"catface/app/utils/query_handler"
@@ -121,4 +122,36 @@ func (a *AnimalsCurd) Detail(id string) *model.Animal {
 	}
 
 	return model.CreateAnimalFactory("mysql").ShowByID(int64(idInt))
+}
+
+func (a *AnimalsCurd) MatchAll(query string, num int) (tmp []model.Animal) {
+	// STAGE 1. ES 查询
+	animalsFromES, err := model_es.CreateAnimalESFactory(nil).QueryDocumentsMatchAll(query, num)
+	if err != nil {
+		fmt.Println("ES Query error:", err)
+		return nil
+	}
+
+	var ids []int64
+	for _, animal := range animalsFromES {
+		ids = append(ids, animal.Id)
+	}
+
+	// STAGE 2. MySQL 补充信息
+	animalsFromSQL := model.CreateAnimalFactory("").ShowByIDs(ids, "id", "avatar")
+
+	// 3. 合并信息
+	for _, animalFromES := range animalsFromES {
+		for _, animal := range animalsFromSQL {
+			if animal.Id == animalFromES.Id {
+				animal.NickNamesList = animalFromES.NickNames
+				animal.NickNamesHighlight = animalFromES.NickNamesHighlight
+				animal.Description = animalFromES.Description
+				animal.Name = animalFromES.Name
+				tmp = append(tmp, animal)
+			}
+		}
+	}
+
+	return
 }
