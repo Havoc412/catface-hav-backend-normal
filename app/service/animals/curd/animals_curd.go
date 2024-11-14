@@ -138,7 +138,7 @@ func (a *AnimalsCurd) MatchAll(query string, num int) (tmp []model.Animal) {
 	}
 
 	// STAGE 2. MySQL 补充信息
-	animalsFromSQL := model.CreateAnimalFactory("").ShowByIDs(ids, "id", "avatar")
+	animalsFromSQL := model.CreateAnimalFactory("").ShowByIDs(ids, "id", "avatar", "status", "department")
 
 	// 3. 合并信息
 	for _, animalFromES := range animalsFromES {

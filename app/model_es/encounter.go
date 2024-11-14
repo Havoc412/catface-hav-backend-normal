@@ -2,6 +2,7 @@ package model_es
 
 import (
 	"bytes"
+	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/model"
 	"catface/app/utils/data_bind"
@@ -144,8 +145,8 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
     }
   },
   "highlight": {
-    "pre_tags": ["<em>"],
-    "post_tags": ["</em>"],
+    "pre_tags": ["%v"],
+    "post_tags": ["%v"],
     "fields": {
       "title": {},
       "content": {
@@ -157,7 +158,7 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
       }
     }
   }
-}`, num, query, query, query)
+}`, num, query, query, query, consts.PreTags, consts.PostTags)
 
 	hits, err := model_handler.SearchRequest(body, e.IndexName())
 	if err != nil {
@@ -171,6 +172,10 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
 		var encounter Encounter
 		if err := data_bind.ShouldBindFormMapToModel(data, &encounter); err != nil {
 			continue
+		}
+
+		if len(encounter.Content) > 15*3 {
+			encounter.Content = encounter.Content[:15*3] + "..."
 		}
 
 		encounters = append(encounters, encounter)

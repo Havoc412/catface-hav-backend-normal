@@ -2,6 +2,7 @@ package model_es
 
 import (
 	"bytes"
+	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/utils/data_bind"
 	"catface/app/utils/model_handler"
@@ -165,8 +166,8 @@ func (k *Knowledge) QueryDocumentsMatchAll(query string, num int) ([]Knowledge, 
     }
   },
  "highlight": {
-    "pre_tags": ["<em>"],
-    "post_tags": ["</em>"],
+    "pre_tags": ["%v"],
+    "post_tags": ["%v"],
     "fields": {
       "title": {},
       "content": {
@@ -174,7 +175,7 @@ func (k *Knowledge) QueryDocumentsMatchAll(query string, num int) ([]Knowledge, 
       }
     }
   }
-}`, num, query, query) // TODO dirs 我还没想好如何处理
+}`, num, query, query, consts.PreTags, consts.PostTags) // TODO dirs 我还没想好如何处理
 	// 创建请求
 	req := esapi.SearchRequest{
 		Index: []string{k.IndexName()},

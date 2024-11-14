@@ -2,6 +2,7 @@ package model_es
 
 import (
 	"bytes"
+	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/model"
 	"catface/app/utils/data_bind"
@@ -89,8 +90,8 @@ func (a *Animal) QueryDocumentsMatchAll(query string, num int) ([]Animal, error)
     }
   },
   "highlight": {
-    "pre_tags": ["<em>"],
-    "post_tags": ["</em>"],
+	"pre_tags": ["%v"],
+	"post_tags": ["%v"],
     "fields": {
       "name": {},
       "nick_names": {
@@ -102,7 +103,7 @@ func (a *Animal) QueryDocumentsMatchAll(query string, num int) ([]Animal, error)
       }
     }
   }
-}`, num, query, query, query)
+}`, num, query, query, query, consts.PreTags, consts.PostTags)
 
 	hits, err := model_handler.SearchRequest(body, a.IndexName())
 	if err != nil {
