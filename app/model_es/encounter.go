@@ -174,10 +174,6 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
 			continue
 		}
 
-		if len(encounter.Content) > 15*3 {
-			encounter.Content = encounter.Content[:15*3] + "..."
-		}
-
 		encounters = append(encounters, encounter)
 	}
 
