@@ -22,16 +22,16 @@ type Doc struct {
 
 func (d *Doc) TableName() string { return "docs" }
 
-func (d *Doc) InsertDocumentData(c *gin.Context) bool {
+func (d *Doc) InsertDocumentData(c *gin.Context) (int64, bool) {
 	var tmp Doc
 	if err := data_bind.ShouldBindFormDataToModel(c, &tmp); err == nil {
 		if res := d.Create(&tmp); res.Error == nil {
-			return true
+			return tmp.Id, true
 		} else {
 			variable.ZapLog.Error("Doc 数据新增出错", zap.Error(res.Error))
 		}
 	} else {
 		variable.ZapLog.Error("Doc 数据绑定出错", zap.Error(err))
 	}
-	return false
+	return 0, false
 }
