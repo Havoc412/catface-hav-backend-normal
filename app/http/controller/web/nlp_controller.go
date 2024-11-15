@@ -2,7 +2,7 @@ package web
 
 import (
 	"catface/app/global/consts"
-	"catface/app/utils/nlp"
+	"catface/app/service/nlp"
 	"catface/app/utils/response"
 
 	"github.com/gin-gonic/gin"

@@ -150,6 +150,11 @@ func InitWebRouter() *gin.Engine {
 			nlp.POST("title", validatorFactory.Create(consts.ValidatorPrefix+"NlpTitle"))
 		}
 
+		rag := backend.Group("rag")
+		{
+			rag.POST("default_talk", validatorFactory.Create(consts.ValidatorPrefix+"RagDefaultChat"))
+		}
+
 		search := backend.Group("search")
 		{
 			search.GET("", validatorFactory.Create(consts.ValidatorPrefix+"SearchAll"))

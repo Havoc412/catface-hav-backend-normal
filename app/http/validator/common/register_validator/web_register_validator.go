@@ -12,6 +12,7 @@ import (
 	"catface/app/http/validator/web/encounter_like"
 	"catface/app/http/validator/web/knowledge"
 	"catface/app/http/validator/web/nlp"
+	"catface/app/http/validator/web/rag"
 	"catface/app/http/validator/web/search"
 	"catface/app/http/validator/web/users"
 )
@@ -84,6 +85,10 @@ func WebRegisterValidator() {
 	// TAG NLP
 	key = consts.ValidatorPrefix + "NlpTitle"
 	containers.Set(key, nlp.Title{})
+
+	// TAG RAG
+	key = consts.ValidatorPrefix + "RagDefaultChat"
+	containers.Set(key, rag.Chat{})
 
 	// TAG Search
 	key = consts.ValidatorPrefix + "SearchAll"

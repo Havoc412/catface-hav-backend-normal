@@ -14,12 +14,14 @@ func init() {
 	EnocunterMsgInit(ErrMsg)
 	NlpMsgInit(ErrMsg)
 	KnowledgeMsgInit(ErrMsg)
+	SubServiceMsgInit(ErrMsg)
 
 	// INGO
 	ErrMsgForUser = make(msg)
 	AnimalMsgUserInit(ErrMsgForUser)
 	EncounterMsgUserInit(ErrMsgForUser)
 	KnowledgeMsgUserInit(ErrMsgForUser)
+	NlpMsgUserInit(ErrMsgForUser)
 }
 
 func GeneralMsgInit(m msg) {

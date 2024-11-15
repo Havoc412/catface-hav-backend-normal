@@ -57,6 +57,7 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
+	github.com/carlmjohnson/requests v0.24.2
 	github.com/casbin/casbin/v2 v2.100.0 // indirects
 	github.com/casbin/gorm-adapter/v3 v3.28.0
 	github.com/casbin/govaluate v1.2.0 // indirect

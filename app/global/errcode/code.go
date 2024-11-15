@@ -7,6 +7,7 @@ const (
 	ErrEncounter
 	ErrNlp
 	ErrKnowledge
+	ErrSubService
 )
 
 const (
