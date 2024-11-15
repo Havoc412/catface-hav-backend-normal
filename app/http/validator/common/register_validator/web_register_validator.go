@@ -7,6 +7,7 @@ import (
 	"catface/app/http/validator/common/websocket"
 	"catface/app/http/validator/web/animal"
 	"catface/app/http/validator/web/animal_like"
+	"catface/app/http/validator/web/doc"
 	"catface/app/http/validator/web/encounter"
 	"catface/app/http/validator/web/encounter_like"
 	"catface/app/http/validator/web/knowledge"
@@ -91,4 +92,8 @@ func WebRegisterValidator() {
 	// TAG Knowledge
 	key = consts.ValidatorPrefix + "KnowledgeRandomList"
 	containers.Set(key, knowledge.Random{})
+
+	// TAG Doc
+	key = consts.ValidatorPrefix + "DocUpload"
+	containers.Set(key, doc.Upload{})
 }

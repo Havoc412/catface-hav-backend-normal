@@ -159,6 +159,11 @@ func InitWebRouter() *gin.Engine {
 		{
 			knowledge.GET("random", validatorFactory.Create(consts.ValidatorPrefix+"KnowledgeRandomList"))
 		}
+
+		doc := backend.Group("doc")
+		{
+			doc.POST("", validatorFactory.Create(consts.ValidatorPrefix+"DocUpload"))
+		}
 		// }
 	}
 

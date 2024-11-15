@@ -33,7 +33,6 @@ func (u UpFiles) CheckParams(context *gin.Context) {
 
 	// 2. File 内容的验证；
 	tmpFile, err := context.FormFile(variable.ConfigYml.GetString("FileUploadSetting.UploadFileField")) //  file 是一个文件结构体（文件对象）
-	var isPass bool
 	//获取文件发生错误，可能上传了空文件等
 	if err != nil {
 		response.Fail(context, consts.FilesUploadFailCode, consts.FilesUploadFailMsg, err.Error())
@@ -51,8 +50,10 @@ func (u UpFiles) CheckParams(context *gin.Context) {
 		return
 	}
 	//不允许的文件mime类型
+	var isPass bool
+	var mimeType string
 	if fp, err := tmpFile.Open(); err == nil {
-		mimeType := files.GetFilesMimeByFp(fp)
+		mimeType = files.GetFilesMimeByFp(fp)
 
 		for _, value := range variable.ConfigYml.GetStringSlice("FileUploadSetting.AllowMimeType") {
 			if strings.ReplaceAll(value, " ", "") == strings.ReplaceAll(mimeType, " ", "") {
@@ -67,7 +68,9 @@ func (u UpFiles) CheckParams(context *gin.Context) {
 	}
 	//凡是存在相等的类型，通过验证，调用控制器
 	if !isPass {
-		response.Fail(context, consts.FilesUploadMimeTypeFailCode, consts.FilesUploadMimeTypeFailMsg, "")
+		response.Fail(context, consts.FilesUploadMimeTypeFailCode, consts.FilesUploadMimeTypeFailMsg, gin.H{
+			"mime_type": mimeType,
+		})
 	} else {
 		(&web.Upload{}).StartUpload(context)
 	}

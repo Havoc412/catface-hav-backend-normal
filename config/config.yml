@@ -62,6 +62,7 @@ FileUploadSetting:
   UploadFileSavePath: "D:/.File Data/GoProject/catface_back/public/nginx" # 上传文件保存在路径, 该路径与 BasePath 进行拼接使用
   UploadFileReturnPath: ""             # 文件上后返回的路径，由于程序会自动创建软连接，自动将资源定位到实际路径，所有资源的访问入口建议都从public开始
   AllowMimeType:                      #允许的文件mime类型列表
+    # TAG 图像 / 视频
     - "image/jpeg"                    #jpg、jpeg图片格式
     - "image/png"                     #png图片格式
     # - "image/x-icon"                  #ico图片
@@ -71,7 +72,13 @@ FileUploadSetting:
     - "text/plain; charset=utf-8"     #txt log json等文本文件
     # - "video/mp4"      #视频文件，例如：mp4
     # - "audio/mpeg"     #音频文件，例如: mp3
+    # TAG 文档
+    - "application/msword"  # .doc
+    - "application/vnd.openxmlformats-officedocument.wordprocessingml.document"  # .docx
+    - "application/pdf"  # .pdf
+    - "application/octet-stream"  # 适配 APIfox 的调用
   AvatarWidth: 200
+  DocsRootPath: "docs"  # TODO 或许 upload 模块可以写一下自动区分大致的文件类型所在的位置。
 
 # casbin 权限控制api接口
 Casbin:
