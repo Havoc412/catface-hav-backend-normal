@@ -67,16 +67,16 @@ FileUploadSetting:
     - "image/png"                     #png图片格式
     # - "image/x-icon"                  #ico图片
     - "image/bmp"                     #bmp图片
-    # - "application/zip"               #xlsx、docx、zip
     # - "application/x-gzip"            #tar.gz
     - "text/plain; charset=utf-8"     #txt log json等文本文件
     # - "video/mp4"      #视频文件，例如：mp4
     # - "audio/mpeg"     #音频文件，例如: mp3
     # TAG 文档
-    - "application/msword"  # .doc
+    - "application/zip"               #xlsx、docx、zip
     - "application/vnd.openxmlformats-officedocument.wordprocessingml.document"  # .docx
     - "application/pdf"  # .pdf
     - "application/octet-stream"  # 适配 APIfox 的调用
+    
   AvatarWidth: 200
   DocsRootPath: "docs"  # TODO 或许 upload 模块可以写一下自动区分大致的文件类型所在的位置。
 
