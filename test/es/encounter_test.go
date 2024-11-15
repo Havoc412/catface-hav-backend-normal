@@ -34,7 +34,7 @@ func TestEncounterEs(t *testing.T) {
 	// }
 
 	// 查询文档
-	encounters, err := encounter.QueryDocumentsMatchAll("猪皮")
+	encounters, err := encounter.QueryDocumentsMatchAll("猪皮", 3)
 	if err != nil {
 		t.Fatalf("查询文档时出错: %s", err)
 	}
