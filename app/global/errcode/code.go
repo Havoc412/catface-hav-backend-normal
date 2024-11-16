@@ -8,6 +8,7 @@ const (
 	ErrNlp
 	ErrKnowledge
 	ErrSubService
+	ErrWebSocket
 )
 
 const (

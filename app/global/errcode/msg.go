@@ -15,6 +15,7 @@ func init() {
 	NlpMsgInit(ErrMsg)
 	KnowledgeMsgInit(ErrMsg)
 	SubServiceMsgInit(ErrMsg)
+	WsMsgInit(ErrMsg)
 
 	// INGO
 	ErrMsgForUser = make(msg)

@@ -4,9 +4,10 @@ import (
 	"catface/app/global/variable"
 	"context"
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/yankeguo/zhipu"
-
 )
 
 // ChatWithGLM 封装了与GLM模型进行对话的逻辑
@@ -45,4 +46,43 @@ func ChatStream(message string, ch chan<- string) error {
 	}
 
 	return nil
+}
+
+// 带缓冲机制的 ChatStream；计数 & 计时 双判定。
+func BufferedChatStream(message string, ch chan<- string) error {
+	bufferedCh := make(chan string)                // 带缓冲的通道，缓冲大小为10
+	timer := time.NewTimer(500 * time.Millisecond) // 定时器，500毫秒
+
+	go func() {
+		err := ChatStream(message, bufferedCh)
+		if err != nil {
+			return
+		}
+		close(bufferedCh)
+	}()
+
+	var buffer strings.Builder
+	for {
+		select {
+		case c, ok := <-bufferedCh:
+			if !ok {
+				if buffer.Len() > 0 {
+					ch <- buffer.String()
+				}
+				return nil // 依靠这里停止函数。
+			}
+			buffer.WriteString(c)
+			if buffer.Len() >= 10 {
+				ch <- buffer.String()
+				buffer.Reset()
+				timer.Reset(500 * time.Millisecond)
+			}
+		case <-timer.C:
+			if buffer.Len() > 0 {
+				ch <- buffer.String()
+				buffer.Reset()
+			}
+			timer.Reset(500 * time.Millisecond)
+		}
+	}
 }

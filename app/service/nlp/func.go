@@ -23,7 +23,8 @@ func ChatKnoledgeRAG(doc, query string, ch chan<- string) error {
 	message = strings.Replace(message, "{context}", doc, -1)
 
 	// 调用聊天接口
-	err := glm.ChatStream(message, ch)
+	// err := glm.ChatStream(message, ch)
+	err := glm.BufferedChatStream(message, ch)
 	if err != nil {
 		return fmt.Errorf("调用聊天接口失败: %w", err)
 	}

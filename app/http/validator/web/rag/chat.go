@@ -25,7 +25,7 @@ func (c Chat) CheckParams(context *gin.Context) {
 	if extraAddBindDataContext == nil {
 		response.ErrorSystem(context, "RAG CHAT 表单验证器json化失败", "")
 	} else {
-		(&web.Rag{}).ChatSSE(extraAddBindDataContext)
+		(&web.Rag{}).ChatWebSocket(extraAddBindDataContext)
 	}
 
 }
