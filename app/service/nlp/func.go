@@ -14,7 +14,7 @@ func GenerateTitle(content string) string {
 }
 
 // ChatKnoledgeRAG 使用 RAG 模型进行知识问答
-func ChatKnoledgeRAG(doc, query string) (string, error) {
+func ChatKnoledgeRAG(doc, query string, ch chan<- string) error {
 	// 读取配置文件中的 KnoledgeRAG 模板
 	promptTemplate := variable.PromptsYml.GetString("Prompt.KnoledgeRAG")
 
@@ -23,10 +23,10 @@ func ChatKnoledgeRAG(doc, query string) (string, error) {
 	message = strings.Replace(message, "{context}", doc, -1)
 
 	// 调用聊天接口
-	response, err := glm.Chat(message)
+	err := glm.ChatStream(message, ch)
 	if err != nil {
-		return "", fmt.Errorf("调用聊天接口失败: %w", err)
+		return fmt.Errorf("调用聊天接口失败: %w", err)
 	}
 
-	return response, nil
+	return nil
 }
