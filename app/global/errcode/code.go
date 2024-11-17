@@ -15,6 +15,6 @@ const (
 	ErrGeneralStart = ErrGeneral + iota
 	ErrInvalidData
 	ErrInternalError
-
 	ErrDataNoFound
+	ErrServerDown
 )

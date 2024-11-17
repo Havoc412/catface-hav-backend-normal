@@ -12,5 +12,5 @@ func NlpMsgInit(m msg) {
 
 func NlpMsgUserInit(m msg) {
 	m[ErrNoContent] = "请输入内容"
-	m[ErrNoDocFound] = "没有找到相关文档"
+	m[ErrNoDocFound] = "小护没有在知识库中找到相关文档。😿😿😿"
 }

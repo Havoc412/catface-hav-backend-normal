@@ -6,6 +6,7 @@ import (
 	"catface/app/model_es"
 	"catface/app/service/nlp"
 	"catface/app/utils/response"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -117,8 +118,11 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	// 1. query embedding
 	embedding, ok := nlp.GetEmbedding(query)
 	if !ok {
-		code := errcode.ErrPythonService
-		response.Fail(context, code, errcode.ErrMsg[code], "")
+		code := errcode.ErrServerDown
+		err := ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d:%s", code, errcode.ErrMsgForUser[code])))
+		if err != nil {
+			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
+		}
 		return
 	}
 
@@ -128,7 +132,11 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
 		code := errcode.ErrNoDocFound
-		response.Fail(context, code, errcode.ErrMsg[code], errcode.ErrMsgForUser[code])
+		err := ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d:%s", code, errcode.ErrMsgForUser[code])))
+		if err != nil {
+			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
+		}
+		return
 	}
 
 	// 3.

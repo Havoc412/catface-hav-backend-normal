@@ -19,6 +19,7 @@ func init() {
 
 	// INGO
 	ErrMsgForUser = make(msg)
+	GeneralMsgUserInit(ErrMsgForUser)
 	AnimalMsgUserInit(ErrMsgForUser)
 	EncounterMsgUserInit(ErrMsgForUser)
 	KnowledgeMsgUserInit(ErrMsgForUser)
@@ -30,4 +31,8 @@ func GeneralMsgInit(m msg) {
 	m[ErrInvalidData] = "参数无效"
 	m[ErrInternalError] = "内部服务器错误"
 	m[ErrDataNoFound] = "无数据查询"
+}
+
+func GeneralMsgUserInit(m msg) {
+	m[ErrServerDown] = "后端服务未启动，此功能暂时无法使用。"
 }
