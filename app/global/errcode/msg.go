@@ -34,5 +34,5 @@ func GeneralMsgInit(m msg) {
 }
 
 func GeneralMsgUserInit(m msg) {
-	m[ErrServerDown] = "后端服务未启动，此功能暂时无法使用。"
+	m[ErrServerDown] = "后端服务未启动，此功能暂时无法使用。😿" // 前端 rich-text 能够处理，有意思。
 }
