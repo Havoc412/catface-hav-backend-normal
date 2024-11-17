@@ -6,7 +6,6 @@ import (
 	"catface/app/model_es"
 	"catface/app/service/nlp"
 	"catface/app/utils/response"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -18,7 +17,7 @@ import (
 type Rag struct {
 }
 
-// v1 Http-POST 版本
+// v1 Http-POST 版本; chat 需要不使用 ch 的版本。
 // func (r *Rag) Chat(context *gin.Context) {
 // 	// 1. query embedding
 // 	query := context.GetString(consts.ValidatorPrefix + "query")
@@ -119,7 +118,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	embedding, ok := nlp.GetEmbedding(query)
 	if !ok {
 		code := errcode.ErrServerDown
-		err := ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d:%s", code, errcode.ErrMsgForUser[code])))
+		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
@@ -132,7 +131,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
 		code := errcode.ErrNoDocFound
-		err := ws.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("%d:%s", code, errcode.ErrMsgForUser[code])))
+		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
