@@ -117,7 +117,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	// 1. query embedding
 	embedding, ok := nlp.GetEmbedding(query)
 	if !ok {
-		code := errcode.ErrServerDown
+		code := errcode.ErrPythonServierDown
 		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
