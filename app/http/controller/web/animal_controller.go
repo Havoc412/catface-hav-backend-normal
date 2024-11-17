@@ -179,9 +179,9 @@ func (a *Animals) Create(context *gin.Context) {
 		sterilization := health["sterilization"].(float64)
 		vaccination := health["vaccination"].(float64)
 		deworming := health["deworming"].(float64)
-		context.Set(consts.ValidatorPrefix+"sterilization", uint8(sterilization))
-		context.Set(consts.ValidatorPrefix+"vaccination", uint8(vaccination))
-		context.Set(consts.ValidatorPrefix+"deworming", uint8(deworming))
+		context.Set(consts.ValidatorPrefix+"sterilization", sterilization)
+		context.Set(consts.ValidatorPrefix+"vaccination", vaccination)
+		context.Set(consts.ValidatorPrefix+"deworming", deworming)
 	}
 	extra := context.GetStringMap(consts.ValidatorPrefix + "extra")
 	var nickNames []string
