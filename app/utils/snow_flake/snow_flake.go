@@ -4,6 +4,7 @@ import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/utils/snow_flake/snowflake_interf"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -44,4 +45,10 @@ func (s *snowflake) GetId() int64 {
 	s.timestamp = now
 	r := (now-consts.StartTimeStamp)<<consts.TimestampShift | (s.machineId << consts.MachineIdShift) | (s.sequence)
 	return r
+}
+
+// 简单将 id 转化为 string 使用。
+func (s *snowflake) GetIdAsString() string {
+	id := s.GetId()
+	return strconv.FormatInt(id, 10)
 }

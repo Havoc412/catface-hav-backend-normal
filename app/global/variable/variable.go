@@ -2,6 +2,7 @@ package variable
 
 import (
 	"catface/app/global/my_errors"
+	"catface/app/utils/llm_factory"
 	"catface/app/utils/snow_flake/snowflake_interf"
 	"catface/app/utils/yml_config/ymlconfig_interf"
 	"log"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/casbin/casbin/v2"
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/yankeguo/zhipu"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -44,8 +44,8 @@ var (
 	//casbin 全局操作指针
 	Enforcer *casbin.SyncedEnforcer
 
-	// GLM 全局客户端
-	GlmClient *zhipu.Client
+	// GLM 全局客户端集中管理
+	GlmClientHub *llm_factory.GlmClientHub
 
 	// ES 全局客户端
 	ElasticClient *elasticsearch.Client

@@ -179,7 +179,6 @@ func TestStruct(t *testing.T) {
 	defer redisClient.ReleaseOneRedisClient()
 
 	tmp := model_redis.SelectedAnimal4Prefer{
-		Key:               2,
 		NewCatsId:         []int64{1, 2},
 		EncounteredCatsId: []int64{3, 4},
 	}

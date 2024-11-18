@@ -12,7 +12,7 @@ import (
 // INFO 虽然起名为 Chat，但是默认就会去查询 知识库，也就是不作为一般的 LLM-chat 来使用。
 type Chat struct {
 	Query string `form:"query" json:"query" binding:"required"`
-	// TODO 这里还需要处理一下历史记录？
+	Token string `form:"token" json:"token"` // UPDATE 暂时不想启用 user 的 token，就先单独处理。
 }
 
 func (c Chat) CheckParams(context *gin.Context) {

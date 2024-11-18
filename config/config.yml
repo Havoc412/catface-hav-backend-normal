@@ -161,7 +161,11 @@ Weixin:
 
 Glm:
   ApiKey: "0cf510ebc01599dba2a593069c1bdfbc.nQBQ4skP8xBh7ijU"
-  DefaultModel: "glm-4-flash"
+  DefaultModelName: "glm-4-flash"
+  MaxIdle: 100  # INFO 最大空闲数，毕竟 messages 缓存在内存里，需要根据服务器性能调整。
+  MaxActive: 50  # 最大活跃数，考虑 WebSocket 通信的资源消耗。
+  MaxActiceOneUser: 1  # TODO 不过从功能设计来说很没有必要，单例就很足够；毕竟又不是专门来提供 GPT 服务的。
+  LifeTime: 1800   # Client 有效生存周期：1800 = 0.5h
 
 # qiNiu 云存储配置
 QiNiu:

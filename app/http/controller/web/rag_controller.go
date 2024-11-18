@@ -5,7 +5,10 @@ import (
 	"catface/app/global/variable"
 	"catface/app/model_es"
 	"catface/app/service/nlp"
+	"catface/app/utils/llm_factory"
+	"catface/app/utils/micro_service"
 	"catface/app/utils/response"
+	"encoding/json"
 	"io"
 	"net/http"
 
@@ -49,6 +52,24 @@ type Rag struct {
 
 func (r *Rag) ChatSSE(context *gin.Context) {
 	query := context.Query("query")
+	token := context.Query("token")
+
+	// 0-1. 测试 python
+	if !micro_service.TestLinkPythonService() {
+		code := errcode.ErrPythonService
+		response.Fail(context, code, errcode.ErrMsg[code], "")
+		return
+	}
+
+	// 0-2. 获取一个 GLM Client
+	if token == "" {
+		token = variable.SnowFlake.GetIdAsString()
+	}
+	client, ercode := variable.GlmClientHub.GetOneGlmClient(token, llm_factory.GlmModeKnowledgeHub)
+	if ercode != 0 {
+		response.Fail(context, ercode, errcode.ErrMsg[ercode], errcode.ErrMsgForUser[ercode])
+		return
+	}
 
 	// 1. query embedding
 	embedding, ok := nlp.GetEmbedding(query)
@@ -73,7 +94,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 
 	// 3. LLM answer
 	go func() {
-		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch)
+		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
@@ -104,15 +125,56 @@ var upgrader = websocket.Upgrader{ // TEST 测试，先写一个裸的 wss
 
 func (r *Rag) ChatWebSocket(context *gin.Context) {
 	query := context.Query("query")
+	token := context.Query("token")
 
-	// 0. 协议升级
+	if token == "" {
+		token = variable.SnowFlake.GetIdAsString()
+	}
+
+	// 0-1. 协议升级
 	ws, err := upgrader.Upgrade(context.Writer, context.Request, nil)
 	if err != nil {
 		variable.ZapLog.Error("OnOpen error", zap.Error(err))
 		response.Fail(context, errcode.ErrWebsocketUpgradeFail, errcode.ErrMsg[errcode.ErrWebsocketUpgradeFail], "")
 		return
 	}
-	defer ws.Close()
+	defer func() { // UPDATE 临时方案，之后考虑结合 jwt 维护的 token 处理。
+		tokenMsg := struct {
+			Type  string `json:"type"`
+			Token string `json:"token"`
+		}{
+			Type:  "token",
+			Token: token,
+		}
+
+		tokenBytes, _ := json.Marshal(tokenMsg)
+		err := ws.WriteMessage(websocket.TextMessage, tokenBytes)
+		if err != nil {
+			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
+		}
+		ws.Close()
+	}()
+
+	// 0-2. 测试 Python 微服务是否启动
+	if !micro_service.TestLinkPythonService() {
+		code := errcode.ErrPythonServierDown
+		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
+		if err != nil {
+			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
+		}
+		return
+	}
+
+	// 0-3. 从 GLM_HUB 中获取一个可用的 glm client;
+	client, ercode := variable.GlmClientHub.GetOneGlmClient(token, llm_factory.GlmModeKnowledgeHub)
+	if ercode != 0 {
+		variable.ZapLog.Error("GetOneGlmClient error", zap.Error(err))
+		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[ercode]))
+		if err != nil {
+			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
+		}
+		return
+	}
 
 	// 1. query embedding
 	embedding, ok := nlp.GetEmbedding(query)
@@ -143,7 +205,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	ch := make(chan string)                               // TIP 建立通道。
 
 	go func() {
-		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch)
+		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}

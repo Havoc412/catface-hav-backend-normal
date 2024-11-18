@@ -8,6 +8,7 @@ import (
 	"catface/app/service/sys_log_hook"
 	"catface/app/utils/casbin_v2"
 	"catface/app/utils/gorm_v2"
+	"catface/app/utils/llm_factory"
 	"catface/app/utils/snow_flake"
 	"catface/app/utils/validator_translation"
 	"catface/app/utils/websocket/core"
@@ -17,7 +18,6 @@ import (
 	"os"
 
 	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/yankeguo/zhipu"
 )
 
 func checkRequiredFolders() {
@@ -114,15 +114,18 @@ func init() {
 		log.Fatal(my_errors.ErrorsValidatorTransInitFail + err.Error())
 	}
 
-	// 11. GLM 客户端启动
-	var err error
-	variable.GlmClient, err = zhipu.NewClient(zhipu.WithAPIKey(variable.ConfigYml.GetString("Glm.ApiKey")))
-	if err != nil {
-		log.Fatal(my_errors.ErrorsGlmClientInitFail + err.Error())
-	}
-
+	// 11. GLM 资源池管理 初始化
+	variable.GlmClientHub = llm_factory.InitGlmClientHub(
+		variable.ConfigYml.GetInt("Glm.MaxActive"),
+		variable.ConfigYml.GetInt("Glm.MaxIdle"),
+		variable.ConfigYml.GetInt("Glm.LifeTime"),
+		variable.ConfigYml.GetString("Glm.ApiKey"),
+		variable.ConfigYml.GetString("Glm.DefaultModelName"),
+		variable.PromptsYml.GetString("Prompt.InitPrompt"),
+	)
 
 	// 12. ES 客户端启动
+	var err error
 	variable.ElasticClient, err = elasticsearch.NewClient(elasticsearch.Config{
 		Addresses: []string{variable.ConfigYml.GetString("ElasticSearch.Addr")},
 	})
