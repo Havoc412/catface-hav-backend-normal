@@ -14,7 +14,7 @@ type EmbeddingRes struct {
 	Embedding []float64 `json:"embedding"`
 }
 
-func GetEmbedding(text string) ([]float64, bool) {
+func GetEmbedding(text []string) ([]float64, bool) {
 	body := map[string]interface{}{
 		"text": text,
 	}

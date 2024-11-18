@@ -20,8 +20,9 @@ type GlmClientHub struct {
 }
 
 type ClientInfo struct {
-	Client   *zhipu.ChatCompletionService
-	LastUsed time.Time
+	Client     *zhipu.ChatCompletionService
+	UserQuerys []string
+	LastUsed   time.Time
 }
 
 func InitGlmClientHub(maxIdle, maxActive, lifetime int, apiKey, defaultModelName, initPrompt string) *GlmClientHub {
@@ -50,10 +51,10 @@ const (
  * @param {string} token： // TODO 如何在 token 中保存信息？
  * @return {*}
  */
-func (g *GlmClientHub) GetOneGlmClient(token string, mode int) (client *zhipu.ChatCompletionService, code int) {
+func (g *GlmClientHub) GetOneGlmClientInfo(token string, mode int) (clientInfo *ClientInfo, code int) {
 	if info, ok := g.Clients[token]; ok {
 		info.LastUsed = time.Now() // INFO 刷新生命周期
-		return info.Client, 0
+		return info, 0
 	}
 
 	// 空闲数检查
@@ -70,7 +71,7 @@ func (g *GlmClientHub) GetOneGlmClient(token string, mode int) (client *zhipu.Ch
 		code = errcode.ErrGlmNewClientFail
 		return
 	}
-	client = preClient.ChatCompletion(g.DefaultModelName)
+	client := preClient.ChatCompletion(g.DefaultModelName)
 
 	if mode == GlmModeKnowledgeHub {
 		client.AddMessage(zhipu.ChatCompletionMessage{
@@ -79,11 +80,26 @@ func (g *GlmClientHub) GetOneGlmClient(token string, mode int) (client *zhipu.Ch
 		})
 	}
 
-	g.Clients[token] = &ClientInfo{
+	clientInfo = &ClientInfo{
 		Client:   client,
 		LastUsed: time.Now(),
 	}
+	g.Clients[token] = clientInfo
 	return
+}
+
+/**
+ * @description: 获取并返回 ClientInfo 的 Client 和 code。
+ * @param {string} token
+ * @param {int} mode
+ * @return {(*zhipu.ChatCompletionService, int)}
+ */
+func (g *GlmClientHub) GetOneGlmClient(token string, mode int) (*zhipu.ChatCompletionService, int) {
+	clientInfo, code := g.GetOneGlmClientInfo(token, mode)
+	if clientInfo == nil || code != 0 {
+		return nil, code
+	}
+	return clientInfo.Client, code
 }
 
 // cleanupRoutine 定期检查并清理超过 1 小时未使用的 Client
@@ -113,4 +129,9 @@ func (g *GlmClientHub) cleanupClients() {
 func (g *GlmClientHub) ReleaseOneGlmClient(token string) {
 	delete(g.Clients, token)
 	g.MaxIdle += 1
+}
+
+// TAG ClientInfo
+func (c *ClientInfo) AddQuery(query string) {
+	c.UserQuerys = append(c.UserQuerys, query)
 }

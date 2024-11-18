@@ -3,12 +3,12 @@ package web
 import (
 	"catface/app/global/errcode"
 	"catface/app/global/variable"
+	"catface/app/model"
 	"catface/app/model_es"
 	"catface/app/service/nlp"
 	"catface/app/utils/llm_factory"
 	"catface/app/utils/micro_service"
 	"catface/app/utils/response"
-	"encoding/json"
 	"io"
 	"net/http"
 
@@ -72,7 +72,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 	}
 
 	// 1. query embedding
-	embedding, ok := nlp.GetEmbedding(query)
+	embedding, ok := nlp.GetEmbedding([]string{query})
 	if !ok {
 		code := errcode.ErrPythonService
 		response.Fail(context, code, errcode.ErrMsg[code], "")
@@ -138,17 +138,10 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		response.Fail(context, errcode.ErrWebsocketUpgradeFail, errcode.ErrMsg[errcode.ErrWebsocketUpgradeFail], "")
 		return
 	}
-	defer func() { // UPDATE 临时方案，之后考虑结合 jwt 维护的 token 处理。
-		tokenMsg := struct {
-			Type  string `json:"type"`
-			Token string `json:"token"`
-		}{
-			Type:  "token",
-			Token: token,
-		}
+	defer func() { // UPDATE 临时"持久化"方案，之后考虑结合 jwt 维护的 token 处理。
+		tokenMsg := model.CreateNlpWebSocketResult("token", token)
 
-		tokenBytes, _ := json.Marshal(tokenMsg)
-		err := ws.WriteMessage(websocket.TextMessage, tokenBytes)
+		err := ws.WriteMessage(websocket.TextMessage, tokenMsg.JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
 		}
@@ -158,7 +151,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	// 0-2. 测试 Python 微服务是否启动
 	if !micro_service.TestLinkPythonService() {
 		code := errcode.ErrPythonServierDown
-		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
+		err := ws.WriteMessage(websocket.TextMessage, model.CreateNlpWebSocketResult("", errcode.ErrMsgForUser[code]).JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
@@ -166,10 +159,10 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	}
 
 	// 0-3. 从 GLM_HUB 中获取一个可用的 glm client;
-	client, ercode := variable.GlmClientHub.GetOneGlmClient(token, llm_factory.GlmModeKnowledgeHub)
+	clientInfo, ercode := variable.GlmClientHub.GetOneGlmClientInfo(token, llm_factory.GlmModeKnowledgeHub)
 	if ercode != 0 {
 		variable.ZapLog.Error("GetOneGlmClient error", zap.Error(err))
-		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[ercode]))
+		err := ws.WriteMessage(websocket.TextMessage, model.CreateNlpWebSocketResult("", errcode.ErrMsgForUser[ercode]).JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
@@ -177,10 +170,11 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	}
 
 	// 1. query embedding
-	embedding, ok := nlp.GetEmbedding(query)
+	clientInfo.AddQuery(query)
+	embedding, ok := nlp.GetEmbedding(clientInfo.UserQuerys)
 	if !ok {
 		code := errcode.ErrPythonServierDown
-		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
+		err := ws.WriteMessage(websocket.TextMessage, model.CreateNlpWebSocketResult("", errcode.ErrMsgForUser[code]).JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
@@ -193,7 +187,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
 		code := errcode.ErrNoDocFound
-		err := ws.WriteMessage(websocket.TextMessage, []byte(errcode.ErrMsgForUser[code]))
+		err := ws.WriteMessage(websocket.TextMessage, model.CreateNlpWebSocketResult("", errcode.ErrMsgForUser[code]).JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send error message via WebSocket", zap.Error(err))
 		}
@@ -205,7 +199,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	ch := make(chan string)                               // TIP 建立通道。
 
 	go func() {
-		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, client)
+		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, clientInfo.Client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
@@ -219,7 +213,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 				return
 			}
 			// variable.ZapLog.Info("ChatKnoledgeRAG", zap.String("c", c))
-			err := ws.WriteMessage(websocket.TextMessage, []byte(c))
+			err := ws.WriteMessage(websocket.TextMessage, model.CreateNlpWebSocketResult("", c).JsonMarshal())
 			if err != nil {
 				return
 			}
