@@ -180,15 +180,47 @@ func (e *Encounter) ShowByIDs(ids []int64, attrs ...string) (temp []Encounter) {
  * @return {*}
  */
 func (e *Encounter) EncounteredCatsId(user_id, num, skip int, notInIds []int64) ([]int64, error) {
-	sql := `SELECT DISTINCT eal.animal_id 
-            FROM encounter_animal_links eal
-            JOIN encounters e 
-                ON e.id = eal.encounter_id AND e.user_id = ?
-            WHERE e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
-            ORDER BY e.updated_at DESC
-            LIMIT ? OFFSET ?`
+	var sqlBuilder strings.Builder
 
-	rows, err := e.Raw(sql, user_id, num, skip).Rows()
+	sqlBuilder.WriteString(`
+SELECT DISTINCT eal.animal_id
+FROM encounter_animal_links eal
+JOIN encounters e 
+	ON e.id = eal.encounter_id
+WHERE e.user_id = ? 
+	AND e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+	`)
+
+	if len(notInIds) > 0 {
+		sqlBuilder.WriteString(`
+AND eal.animal_id NOT IN (?)
+		`)
+	}
+
+	sqlBuilder.WriteString(`
+ORDER BY e.updated_at DESC
+LIMIT ? OFFSET ?
+	`)
+
+	// sql := `SELECT DISTINCT eal.animal_id
+	//         FROM encounter_animal_links eal
+	//         JOIN encounters e
+	//             ON e.id = eal.encounter_id AND e.user_id = ?
+	//         WHERE e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+	//         ORDER BY e.updated_at DESC
+	//         LIMIT ? OFFSET ?`
+
+	// Exe SQL
+	sql := sqlBuilder.String()
+
+	var rowsRaw *gorm.DB
+	if len(notInIds) > 0 {
+		rowsRaw = e.Raw(sql, user_id, notInIds, num, skip)
+	} else {
+		rowsRaw = e.Raw(sql, user_id, num, skip)
+	}
+
+	rows, err := rowsRaw.Rows()
 	if err != nil {
 		log.Println("查询失败:", err)
 		return nil, err

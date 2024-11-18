@@ -11,9 +11,7 @@ import (
 	"catface/app/service/animals/curd"
 	"catface/app/service/upload_file"
 	"catface/app/utils/query_handler"
-	"catface/app/utils/redis_factory"
 	"catface/app/utils/response"
-	"encoding/json"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -39,23 +37,17 @@ func (a *Animals) List(context *gin.Context) {
 	mode := context.GetString(consts.ValidatorPrefix + "mode")
 
 	// TAG prefer MODE 查询模式。
-	var key int64
 	var redis_selctedCatsId model_redis.SelectedAnimal4Prefer
 	var animalsWithLike []model.AnimalWithLikeList
 	if mode == consts.AnimalPreferMode {
-		key = int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
-		redis_selctedCatsId.Key = key
+		key := int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
 
-		redisClient := redis_factory.GetOneRedisClient()
-		defer redisClient.ReleaseOneRedisClient()
 		if key != 0 {
-			if res, err := redisClient.String(redisClient.Execute("get", key)); err == nil {
-				json.Unmarshal([]byte(res), &redis_selctedCatsId)
-			} else {
-				_ = err
+			if ok, err := redis_selctedCatsId.GetDataByKey(key); !ok {
+				_ = err // TODO
 			}
 		} else {
-			key = variable.SnowFlake.GetId()
+			redis_selctedCatsId.GenerateKey()
 		}
 
 		if redis_selctedCatsId.Length() == skip {
@@ -65,10 +57,8 @@ func (a *Animals) List(context *gin.Context) {
 			}
 
 			// TODO 刷新 Redis 有效期
-			if value, err := json.Marshal(redis_selctedCatsId); err == nil {
-				if _, err := redisClient.String(redisClient.Execute("set", key, string(value))); err != nil {
-					// TODO
-				}
+			if ok, err := redis_selctedCatsId.SetDataByKey(); !ok {
+				_ = err // TODO
 			}
 		}
 	}
@@ -85,7 +75,7 @@ func (a *Animals) List(context *gin.Context) {
 	if animalsWithLike != nil {
 		response.Success(context, consts.CurdStatusOkMsg, gin.H{
 			"animals": animalsWithLike,
-			"key":     key,
+			"key":     redis_selctedCatsId.GetKey(),
 		})
 	} else {
 		response.Fail(context, errcode.AnimalNoFind, errcode.ErrMsg[errcode.AnimalNoFind], errcode.ErrMsgForUser[errcode.AnimalNoFind])
@@ -106,7 +96,7 @@ func getPreferCats(userId, num int, attrs string, redis *model_redis.SelectedAni
 
 	// STAGE #2 获取近期新增的毛茸茸；只在第一次操作 && 数量不够时 启用。
 	var idsNew []int64
-	if !redis.PassNew() && len(ids) < num {
+	if redis.NotPassNew() { // UPDATE && len(ids) < num 调整为第一次访问时一定会次优先返回 NewCats 的推荐。
 		// 获取近期新增的毛茸茸
 		newCats, _ := model.CreateAnimalFactory("").NewCatsId(3, 0) // INFO 硬编码获取最新的 3 个。
 
