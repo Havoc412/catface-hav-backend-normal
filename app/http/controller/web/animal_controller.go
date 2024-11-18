@@ -37,7 +37,7 @@ func (a *Animals) List(context *gin.Context) {
 	mode := context.GetString(consts.ValidatorPrefix + "mode")
 
 	// TAG prefer MODE 查询模式。
-	var redis_selctedCatsId model_redis.SelectedAnimal4Prefer
+	redis_selctedCatsId := model_redis.CreateSelectedAnimal4Prefer()
 	var animalsWithLike []model.AnimalWithLikeList
 	if mode == consts.AnimalPreferMode {
 		key := int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
@@ -51,7 +51,7 @@ func (a *Animals) List(context *gin.Context) {
 		}
 
 		if redis_selctedCatsId.Length() == skip {
-			preferCats, _ := getPreferCats(int(userId), num, attrs, &redis_selctedCatsId)
+			preferCats, _ := getPreferCats(int(userId), num, attrs, redis_selctedCatsId)
 			if len(preferCats) > 0 {
 				animalsWithLike = preferCats
 			}
