@@ -96,7 +96,8 @@ func (e *Encounters) List(context *gin.Context) {
 	if encounters != nil {
 		response.Success(context, consts.CurdStatusOkMsg, encounters)
 	} else {
-		response.Fail(context, errcode.ErrDataNoFound, errcode.ErrMsg[errcode.ErrDataNoFound], "")
+		code := errcode.ErrEncounterNoData
+		response.Fail(context, code, errcode.ErrMsg[code], errcode.ErrMsgForUser[code])
 	}
 }
 
