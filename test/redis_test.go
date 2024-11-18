@@ -2,8 +2,10 @@ package test
 
 import (
 	"catface/app/global/variable"
+	"catface/app/model_redis"
 	"catface/app/utils/redis_factory"
 	_ "catface/bootstrap"
+	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
@@ -168,5 +170,32 @@ func TestRedisList(t *testing.T) {
 		t.Errorf("单元测试失败,%s\n", err.Error())
 	} else {
 		t.Logf("单元测试通过,%v\n", res)
+	}
+}
+
+// 测试 struct 处理 By Json
+func TestStruct(t *testing.T) {
+	redisClient := redis_factory.GetOneRedisClient()
+	defer redisClient.ReleaseOneRedisClient()
+
+	tmp := model_redis.SelectedAnimal4Prefer{
+		Key:               2,
+		NewCatsId:         []int64{1, 2},
+		EncounteredCatsId: []int64{3, 4},
+	}
+
+	key := variable.SnowFlake.GetId()
+	value, _ := json.Marshal(tmp)
+	t.Log(value)
+	_, err := redisClient.String(redisClient.Execute("set", key, string(value)))
+	if err != nil {
+		t.Errorf("单元测试失败,%s\n", err.Error())
+	}
+	if res, err := redisClient.String(redisClient.Execute("get", key)); err != nil {
+		t.Errorf("单元测试失败,%s\n", err.Error())
+	} else {
+		var tmp2 model_redis.SelectedAnimal4Prefer
+		json.Unmarshal([]byte(res), &tmp2)
+		t.Logf("单元测试通过,%v %v %v\n", tmp2, tmp2.NewCatsId, tmp2.EncounteredCatsId)
 	}
 }

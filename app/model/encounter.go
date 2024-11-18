@@ -179,7 +179,7 @@ func (e *Encounter) ShowByIDs(ids []int64, attrs ...string) (temp []Encounter) {
  * @param {int} num 限制查询的数量；
  * @return {*}
  */
-func (e *Encounter) EncounteredCats(user_id, num, skip int) ([]int64, error) {
+func (e *Encounter) EncounteredCatsId(user_id, num, skip int, notInIds []int64) ([]int64, error) {
 	sql := `SELECT DISTINCT eal.animal_id 
             FROM encounter_animal_links eal
             JOIN encounters e 

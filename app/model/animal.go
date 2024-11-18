@@ -134,3 +134,9 @@ func (a *Animal) InsertDate(c *gin.Context) (tmp Animal, ok bool) {
 	}
 	return tmp, false
 }
+
+func (a *Animal) NewCatsId(num, skip int) (temp []int64, err error) {
+	db := a.DB.Table(a.TableName()).Limit(int(num)).Offset(int(skip)).Select("id")
+	err = db.Order("updated_at DESC").Find(&temp).Error
+	return
+}

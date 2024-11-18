@@ -7,11 +7,13 @@ import (
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/model"
 	"catface/app/model_es"
+	"catface/app/model_redis"
 	"catface/app/service/animals/curd"
 	"catface/app/service/upload_file"
 	"catface/app/utils/query_handler"
 	"catface/app/utils/redis_factory"
 	"catface/app/utils/response"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -37,37 +39,45 @@ func (a *Animals) List(context *gin.Context) {
 	mode := context.GetString(consts.ValidatorPrefix + "mode")
 
 	// TAG prefer MODE 查询模式。
-	var redis_preferCatsId []int64
 	var key int64
+	var redis_selctedCatsId model_redis.SelectedAnimal4Prefer
 	var animalsWithLike []model.AnimalWithLikeList
 	if mode == consts.AnimalPreferMode {
 		key = int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
+		redis_selctedCatsId.Key = key
 
 		redisClient := redis_factory.GetOneRedisClient()
 		defer redisClient.ReleaseOneRedisClient()
 		if key != 0 {
-			redis_preferCatsId, _ = redisClient.Int64sFromList(redisClient.Execute("lrange", key, 0, -1))
+			if res, err := redisClient.String(redisClient.Execute("get", key)); err == nil {
+				json.Unmarshal([]byte(res), &redis_selctedCatsId)
+			} else {
+				_ = err
+			}
 		} else {
 			key = variable.SnowFlake.GetId()
 		}
 
-		if len(redis_preferCatsId) == skip {
-			preferCatsId, preferCats, _ := getPreferCatsId(int(userId), num, skip, attrs)
-			if len(preferCatsId) > 0 {
-				redis_preferCatsId = append(redis_preferCatsId, preferCatsId...)
-				animalsWithLike = append(animalsWithLike, preferCats...)
+		if redis_selctedCatsId.Length() == skip {
+			preferCats, _ := getPreferCats(int(userId), num, attrs, &redis_selctedCatsId)
+			if len(preferCats) > 0 {
+				animalsWithLike = preferCats
 			}
 
-			if _, err := redisClient.String(redisClient.Execute("lpush", key, redis_preferCatsId)); err != nil {
+			// TODO 刷新 Redis 有效期
+			if value, err := json.Marshal(redis_selctedCatsId); err == nil {
+				if _, err := redisClient.String(redisClient.Execute("set", key, string(value))); err != nil {
+					// TODO
+				}
 			}
 		}
 	}
 
-	// 计算还需要多少动物
+	// 计算还需要多少毛茸茸
 	num -= len(animalsWithLike)
-	skip = max(0, skip-len(redis_preferCatsId))
+	skip = max(0, skip-redis_selctedCatsId.Length())
 	if num > 0 {
-		additionalAnimals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, redis_preferCatsId, num, skip, int(userId))
+		additionalAnimals := curd.CreateAnimalsCurdFactory().List(attrs, gender, breed, sterilization, status, department, redis_selctedCatsId.GetAllIds(), num, skip, int(userId))
 		// 将 additionalAnimals 整合到 animalsWithLike 的后面
 		animalsWithLike = append(animalsWithLike, additionalAnimals...)
 	}
@@ -82,10 +92,43 @@ func (a *Animals) List(context *gin.Context) {
 	}
 }
 
-// UPDATE 就先简单一些，主要就依靠 encounter - animal_id 来获取一个目标。
-func getPreferCatsId(userId, num, skip int, attrs string) (ids []int64, list []model.AnimalWithLikeList, err error) {
-	// STAGE - 1 模块一，无视过滤条件，获取路遇“过”的 id 列表；先获取 ID，然后再去查询细节信息。
-	ids, err = model.CreateEncounterFactory("").EncounteredCats(userId, num, skip)
+/**
+ * @description: 在常规条件过滤查询之前，通过一定规则获取偏好的目标。
+ * @param {*} userId
+ * @param {int} num
+ * @param {string} attrs
+ * @param {model_redis.SelectedAnimal4Prefer} redis 使用单独的结构体，更清晰的控制中间状态。
+ * @return {*}
+ */
+func getPreferCats(userId, num int, attrs string, redis *model_redis.SelectedAnimal4Prefer) (list []model.AnimalWithLikeList, err error) {
+	// STAGE #1 无视过滤条件，获取路遇“过”的 id 列表；先获取 ID，然后再去查询细节信息。
+	ids, err := model.CreateEncounterFactory("").EncounteredCatsId(userId, num, redis.NumEnc(), redis.NewCatsId)
+
+	// STAGE #2 获取近期新增的毛茸茸；只在第一次操作 && 数量不够时 启用。
+	var idsNew []int64
+	if !redis.PassNew() && len(ids) < num {
+		// 获取近期新增的毛茸茸
+		newCats, _ := model.CreateAnimalFactory("").NewCatsId(3, 0) // INFO 硬编码获取最新的 3 个。
+
+		// 去重：默认只会在首次查询时启用，所以只需要去重 STAGE#1 的 ids。
+		uniqueIds := make(map[int64]bool)
+		for _, id := range ids {
+			uniqueIds[id] = true
+		}
+
+		for _, id := range newCats {
+			if _, ok := uniqueIds[id]; !ok {
+				idsNew = append(idsNew, id)
+			}
+		}
+	}
+
+	// 3. 合并然后查询数据 && 处理 redis 之间的处理。
+	redis.AppendEncIds(ids)
+	if len(idsNew) > 0 {
+		ids = append(ids, idsNew...)
+		redis.NewCatsId = idsNew
+	}
 
 	if err == nil && len(ids) > 0 {
 		attrsSlice := query_handler.StringToStringArray(attrs)
