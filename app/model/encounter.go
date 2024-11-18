@@ -157,21 +157,6 @@ func (e *Encounter) ShowByID(id int64) (temp *Encounter, err error) {
 		return
 	}
 	return
-	// // 2. search user data
-	// user := UsersModel{BaseModel: BaseModel{Id: encounter.UsersModelId}}
-	// if err := user.Select("user_name", "user_avatar").First(&user).Error; err != nil {
-	// 	return
-	// }
-
-	// // 3. search animals data
-	// animals_id := query_handler.StringToint64Array(encounter.AnimalsId)
-	// var animals []Animal
-	// if err := e.Model(&animals).Select("id", "avatar", "name").Where("id in (?)", animals_id).Find(&animals).Error; err != nil {
-	// 	return
-	// }
-
-	// // TODO 4. 然后整合
-	// return
 }
 
 func (e *Encounter) ShowByIDs(ids []int64, attrs ...string) (temp []Encounter) {
@@ -189,30 +174,28 @@ func (e *Encounter) ShowByIDs(ids []int64, attrs ...string) (temp []Encounter) {
 }
 
 /**
- * @description: 过去 1 个月，发送过路遇表的 ids，同时去重。
+ * @description: 过去 1 个月，发送过路遇表的 ids，同时 SQL 去重。
  * @param {*} user_id
- * @param {int} num
+ * @param {int} num 限制查询的数量；
  * @return {*}
  */
-func (e *Encounter) EncounteredCats(user_id, num int) ([]int64, error) {
-	sql := `SELECT eal.animal_id 
+func (e *Encounter) EncounteredCats(user_id, num, skip int) ([]int64, error) {
+	sql := `SELECT DISTINCT eal.animal_id 
             FROM encounter_animal_links eal
             JOIN encounters e 
                 ON e.id = eal.encounter_id AND e.user_id = ?
-			WHERE e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
-			ORDER BY e.updated_at DESC
-			LIMIT ?`
+            WHERE e.updated_at >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH)
+            ORDER BY e.updated_at DESC
+            LIMIT ? OFFSET ?`
 
-	rows, err := e.Raw(sql, user_id, num).Rows()
+	rows, err := e.Raw(sql, user_id, num, skip).Rows()
 	if err != nil {
 		log.Println("查询失败:", err)
 		return nil, err
 	}
 	defer rows.Close()
 
-	// Scan 同时去重。
-	var temp []int64
-	seen := make(map[int64]bool)
+	var animal_ids []int64
 
 	for rows.Next() {
 		var animal_id int64
@@ -220,10 +203,7 @@ func (e *Encounter) EncounteredCats(user_id, num int) ([]int64, error) {
 			log.Println("扫描失败:", err)
 			return nil, err
 		}
-		if !seen[animal_id] {
-			seen[animal_id] = true
-			temp = append(temp, animal_id)
-		}
+		animal_ids = append(animal_ids, animal_id)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -231,5 +211,5 @@ func (e *Encounter) EncounteredCats(user_id, num int) ([]int64, error) {
 		return nil, err
 	}
 
-	return temp, nil
+	return animal_ids, nil
 }
