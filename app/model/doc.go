@@ -35,3 +35,30 @@ func (d *Doc) InsertDocumentData(c *gin.Context) (int64, bool) {
 	}
 	return 0, false
 }
+
+func (d *Doc) ShowById(id int64, attrs ...string) *Doc {
+	var temp Doc
+	db := d.DB.Table(d.TableName()).Where("id = ?", id)
+
+	if len(attrs) > 0 {
+		db.Select(attrs)
+	}
+
+	err := db.First(&temp)
+	if err.Error != nil {
+		variable.ZapLog.Error("Doc ShowById Error", zap.Error(err.Error))
+	}
+	return &temp
+}
+
+func (d *Doc) ShowByIds(ids []int64, attrs ...string) (temp []Doc) {
+	db := d.DB.Table(d.TableName()).Where("id in (?)", ids)
+	if len(attrs) > 0 {
+		db.Select(attrs)
+	}
+	err := db.Find(&temp)
+	if err.Error != nil {
+		variable.ZapLog.Error("Doc ShowByIds Error", zap.Error(err.Error))
+	}
+	return
+}

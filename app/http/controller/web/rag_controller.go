@@ -6,6 +6,7 @@ import (
 	"catface/app/model"
 	"catface/app/model_es"
 	"catface/app/service/nlp"
+	"catface/app/service/rag/curd"
 	"catface/app/utils/llm_factory"
 	"catface/app/utils/micro_service"
 	"catface/app/utils/response"
@@ -138,15 +139,6 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		response.Fail(context, errcode.ErrWebsocketUpgradeFail, errcode.ErrMsg[errcode.ErrWebsocketUpgradeFail], "")
 		return
 	}
-	defer func() { // UPDATE 临时"持久化"方案，之后考虑结合 jwt 维护的 token 处理。
-		tokenMsg := model.CreateNlpWebSocketResult("token", token)
-
-		err := ws.WriteMessage(websocket.TextMessage, tokenMsg.JsonMarshal())
-		if err != nil {
-			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
-		}
-		ws.Close()
-	}()
 
 	// 0-2. 测试 Python 微服务是否启动
 	if !micro_service.TestLinkPythonService() {
@@ -181,8 +173,8 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		return
 	}
 
-	// 2. ES TopK
-	docs, err := model_es.CreateDocESFactory().TopK(embedding, 1)
+	// 2. ES TopK // TODO 这里需要特化选取不同知识库的文档；目前是依靠显式的路由。
+	docs, err := curd.CreateDocCurdFactory().TopK(embedding, 1)
 	if err != nil || len(docs) == 0 {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
@@ -193,6 +185,24 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		}
 		return
 	}
+
+	// STAGE websocket 的 defer 关闭函数，但是需要 ES 拿到的 doc—id
+	defer func() { // UPDATE 临时"持久化"方案，之后考虑结合 jwt 维护的 token 处理。
+		// 0. 传递参考资料的信息
+		docMsg := model.CreateNlpWebSocketResult(docs[0].Type, docs)
+		err := ws.WriteMessage(websocket.TextMessage, docMsg.JsonMarshal())
+		if err != nil {
+			variable.ZapLog.Error("Failed to send doc message via WebSocket", zap.Error(err))
+		}
+
+		// 1. 传递 token 信息； // UPDATE 临时方案
+		tokenMsg := model.CreateNlpWebSocketResult("token", token)
+		err = ws.WriteMessage(websocket.TextMessage, tokenMsg.JsonMarshal())
+		if err != nil {
+			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
+		}
+		ws.Close()
+	}()
 
 	// 3.
 	closeEventFromVue := context.Request.Context().Done() // 接收前端传来的中断信号。
