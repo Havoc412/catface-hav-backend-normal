@@ -173,6 +173,7 @@ QiNiu:
   SecretKey: "UP5-GmSmAYNbMlSb6LYLuKZ-fT35nlEzGvOKKm9S"
 
 ElasticSearch:
+  Start: 0  # 0 不启动；1 启动
   Addr: "http://localhost:9200"
   UserName: "elastic"
   Password: ""

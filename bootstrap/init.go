@@ -125,12 +125,14 @@ func init() {
 	)
 
 	// 12. ES 客户端启动
-	var err error
-	variable.ElasticClient, err = elasticsearch.NewClient(elasticsearch.Config{
-		Addresses: []string{variable.ConfigYml.GetString("ElasticSearch.Addr")},
-	})
-	if err != nil {
-		log.Fatal(my_errors.ErrorsInitConnFail + err.Error())
+	if variable.ConfigYml.GetInt("ElasticSearch.Start") == 1 {
+		var err error
+		variable.ElasticClient, err = elasticsearch.NewClient(elasticsearch.Config{
+			Addresses: []string{variable.ConfigYml.GetString("ElasticSearch.Addr")},
+		})
+		if err != nil {
+			log.Fatal(my_errors.ErrorsInitConnFail + err.Error())
+		}
 	}
 
 }
