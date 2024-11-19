@@ -5,6 +5,7 @@ import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/model"
+	"catface/app/service/nlp"
 	"catface/app/utils/data_bind"
 	"catface/app/utils/model_handler"
 	"context"
@@ -31,12 +32,14 @@ func CreateEncounterESFactory(encounter *model.Encounter) *Encounter {
 
 // INFO 存储能够作为索引存在的数据。
 type Encounter struct {
-	Id      int64    `json:"id"`
-	Title   string   `json:"title"`
-	Content string   `json:"content"`
-	Tags    []string `json:"tags"`
+	Id        int64     `json:"id"`
+	Title     string    `json:"title"`
+	Content   string    `json:"content"`
+	Tags      []string  `json:"tags"`
+	Embedding []float64 `json:"embedding"`
 
-	TagsHighlight []string `json:"tags_highlight"`
+	// TagsHighlight []string `json:"tags_highlight"` // TODO 如何 insert 时忽略，query 时绑定。
+	TagsHighlight []string `json:"-" bind:"tags_highlight"` // TODO 如何 insert 时忽略，query 时绑定。
 }
 
 func (e *Encounter) IndexName() string {
@@ -45,6 +48,11 @@ func (e *Encounter) IndexName() string {
 
 func (e *Encounter) InsertDocument() error {
 	ctx := context.Background()
+
+	var ok bool
+	if e.Embedding, ok = nlp.GetEmbedding([]string{e.Title, e.Content}); !ok {
+		return fmt.Errorf("nlp embedding service error")
+	}
 
 	// 将结构体转换为 JSON 字符串
 	data, err := json.Marshal(e)
@@ -157,7 +165,8 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
         "post_tags": [""]
       }
     }
-  }
+  },
+  "_source": ["id", "title", "content", "tags"]
 }`, num, query, query, query, consts.PreTags, consts.PostTags)
 
 	hits, err := model_handler.SearchRequest(body, e.IndexName())

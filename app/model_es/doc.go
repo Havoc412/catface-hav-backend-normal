@@ -45,7 +45,7 @@ func (d *Doc) TopK(embedding []float64, k int) ([]Doc, error) {
                 }
             }
         },
-		"_source": ["content"]
+		"_source": ["id", "content"]
     }`, k, string(paramsJSON))
 
 	hits, err := model_handler.SearchRequest(body, d.IndexName())

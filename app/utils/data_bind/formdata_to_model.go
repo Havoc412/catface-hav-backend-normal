@@ -109,6 +109,9 @@ func ShouldBindFormMapToModel(m map[string]interface{}, modelStruct interface{})
 
 func fieldSetValueByMap(m map[string]interface{}, valueOf reflect.Value, typeOf reflect.Type, colIndex int) {
 	relaKey := typeOf.Field(colIndex).Tag.Get("json")
+	if relaKey == "-" { // TIP 增加新的 tag bind，实现自定义的绑定，和原本的 json 区分。
+		relaKey = typeOf.Field(colIndex).Tag.Get("bind")
+	}
 	if relaKey != "-" && m[relaKey] != nil {
 		switch typeOf.Field(colIndex).Type.Kind() {
 		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:

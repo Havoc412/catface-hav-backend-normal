@@ -73,7 +73,7 @@ func (e *Encounters) Create(context *gin.Context) {
 		// 2: EA Links; // TIP 感觉直接使用 go 会直接且清晰。
 		go model.CreateEncounterAnimalLinkFactory("").Insert(encounter.Id, animals_id)
 
-		// 3. ES speed
+		// 3. ES speed // TODO 这里如何实现 不同 DB 之间的 “事务” 概念。
 		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 1 {
 			go model_es.CreateEncounterESFactory(&encounter).InsertDocument()
 		}
