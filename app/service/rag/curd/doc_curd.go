@@ -29,7 +29,7 @@ func (d *DocCurd) TopK(embedding []float64, k int) (temp []model_res.DocResult, 
 	for _, doc := range docs_es {
 		ids = append(ids, doc.Id)
 	}
-	docs := d.doc.ShowByIds(ids, "id", "name")
+	docs := d.doc.ShowByIds(ids, "id", "name", "updated_at")
 
 	// 装载
 	for _, doc := range docs {
