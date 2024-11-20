@@ -30,6 +30,11 @@ type Color struct {
 	ColorBackground string `json:"color_background" gorm:"type:char(10)"`
 }
 
+type Explain struct {
+	ExplainZh string `json:"explain_zh" gorm:"type:varchar(255)"`
+	// maybe extend to En
+}
+
 type DeletedAt struct {
 	DeletedAt *time.Time            `json:"deleted_at" gorm:"defalt:NULL"`
 	IsDel     soft_delete.DeletedAt `gorm:"softDelete:flag,DeletedAtField:DeletedAt;default:0"`

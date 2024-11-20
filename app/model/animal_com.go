@@ -14,6 +14,7 @@ type AnmSterilzation struct { // TEST How to use BriefModel, the dif between Com
 
 type AnmStatus struct {
 	BriefModel
+	*Explain // “在校状态” 这个处理命名方式比较抽象，需要给 AI 解释一下实际含义。
 }
 
 type AnmGender struct {
