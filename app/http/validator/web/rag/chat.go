@@ -15,7 +15,7 @@ type Chat struct {
 	Token string `form:"token" json:"token"` // UPDATE 暂时不想启用 user 的 token，就先单独处理。
 
 	Mode   string `form:"mode" json:"mode"`
-	CatsId string `form:"cats_id" json:"cats_id"` //
+	CatsId string `form:"cats_id" json:"cats_id"` // [日记 || 辨别] 模式下使用的参数。
 }
 
 func (c Chat) CheckParams(context *gin.Context) {

@@ -112,7 +112,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 
 	// 3. LLM answer
 	go func() {
-		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, client)
+		err := nlp.ChatRAG(docs[0].Content, query, ch, client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
@@ -144,6 +144,12 @@ var upgrader = websocket.Upgrader{ // TEST 测试，先写一个裸的 wss
 func (r *Rag) ChatWebSocket(context *gin.Context) {
 	query := context.Query("query")
 	token := context.Query("token")
+
+	// INFO 查询模式
+	mode := context.Query("mode")
+	if mode == "" {
+		mode = consts.RagChatModeKnowledge
+	}
 
 	if token == "" {
 		token = variable.SnowFlake.GetIdAsString()
@@ -192,7 +198,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		return
 	}
 
-	// 2. ES TopK // TODO 这里需要特化选取不同知识库的文档；目前是依靠显式的路由。
+	// 2. ES TopK // INFO 这里需要特化选取不同知识库的文档；目前是依靠显式的路由。
 	docs, err := curd.CreateDocCurdFactory().TopK(embedding, 1)
 	if err != nil || len(docs) == 0 {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
@@ -228,7 +234,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	ch := make(chan string)                               // TIP 建立通道。
 
 	go func() {
-		err := nlp.ChatKnoledgeRAG(docs[0].Content, query, ch, clientInfo.Client)
+		err := nlp.ChatRAG(docs[0].Content, query, mode, ch, clientInfo.Client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
@@ -253,5 +259,5 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 }
 
 func (r *Rag) HelpDetectCat(context *gin.Context) {
-	// TODO
+	// TODO 也许也可以同样掉上面那个接口了。
 }

@@ -16,9 +16,9 @@ func GenerateTitle(content string, client *zhipu.ChatCompletionService) string {
 }
 
 // ChatKnoledgeRAG 使用 RAG 模型进行知识问答
-func ChatKnoledgeRAG(doc, query string, ch chan<- string, client *zhipu.ChatCompletionService) error {
+func ChatRAG(doc, query, mode string, ch chan<- string, client *zhipu.ChatCompletionService) error {
 	// 读取配置文件中的 KnoledgeRAG 模板
-	promptTemplate := variable.PromptsYml.GetString("Prompt.KnoledgeRAG")
+	promptTemplate := variable.PromptsYml.GetString("Prompt.RAG." + mode)
 
 	// 替换模板中的占位符
 	message := strings.Replace(promptTemplate, "{question}", query, -1)
