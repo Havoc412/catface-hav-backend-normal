@@ -203,7 +203,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	}
 
 	// 2. ES TopK // INFO 这里需要特化选取不同知识库的文档；目前是依靠显式的路由。
-	dochub, err := curd.TopK(mode, embedding, 1)
+	dochub, err := curd.TopK(mode, embedding, 2) // 更好的做法是【重排】 10 -> 2;
 	if err != nil || dochub.Length() == 0 {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
@@ -218,7 +218,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	// STAGE websocket 的 defer 关闭函数，但是需要 ES 拿到的 doc—id
 	defer func() { // UPDATE 临时"持久化"方案，之后考虑结合 jwt 维护的 token 处理。
 		// 0. 传递参考资料的信息
-		docMsg := model_res.CreateNlpWebSocketResult(consts.AiMessageTypeDoc, dochub.Docs) // TIP 断言
+		docMsg := model_res.CreateNlpWebSocketResult(consts.AiMessageTypeDoc, dochub.Docs)
 		err := ws.WriteMessage(websocket.TextMessage, docMsg.JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send doc message via WebSocket", zap.Error(err))
