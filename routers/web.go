@@ -152,7 +152,7 @@ func InitWebRouter() *gin.Engine {
 
 		rag := backend.Group("rag")
 		{
-			rag.GET("default_talk", validatorFactory.Create(consts.ValidatorPrefix+"RagDefaultChat"))
+			rag.GET("chat", validatorFactory.Create(consts.ValidatorPrefix+"RagChat"))
 			rag.DELETE("", validatorFactory.Create(consts.ValidatorPrefix+"RagRelease"))
 		}
 
