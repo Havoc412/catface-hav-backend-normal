@@ -142,32 +142,32 @@ func (e *Encounter) UpdateDocument(client *elasticsearch.Client, encounter *Enco
  */
 func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, error) {
 	body := fmt.Sprintf(`{
-  "size": %d, 
-  "query": {
-    "bool": {
-      "should": [
-        {"match": {"tags": "%s"}},
-        {"match": {"content": "%s"}},
-        {"match": {"title": "%s"}}
-      ]
-    }
-  },
-  "highlight": {
-    "pre_tags": ["%v"],
-    "post_tags": ["%v"],
-    "fields": {
-      "title": {},
-      "content": {
-        "fragment_size" : 15
-      },
-      "tags": {
-        "pre_tags": [""],
-        "post_tags": [""]
-      }
-    }
-  },
-  "_source": ["id", "title", "content", "tags"]
-}`, num, query, query, query, consts.PreTags, consts.PostTags)
+		"size": %d, 
+		"query": {
+			"bool": {
+			"should": [
+				{"match": {"tags": "%s"}},
+				{"match": {"content": "%s"}},
+				{"match": {"title": "%s"}}
+			]
+			}
+		},
+		"highlight": {
+			"pre_tags": ["%v"],
+			"post_tags": ["%v"],
+			"fields": {
+			"title": {},
+			"content": {
+				"fragment_size" : 15
+			},
+			"tags": {
+				"pre_tags": [""],
+				"post_tags": [""]
+			}
+			}
+		},
+		"_source": ["id", "title", "content", "tags"]
+	}`, num, query, query, query, consts.PreTags, consts.PostTags)
 
 	hits, err := model_handler.SearchRequest(body, e.IndexName())
 	if err != nil {
@@ -186,5 +186,48 @@ func (e *Encounter) QueryDocumentsMatchAll(query string, num int) ([]Encounter, 
 		encounters = append(encounters, encounter)
 	}
 
+	return encounters, nil
+}
+
+func (e *Encounter) TopK(embedding []float64, k int) ([]Encounter, error) {
+	// 同理 Doc
+	params := map[string]interface{}{
+		"query_vector": embedding,
+	}
+	paramsJSON, err := json.Marshal(params)
+	if err != nil {
+		return nil, err
+	}
+
+	body := fmt.Sprintf(`{
+		"size": %d,
+		"query": {
+			"script_score": {
+				"query": {"match_all": {}},
+				"script": {
+					"source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+					"params": %s
+				}
+			}
+		},
+		"_source":["id"]
+	}`, k, string(paramsJSON))
+
+	hits, err := model_handler.SearchRequest(body, e.IndexName())
+	if err != nil {
+		return nil, err
+	}
+
+	var encounters []Encounter
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"].(map[string]interface{})
+		var encounter Encounter
+		if err := data_bind.ShouldBindFormMapToModel(source, &encounter); err != nil {
+			continue
+		}
+
+		encounters = append(encounters, encounter)
+	}
 	return encounters, nil
 }

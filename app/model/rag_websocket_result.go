@@ -1,10 +1,13 @@
 package model
 
-import "encoding/json"
+import (
+	"catface/app/global/consts"
+	"encoding/json"
+)
 
 func CreateNlpWebSocketResult(t string, data any) *NlpWebSocketResult {
 	if t == "" {
-		t = "chat"
+		t = consts.AiMessageTypeText
 	}
 
 	return &NlpWebSocketResult{

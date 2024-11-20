@@ -9,3 +9,10 @@ const (
 	RagChatModeDiary     string = "Diary"  // 查询路遇资料等
 	RagChatModeDetect    string = "Detect" // 辅助 catface 的辨认功能；
 )
+
+// 前端的字段设定
+const (
+	AiMessageTypeText  string = "text"
+	AiMessageTypeDoc   string = "doc"
+	AiMessageTypeToken string = "token"
+)

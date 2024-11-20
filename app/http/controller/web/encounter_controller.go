@@ -74,7 +74,7 @@ func (e *Encounters) Create(context *gin.Context) {
 		go model.CreateEncounterAnimalLinkFactory("").Insert(encounter.Id, animals_id)
 
 		// 3. ES speed // TODO 这里如何实现 不同 DB 之间的 “事务” 概念。
-		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 1 {
+		if level := int(context.GetFloat64(consts.ValidatorPrefix + "level")); level > 0 { // TEST 暂时全部数据都同步到 ES，不做 level 过滤。
 			go model_es.CreateEncounterESFactory(&encounter).InsertDocument()
 		}
 

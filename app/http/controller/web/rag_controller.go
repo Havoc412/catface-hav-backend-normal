@@ -71,6 +71,11 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 	query := context.Query("query")
 	token := context.Query("token")
 
+	mode := context.Query("mode")
+	if mode == "" {
+		mode = consts.RagChatModeKnowledge
+	}
+
 	// 0-1. 测试 python
 	if !micro_service.TestLinkPythonService() {
 		code := errcode.ErrPythonService
@@ -98,7 +103,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 	}
 
 	// 2. ES TopK
-	docs, err := model_es.CreateDocESFactory().TopK(embedding, 1)
+	docs, err := model_es.CreateDocESFactory().TopK(embedding, 2)
 	if err != nil || len(docs) == 0 {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
@@ -112,7 +117,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 
 	// 3. LLM answer
 	go func() {
-		err := nlp.ChatRAG(docs[0].Content, query, ch, client)
+		err := nlp.ChatRAG(docs[0].Content, query, mode, ch, client)
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
@@ -199,7 +204,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	}
 
 	// 2. ES TopK // INFO 这里需要特化选取不同知识库的文档；目前是依靠显式的路由。
-	docs, err := curd.CreateDocCurdFactory().TopK(embedding, 1)
+	docs, err := curd.TopK(mode, embedding, 1)
 	if err != nil || len(docs) == 0 {
 		variable.ZapLog.Error("ES TopK error", zap.Error(err))
 
@@ -214,14 +219,14 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	// STAGE websocket 的 defer 关闭函数，但是需要 ES 拿到的 doc—id
 	defer func() { // UPDATE 临时"持久化"方案，之后考虑结合 jwt 维护的 token 处理。
 		// 0. 传递参考资料的信息
-		docMsg := model.CreateNlpWebSocketResult(docs[0].Type, docs)
+		docMsg := model.CreateNlpWebSocketResult(consts.AiMessageTypeDoc, docs) // TIP 断言
 		err := ws.WriteMessage(websocket.TextMessage, docMsg.JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send doc message via WebSocket", zap.Error(err))
 		}
 
 		// 1. 传递 token 信息； // UPDATE 临时方案
-		tokenMsg := model.CreateNlpWebSocketResult("token", token)
+		tokenMsg := model.CreateNlpWebSocketResult(consts.AiMessageTypeToken, token)
 		err = ws.WriteMessage(websocket.TextMessage, tokenMsg.JsonMarshal())
 		if err != nil {
 			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
@@ -234,7 +239,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 	ch := make(chan string)                               // TIP 建立通道。
 
 	go func() {
-		err := nlp.ChatRAG(docs[0].Content, query, mode, ch, clientInfo.Client)
+		err := nlp.ChatRAG(docs[0].ToString(), query, mode, ch, clientInfo.Client) // TIP 接口
 		if err != nil {
 			variable.ZapLog.Error("ChatKnoledgeRAG error", zap.Error(err))
 		}
