@@ -32,3 +32,7 @@ func GetEmbedding(text []string) ([]float64, bool) {
 		return res.Embedding, true
 	}
 }
+
+func GetEmbeddingOneString(str string) ([]float64, bool) {
+	return GetEmbedding([]string{str})
+}

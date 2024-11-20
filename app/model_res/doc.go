@@ -20,9 +20,9 @@ func NewDocResult(doc *model.Doc, doc_es *model_es.Doc) *DocResult {
 type DocResult struct {
 	DocBase
 	Id        int64      `json:"id"`
-	Name      string     `json:"name"`
-	Content   string     `json:"content"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	Name      string     `json:"name" explain:"文档名称"`
+	Content   string     `json:"content" explain:"文档内容"`
+	UpdatedAt *time.Time `json:"updated_at" explain:"最后更新时间"`
 }
 
 // GetType implements DocInterface.

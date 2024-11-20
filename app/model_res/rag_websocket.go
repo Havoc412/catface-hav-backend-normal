@@ -1,4 +1,4 @@
-package model
+package model_res
 
 import (
 	"catface/app/global/consts"

@@ -5,7 +5,6 @@ import (
 	"catface/app/global/consts"
 	"catface/app/global/variable"
 	"catface/app/model"
-	"catface/app/service/nlp"
 	"catface/app/utils/data_bind"
 	"catface/app/utils/model_handler"
 	"context"
@@ -33,13 +32,12 @@ func CreateEncounterESFactory(encounter *model.Encounter) *Encounter {
 // INFO 存储能够作为索引存在的数据。
 type Encounter struct {
 	Id        int64     `json:"id"`
-	Title     string    `json:"title"`
-	Content   string    `json:"content"`
-	Tags      []string  `json:"tags"`
+	Title     string    `json:"title" explain:"路遇笔记标题"`
+	Content   string    `json:"content" explain:"内容"`
+	Tags      []string  `json:"tags" explain:"标签"`
 	Embedding []float64 `json:"embedding"`
 
-	// TagsHighlight []string `json:"tags_highlight"` // TODO 如何 insert 时忽略，query 时绑定。
-	TagsHighlight []string `json:"-" bind:"tags_highlight"` // TODO 如何 insert 时忽略，query 时绑定。
+	TagsHighlight []string `json:"-" bind:"tags_highlight"`
 }
 
 func (e *Encounter) IndexName() string {
@@ -48,11 +46,6 @@ func (e *Encounter) IndexName() string {
 
 func (e *Encounter) InsertDocument() error {
 	ctx := context.Background()
-
-	var ok bool
-	if e.Embedding, ok = nlp.GetEmbedding([]string{e.Title, e.Content}); !ok {
-		return fmt.Errorf("nlp embedding service error")
-	}
 
 	// 将结构体转换为 JSON 字符串
 	data, err := json.Marshal(e)
