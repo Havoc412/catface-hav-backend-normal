@@ -87,6 +87,7 @@ func (r *Rag) ChatSSE(context *gin.Context) {
 		response.Fail(context, ercode, errcode.ErrMsg[ercode], errcode.ErrMsgForUser[ercode])
 		return
 	}
+	defer variable.GlmClientHub.UnavtiveOneGlmClient(token) // INFO ws 结束时，取消 Avtive 的占用。
 
 	// 1. query embedding
 	embedding, ok := nlp.GetEmbedding([]string{query})
@@ -176,6 +177,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		}
 		return
 	}
+	defer variable.GlmClientHub.UnavtiveOneGlmClient(token) // INFO ws 结束时，取消 Avtive 的占用。
 
 	// 1. query embedding
 	clientInfo.AddQuery(query)

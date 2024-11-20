@@ -11,12 +11,12 @@ import (
 
 type GlmClientHub struct {
 	Idle             int // 最大连接数
-	Active           int
+	Active           int // 最大活跃数
 	ApiKey           string
 	DefaultModelName string
 	InitPrompt       string
 	Clients          map[string]*ClientInfo
-	LifeTime         time.Duration
+	LifeTime         time.Duration // 最长待机周期
 }
 
 type ClientInfo struct {
@@ -58,8 +58,9 @@ func (g *GlmClientHub) GetOneGlmClientInfo(token string, mode int) (clientInfo *
 	}
 
 	// 空闲数检查
-	if g.Idle > 0 {
+	if g.Idle > 0 && g.Active > 0 {
 		g.Idle -= 1
+		g.Active -= 1
 	} else {
 		code = errcode.ErrGlmBusy
 		return
@@ -119,6 +120,21 @@ func (g *GlmClientHub) cleanupClients() {
 			g.Idle += 1
 		}
 	}
+}
+
+/**
+ * @description: ws 服务完毕，进入待机状态。
+ * @param {string} token
+ * @return {*}
+ * @Tip 对于临时使用的小功能，需要依次 defer 下面两个函数。
+ */
+func (g *GlmClientHub) UnavtiveOneGlmClient(token string) bool {
+	if clientInfo, exists := g.Clients[token]; exists {
+		g.Active -= 1
+		clientInfo.LastUsed = time.Now()
+		return true
+	}
+	return false
 }
 
 /**

@@ -22,6 +22,7 @@ func (n *Nlp) Title(context *gin.Context) {
 	if ercode > 0 {
 		response.Fail(context, ercode, errcode.ErrMsg[ercode], errcode.ErrMsgForUser[ercode])
 	}
+	defer variable.GlmClientHub.UnavtiveOneGlmClient(tempGlmKey)
 	defer variable.GlmClientHub.ReleaseOneGlmClient(tempGlmKey) // 临时使用，用完就释放。
 
 	newTitle := nlp.GenerateTitle(content, client)
