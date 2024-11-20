@@ -13,6 +13,9 @@ import (
 type Chat struct {
 	Query string `form:"query" json:"query" binding:"required"`
 	Token string `form:"token" json:"token"` // UPDATE 暂时不想启用 user 的 token，就先单独处理。
+
+	Mode   string `form:"mode" json:"mode"`
+	CatsId string `form:"cats_id" json:"cats_id"` //
 }
 
 func (c Chat) CheckParams(context *gin.Context) {

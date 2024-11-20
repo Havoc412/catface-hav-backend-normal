@@ -39,7 +39,7 @@ func (a *Animals) List(context *gin.Context) {
 	// TAG prefer MODE 查询模式。
 	redis_selctedCatsId := model_redis.CreateSelectedAnimal4Prefer()
 	var animalsWithLike []model.AnimalWithLikeList
-	if mode == consts.AnimalPreferMode {
+	if mode == consts.AnimalModePrefer {
 		key := int64(context.GetFloat64(consts.ValidatorPrefix + "key"))
 
 		if key != 0 {
