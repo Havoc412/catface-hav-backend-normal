@@ -24,16 +24,3 @@ type DocResult struct {
 	Content   string     `json:"content" explain:"文档内容"`
 	UpdatedAt *time.Time `json:"updated_at" explain:"最后更新时间"`
 }
-
-// GetType implements DocInterface.
-func (d DocResult) GetType() string {
-	panic("unimplemented")
-}
-
-/**
- * @description: 实现 DocInterface 接口，输出作为 LLM 的参考内容。
- * @return {*}
- */
-func (d DocResult) ToString() string {
-	return d.Content
-}
