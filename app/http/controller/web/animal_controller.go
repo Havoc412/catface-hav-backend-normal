@@ -9,6 +9,7 @@ import (
 	"catface/app/model_es"
 	"catface/app/model_redis"
 	"catface/app/service/animals/curd"
+	"catface/app/service/catface"
 	"catface/app/service/upload_file"
 	"catface/app/utils/query_handler"
 	"catface/app/utils/response"
@@ -20,6 +21,37 @@ import (
 )
 
 type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的时候不同模块就不会命名冲突了。
+}
+
+func (a *Animals) Guess(context *gin.Context) {
+	// 1. Get Params
+	filePath := context.GetString(consts.ValidatorPrefix + "file_path")
+	// 2. Get Result
+	catRes := catface.GetCatfaceResult(filePath)
+	// 3. Response
+
+	type subT struct {
+		Id         int64  `json:"id"`
+		Name       string `json:"name"`
+		Status     uint8  `json:"status"`
+		Department uint8  `json:"department"`
+	}
+
+	type t struct {
+		List []subT `json:"list"`
+	}
+
+	var resList t
+	for _, v := range catRes.Cats {
+		resList.List = append(resList.List, subT{
+			Id:         v.Id,
+			Name:       model.CreateAnimalFactory("").ShowByID(v.Id).Name,
+			Status:     model.CreateAnimalFactory("").ShowByID(v.Id).Status,
+			Department: model.CreateAnimalFactory("").ShowByID(v.Id).Department,
+		})
+	}
+
+	response.Success(context, consts.CurdStatusOkMsg, resList)
 }
 
 func (a *Animals) List(context *gin.Context) {

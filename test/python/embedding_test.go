@@ -8,7 +8,7 @@ import (
 )
 
 func TestEmbeddingApi(t *testing.T) {
-	res, ok := nlp.GetEmbedding("一段测试文本。")
+	res, ok := nlp.GetEmbedding([]string{"一段测试文本。"})
 	if !ok {
 		t.Error("获取嵌入向量失败")
 	}

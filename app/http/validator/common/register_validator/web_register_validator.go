@@ -64,6 +64,10 @@ func WebRegisterValidator() {
 	key = consts.ValidatorPrefix + "AnimalName"
 	containers.Set(key, animal.Name{})
 
+	// +cat face
+	key = consts.ValidatorPrefix + "AnimalCatfaceGuess"
+	containers.Set(key, animal.CatfaceGuess{})
+
 	key = consts.ValidatorPrefix + "AnimalLikeCreate"
 	containers.Set(key, animal_like.Create{})
 	key = consts.ValidatorPrefix + "AnimalLikeDelete"

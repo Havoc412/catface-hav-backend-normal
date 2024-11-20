@@ -128,6 +128,8 @@ func InitWebRouter() *gin.Engine {
 
 			animal.POST("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeCreate"))
 			animal.DELETE("like", validatorFactory.Create(consts.ValidatorPrefix+"AnimalLikeDelete"))
+
+			animal.POST("catface", validatorFactory.Create(consts.ValidatorPrefix+"AnimalCatfaceGuess"))
 		}
 
 		// backend.Use(authorization.CheckTokenAuth()) // INFO token 检查

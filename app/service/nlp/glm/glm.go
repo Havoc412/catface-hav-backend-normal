@@ -1,15 +1,12 @@
 package glm
 
 import (
-	"catface/app/global/variable"
 	"context"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 
 	"github.com/yankeguo/zhipu"
-	"go.uber.org/zap"
 )
 
 // ChatWithGLM 封装了与GLM模型进行对话的逻辑
@@ -40,10 +37,10 @@ func ChatStream(message string, ch chan<- string, client *zhipu.ChatCompletionSe
 		})
 
 	// Test
-	messages := client.GetMessages()
-	for id, message := range messages {
-		variable.ZapLog.Info(fmt.Sprintf("message-%d", id+1), zap.String("message", message.(zhipu.ChatCompletionMessage).Role), zap.String("content", message.(zhipu.ChatCompletionMessage).Content))
-	}
+	//messages := client.GetMessages()
+	//for id, message := range messages {
+	//	variable.ZapLog.Info(fmt.Sprintf("message-%d", id+1), zap.String("message", message.(zhipu.ChatCompletionMessage).Role), zap.String("content", message.(zhipu.ChatCompletionMessage).Content))
+	//}
 
 	// 执行服务调用
 	res, err := service.Do(context.Background())
