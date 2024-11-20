@@ -156,6 +156,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		response.Fail(context, errcode.ErrWebsocketUpgradeFail, errcode.ErrMsg[errcode.ErrWebsocketUpgradeFail], "")
 		return
 	}
+	defer ws.Close()
 
 	// 0-2. 测试 Python 微服务是否启动
 	if !micro_service.TestLinkPythonService() {
@@ -219,7 +220,7 @@ func (r *Rag) ChatWebSocket(context *gin.Context) {
 		if err != nil {
 			variable.ZapLog.Error("Failed to send token message via WebSocket", zap.Error(err))
 		}
-		ws.Close()
+		// ws.Close()  // 在上面调用了 defer；// TIP defer 的“栈”性质。
 	}()
 
 	// 3.
