@@ -10,8 +10,8 @@ import (
 )
 
 type Detail struct {
-	AnmId int64 `form:"anm_id" json:"anm_id"`
-	// TODO 暂时没有用到这个模块，GinSK 的架构对于 Path 的处理方式我还不确定，先用临时方案。
+	AnmId  int64 `form:"anm_id" json:"anm_id" binding:"required"`
+	UserId int64 `form:"user_id" json:"user_id" binding:"required"`
 }
 
 func (d Detail) CheckParams(context *gin.Context) {

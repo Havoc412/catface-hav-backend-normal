@@ -122,7 +122,7 @@ func InitWebRouter() *gin.Engine {
 		animal := backend.Group("animal")
 		{
 			animal.GET("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalList"))
-			animal.GET(":anm_id", validatorFactory.Create(consts.ValidatorPrefix+"AnimalDetail"))
+			animal.GET("detail", validatorFactory.Create(consts.ValidatorPrefix+"AnimalDetail"))
 			animal.POST("", validatorFactory.Create(consts.ValidatorPrefix+"AnimalCreate"))
 			animal.GET("name", validatorFactory.Create(consts.ValidatorPrefix+"AnimalName"))
 

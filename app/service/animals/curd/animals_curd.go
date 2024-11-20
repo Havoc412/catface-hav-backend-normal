@@ -7,7 +7,6 @@ import (
 	"catface/app/utils/model_handler"
 	"catface/app/utils/query_handler"
 	"fmt"
-	"strconv"
 )
 
 func CreateAnimalsCurdFactory() *AnimalsCurd {
@@ -113,15 +112,9 @@ func (a *AnimalsCurd) ShowByName(attrs string, name string) (temp []model.Animal
 	return
 }
 
-func (a *AnimalsCurd) Detail(id string) *model.Animal {
-	idInt, err := strconv.Atoi(id)
-	if err != nil {
-		// TODO LOG
-		fmt.Println("Detail id error:", err)
-		return nil
-	}
+func (a *AnimalsCurd) Detail(id int64) *model.Animal {
 
-	return model.CreateAnimalFactory("mysql").ShowByID(int64(idInt))
+	return model.CreateAnimalFactory("mysql").ShowByID(id)
 }
 
 func (a *AnimalsCurd) MatchAll(query string, num int) (tmp []model.Animal) {

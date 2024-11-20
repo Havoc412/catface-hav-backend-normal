@@ -158,9 +158,9 @@ func getPreferCats(userId, num int, attrs string, redis *model_redis.SelectedAni
 
 func (a *Animals) Detail(context *gin.Context) {
 	// 1. Get Params
-	anmId := context.Param("anm_id")
+	anmId := context.GetFloat64(consts.ValidatorPrefix + "anm_id")
 
-	animal := curd.CreateAnimalsCurdFactory().Detail(anmId)
+	animal := curd.CreateAnimalsCurdFactory().Detail(int64(anmId))
 	if animal != nil {
 		response.Success(context, consts.CurdStatusOkMsg, animal)
 	} else {

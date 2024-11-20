@@ -10,7 +10,7 @@ import (
 )
 
 type Release struct {
-	Token string `form:"token" json:"token"`
+	Token string `form:"token" json:"token" binding:"required"`
 }
 
 func (r Release) CheckParams(context *gin.Context) {
