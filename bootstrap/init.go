@@ -116,8 +116,8 @@ func init() {
 
 	// 11. GLM 资源池管理 初始化
 	variable.GlmClientHub = llm_factory.InitGlmClientHub(
-		variable.ConfigYml.GetInt("Glm.MaxActive"),
 		variable.ConfigYml.GetInt("Glm.MaxIdle"),
+		variable.ConfigYml.GetInt("Glm.MaxActive"),
 		variable.ConfigYml.GetInt("Glm.LifeTime"),
 		variable.ConfigYml.GetString("Glm.ApiKey"),
 		variable.ConfigYml.GetString("Glm.DefaultModelName"),

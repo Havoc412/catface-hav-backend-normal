@@ -10,8 +10,8 @@ import (
 // INFO 维护 GLM Client 与用户之间的客户端消息队列，也就是在 "github.com/yankeguo/zhipu" 的基础上实现一层封装。
 
 type GlmClientHub struct {
-	MaxIdle          int
-	MaxActive        int
+	Idle             int // 最大连接数
+	Active           int
 	ApiKey           string
 	DefaultModelName string
 	InitPrompt       string
@@ -27,8 +27,8 @@ type ClientInfo struct {
 
 func InitGlmClientHub(maxIdle, maxActive, lifetime int, apiKey, defaultModelName, initPrompt string) *GlmClientHub {
 	hub := &GlmClientHub{
-		MaxIdle:          maxIdle,
-		MaxActive:        maxActive,
+		Idle:             maxIdle,
+		Active:           maxActive,
 		ApiKey:           apiKey,
 		DefaultModelName: defaultModelName,
 		InitPrompt:       initPrompt,
@@ -58,8 +58,8 @@ func (g *GlmClientHub) GetOneGlmClientInfo(token string, mode int) (clientInfo *
 	}
 
 	// 空闲数检查
-	if g.MaxIdle > 0 {
-		g.MaxIdle -= 1
+	if g.Idle > 0 {
+		g.Idle -= 1
 	} else {
 		code = errcode.ErrGlmBusy
 		return
@@ -116,7 +116,7 @@ func (g *GlmClientHub) cleanupClients() {
 	for token, info := range g.Clients {
 		if now.Sub(info.LastUsed) > g.LifeTime {
 			delete(g.Clients, token)
-			g.MaxIdle += 1
+			g.Idle += 1
 		}
 	}
 }
@@ -126,9 +126,13 @@ func (g *GlmClientHub) cleanupClients() {
  * @param {string} token
  * @return {*}
  */
-func (g *GlmClientHub) ReleaseOneGlmClient(token string) {
-	delete(g.Clients, token)
-	g.MaxIdle += 1
+func (g *GlmClientHub) ReleaseOneGlmClient(token string) bool {
+	if _, exists := g.Clients[token]; exists {
+		delete(g.Clients, token)
+		g.Idle += 1
+		return true
+	}
+	return false
 }
 
 // TAG ClientInfo

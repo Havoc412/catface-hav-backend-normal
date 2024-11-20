@@ -89,6 +89,8 @@ func WebRegisterValidator() {
 	// TAG RAG
 	key = consts.ValidatorPrefix + "RagDefaultChat"
 	containers.Set(key, rag.Chat{})
+	key = consts.ValidatorPrefix + "RagRelease"
+	containers.Set(key, rag.Release{})
 
 	// TAG Search
 	key = consts.ValidatorPrefix + "SearchAll"

@@ -1,6 +1,7 @@
 package web
 
 import (
+	"catface/app/global/consts"
 	"catface/app/global/errcode"
 	"catface/app/global/variable"
 	"catface/app/model"
@@ -12,6 +13,7 @@ import (
 	"catface/app/utils/response"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -19,6 +21,20 @@ import (
 )
 
 type Rag struct {
+}
+
+func (r *Rag) Release(context *gin.Context) {
+	token := context.GetString(consts.ValidatorPrefix + "token")
+	if ok := variable.GlmClientHub.ReleaseOneGlmClient(token); ok {
+		variable.ZapLog.Info("释放一个 GLM Client",
+			zap.String("token", token),
+			zap.String("当前空闲连接数", strconv.Itoa(variable.GlmClientHub.Idle)))
+	} else {
+		variable.ZapLog.Warn("尝试释放一个 GLM Client，但是 token 无效",
+			zap.String("当前空闲连接数", strconv.Itoa(variable.GlmClientHub.Idle)))
+	}
+
+	response.Success(context, consts.CurdStatusOkMsg, "")
 }
 
 // v1 Http-POST 版本; chat 需要不使用 ch 的版本。
