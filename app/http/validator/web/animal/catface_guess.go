@@ -5,10 +5,12 @@ import (
 	"catface/app/http/controller/web"
 	"catface/app/http/validator/core/data_transfer"
 	"catface/app/utils/response"
+
 	"github.com/gin-gonic/gin"
 )
 
 type CatfaceGuess struct {
+	FilePath string `form:"file_path" json:"file_path" binding:"required"`
 }
 
 func (c CatfaceGuess) CheckParams(context *gin.Context) {

@@ -42,5 +42,5 @@ func TestExplain(t *testing.T) {
 	}
 
 	// 调用 StructToString 函数
-	t.Logf("结构体内容：", StructToString(encounter))
+	t.Logf("结构体内容：%v", StructToString(encounter))
 }

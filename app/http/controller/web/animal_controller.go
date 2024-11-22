@@ -8,6 +8,7 @@ import (
 	"catface/app/model"
 	"catface/app/model_es"
 	"catface/app/model_redis"
+	"catface/app/model_res"
 	"catface/app/service/animals/curd"
 	"catface/app/service/catface"
 	"catface/app/service/upload_file"
@@ -26,32 +27,52 @@ type Animals struct { // INFO 起到一个标记的作用，这样 web.xxx 的�
 func (a *Animals) Guess(context *gin.Context) {
 	// 1. Get Params
 	filePath := context.GetString(consts.ValidatorPrefix + "file_path")
-	// 2. Get Result
-	catRes := catface.GetCatfaceResult(filePath)
-	// 3. Response
+	filePath = filepath.Join(variable.ConfigYml.GetString("FileUploadSetting.UploadFileSavePath"), variable.ConfigYml.GetString("FileUploadSetting.CatFaceTempRootPath"), filePath)
 
-	type subT struct {
-		Id         int64  `json:"id"`
-		Name       string `json:"name"`
-		Status     uint8  `json:"status"`
-		Department uint8  `json:"department"`
+	// STAGE - 2 Get Result From Python API
+	catRes, err := catface.GetCatfaceResult(filePath)
+	if err != nil {
+		response.Fail(context, errcode.CatFaceFail, errcode.ErrMsg[errcode.CatFaceFail], errcode.ErrMsgForUser[errcode.CatFaceFail])
+		return
 	}
 
-	type t struct {
-		List []subT `json:"list"`
-	}
+	// STAGE - 3
 
-	var resList t
-	for _, v := range catRes.Cats {
-		resList.List = append(resList.List, subT{
-			Id:         v.Id,
-			Name:       model.CreateAnimalFactory("").ShowByID(v.Id).Name,
-			Status:     model.CreateAnimalFactory("").ShowByID(v.Id).Status,
-			Department: model.CreateAnimalFactory("").ShowByID(v.Id).Department,
+	// FaceBreed: En -> Zh
+	faceBreedZh := model.CreateAnmBreedFactory("").GetNameZhByEn(catRes.FaceBreed)
+
+	// CatFace 返回为空，直接返回。
+	if len(catRes.Cats) == 0 {
+		response.Success(context, consts.CurdStatusOkMsg, gin.H{
+			"face_breed": faceBreedZh,
+			"animals":    nil,
 		})
+		return
+	}
+	// fill other information
+	var ids []int64
+	for _, v := range catRes.Cats {
+		ids = append(ids, v.Id)
 	}
 
-	response.Success(context, consts.CurdStatusOkMsg, resList)
+	animals := model.CreateAnimalFactory("").ShowByIDs(ids, "id", "name", "status", "department", "nick_names", "description", "avatar")
+
+	var res []model_res.CatfaceCat
+	for _, animal := range animals {
+		for _, cat := range catRes.Cats {
+			if cat.Id == animal.Id {
+				res = append(res, model_res.CatfaceCat{
+					Animal: animal,
+					Conf:   cat.Conf,
+				})
+			}
+		}
+	}
+
+	response.Success(context, consts.CurdStatusOkMsg, gin.H{
+		"face_breed": faceBreedZh,
+		"animals":    res,
+	})
 }
 
 func (a *Animals) List(context *gin.Context) {

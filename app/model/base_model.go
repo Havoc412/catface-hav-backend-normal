@@ -20,9 +20,10 @@ type BaseModel struct {
 }
 
 type BriefModel struct {
-	Id     int64  `json:"id"`
-	NameZh string `json:"name_zh"`
-	NameEn string `json:"name_en"`
+	*gorm.DB `gorm:"-" json:"-"`
+	Id       int64  `json:"id"`
+	NameZh   string `json:"name_zh"`
+	NameEn   string `json:"name_en"`
 }
 
 type Color struct {
