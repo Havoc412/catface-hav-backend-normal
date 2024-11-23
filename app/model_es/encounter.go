@@ -192,6 +192,7 @@ func (e *Encounter) TopK(embedding []float64, k int) ([]Encounter, error) {
 		return nil, err
 	}
 
+	// UPDATE 这里无法处理 ES 中 embedding 为 null 的情况。
 	body := fmt.Sprintf(`{
 		"size": %d,
 		"query": {
@@ -203,7 +204,7 @@ func (e *Encounter) TopK(embedding []float64, k int) ([]Encounter, error) {
 				}
 			}
 		},
-		"_source":["id"]
+		"_source": ["id"]
 	}`, k, string(paramsJSON))
 
 	hits, err := model_handler.SearchRequest(body, e.IndexName())
